@@ -304,6 +304,16 @@ const trainingQuestions = [
   },
 ];
 
+
+const preTradeChecks = [
+  "当前价格不在区间中间，至少靠近边界 / FVG / OB / VWAP / 关键位",
+  "这笔交易符合 9 个核心模型之一，而不是临时找理由",
+  "已经明确止损位置，亏损金额可以接受",
+  "没有处于连续亏损、回本冲动、烦躁追单状态",
+  "黄金避开数据前后乱扫；期权确认大盘/板块/个股共振",
+  "入场不是第一根冲动K，而是等待过确认或回踩",
+];
+
 const colorMap = {
   yellow: "border-yellow-400/40 bg-yellow-400/10 text-yellow-200",
   amber: "border-amber-400/40 bg-amber-400/10 text-amber-200",
@@ -331,9 +341,9 @@ function CardContent({ children, className = "" }) {
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
   const variants = {
     default:
-      "inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-300/70",
+      "inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-teal-300/70",
     ghost:
-      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-yellow-300/70",
+      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-teal-300/70",
   };
 
   return (
@@ -374,6 +384,7 @@ export default function TradingModelTrainingSystem() {
   const [selectedId, setSelectedId] = useState(models[0].id);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [checkedItems, setCheckedItems] = useState([]);
 
   const markets = ["全部", "黄金 XAUUSD", "EURUSD", "美股期权", "全市场"];
 
@@ -390,14 +401,23 @@ export default function TradingModelTrainingSystem() {
     setQuestionIndex((prev) => (prev + 1) % trainingQuestions.length);
   }
 
+  function toggleCheck(index) {
+    setCheckedItems((prev) =>
+      prev.includes(index) ? prev.filter((item) => item !== index) : [...prev, index]
+    );
+  }
+
+  const allPreTradeChecked = checkedItems.length === preTradeChecks.length;
+
+
   return (
-    <div className="min-h-screen bg-[#070A12] text-slate-100">
+    <div className="min-h-screen bg-[#0A0F1F] text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-950 to-black p-6 shadow-2xl md:p-8"
+          className="mb-8 overflow-hidden rounded-[2rem] border border-cyan-100/10 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.18),transparent_30%),linear-gradient(135deg,#111827,#0F172A_45%,#120F24)] p-6 shadow-2xl md:p-8"
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
@@ -425,28 +445,28 @@ export default function TradingModelTrainingSystem() {
         </motion.div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <Card className="rounded-3xl border-white/10 bg-white/[0.04] shadow-xl">
+          <Card className="rounded-3xl border-cyan-100/10 bg-[#111827]/70 shadow-xl">
             <CardContent className="p-5">
               <Target className="mb-3 h-6 w-6 text-yellow-200" />
               <div className="text-2xl font-semibold">9</div>
               <div className="text-sm text-slate-400">核心模型</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-white/10 bg-white/[0.04] shadow-xl">
+          <Card className="rounded-3xl border-cyan-100/10 bg-[#111827]/70 shadow-xl">
             <CardContent className="p-5">
               <Ban className="mb-3 h-6 w-6 text-red-200" />
               <div className="text-2xl font-semibold">2</div>
               <div className="text-sm text-slate-400">强制禁止模型</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-white/10 bg-white/[0.04] shadow-xl">
+          <Card className="rounded-3xl border-cyan-100/10 bg-[#111827]/70 shadow-xl">
             <CardContent className="p-5">
               <Clock className="mb-3 h-6 w-6 text-blue-200" />
               <div className="text-2xl font-semibold">每日</div>
               <div className="text-sm text-slate-400">开盘前训练</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-white/10 bg-white/[0.04] shadow-xl">
+          <Card className="rounded-3xl border-cyan-100/10 bg-[#111827]/70 shadow-xl">
             <CardContent className="p-5">
               <Brain className="mb-3 h-6 w-6 text-purple-200" />
               <div className="text-2xl font-semibold">肌肉记忆</div>
@@ -463,8 +483,8 @@ export default function TradingModelTrainingSystem() {
               variant="ghost"
               className={`rounded-full border px-4 ${
                 marketFilter === market
-                  ? "border-yellow-300/60 bg-yellow-300/15 text-yellow-100"
-                  : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.08]"
+                  ? "border-teal-300/60 bg-teal-300/15 text-teal-100"
+                  : "border-cyan-100/10 bg-[#101827]/60 text-slate-300 hover:bg-cyan-300/[0.08]"
               }`}
             >
               {market}
@@ -483,8 +503,8 @@ export default function TradingModelTrainingSystem() {
                   onClick={() => setSelectedId(model.id)}
                   className={`w-full rounded-3xl border p-4 text-left transition ${
                     active
-                      ? "border-yellow-300/50 bg-yellow-300/10 shadow-lg shadow-yellow-900/20"
-                      : "border-white/10 bg-white/[0.035] hover:bg-white/[0.07]"
+                      ? "border-teal-300/50 bg-teal-300/10 shadow-lg shadow-teal-900/20"
+                      : "border-cyan-100/10 bg-[#101827]/70 hover:bg-cyan-300/[0.07]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -512,7 +532,7 @@ export default function TradingModelTrainingSystem() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl md:p-6"
+            className="rounded-[2rem] border border-cyan-100/10 bg-[#111827]/70 p-5 shadow-2xl md:p-6"
           >
             <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
@@ -524,9 +544,9 @@ export default function TradingModelTrainingSystem() {
                 <h2 className="text-2xl font-semibold md:text-3xl">{selectedModel.title}</h2>
                 <p className="mt-3 text-sm leading-7 text-slate-300">{selectedModel.summary}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/30 p-4 md:w-72">
+              <div className="rounded-2xl border border-cyan-100/10 bg-[#070B16]/65 p-4 md:w-72">
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-500">核心口令</div>
-                <div className="mt-2 text-lg font-medium text-yellow-100">{selectedModel.mantra}</div>
+                <div className="mt-2 text-lg font-medium text-amber-100">{selectedModel.mantra}</div>
               </div>
             </div>
 
@@ -555,11 +575,11 @@ export default function TradingModelTrainingSystem() {
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-black/25 p-4">
+              <div className="rounded-3xl border border-cyan-100/10 bg-[#070B16]/55 p-4">
                 <h3 className="mb-2 font-semibold text-slate-100">入场参考</h3>
                 <p className="text-sm leading-7 text-slate-300">{selectedModel.entry}</p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-black/25 p-4">
+              <div className="rounded-3xl border border-cyan-100/10 bg-[#070B16]/55 p-4">
                 <h3 className="mb-2 font-semibold text-slate-100">出场参考</h3>
                 <p className="text-sm leading-7 text-slate-300">{selectedModel.exit}</p>
               </div>
@@ -567,8 +587,78 @@ export default function TradingModelTrainingSystem() {
           </motion.div>
         </div>
 
+        <div className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Card className="rounded-[2rem] border-cyan-100/10 bg-[#111827]/70 shadow-2xl">
+            <CardContent className="p-5 md:p-6">
+              <h2 className="text-2xl font-semibold">开单前 10 秒检查</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                这里不是复盘，是开单前的刹车。全部通过，才进入执行；任意一项没过，就先不碰鼠标。
+              </p>
+              <div className="mt-5 space-y-3">
+                {preTradeChecks.map((item, index) => {
+                  const checked = checkedItems.includes(index);
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => toggleCheck(index)}
+                      className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${
+                        checked
+                          ? "border-teal-300/50 bg-teal-300/10 text-teal-50"
+                          : "border-cyan-100/10 bg-[#070B16]/45 text-slate-300 hover:bg-cyan-300/[0.08]"
+                      }`}
+                    >
+                      <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checked ? "text-teal-200" : "text-slate-500"}`} />
+                      <span className="text-sm leading-6">{item}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div
+                className={`mt-5 rounded-2xl border p-4 text-sm leading-7 ${
+                  allPreTradeChecked
+                    ? "border-teal-300/40 bg-teal-300/10 text-teal-100"
+                    : "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                }`}
+              >
+                {allPreTradeChecked
+                  ? "可以进入下一步：只按计划执行，不能临场扩大仓位。"
+                  : "暂不允许交易：先把条件补齐，别让感觉替你下单。"}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-[2rem] border-cyan-100/10 bg-[#111827]/70 shadow-2xl">
+            <CardContent className="p-5 md:p-6">
+              <h2 className="text-2xl font-semibold">模型优先级顺序</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                每次判断都按这个顺序来，不能直接从“看到信号”跳到“我要开单”。
+              </p>
+              <div className="mt-5 space-y-3">
+                {[
+                  ["01", "市场环境", "趋势、震荡、新闻盘、垃圾盘，先判断能不能做。"],
+                  ["02", "关键位置", "边界、FVG、OB、VWAP、前高前低，中间位置默认不做。"],
+                  ["03", "触发确认", "长影线收回、回踩不破、放量突破、板块共振。"],
+                  ["04", "风险执行", "止损、仓位、最大亏损、连续亏损规则必须先定。"],
+                ].map(([num, title, desc]) => (
+                  <div key={num} className="rounded-2xl border border-cyan-100/10 bg-[#070B16]/45 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-300/10 text-sm font-semibold text-teal-100">
+                        {num}
+                      </div>
+                      <div>
+                        <div className="font-medium text-slate-100">{title}</div>
+                        <div className="mt-1 text-sm leading-6 text-slate-400">{desc}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="rounded-[2rem] border-white/10 bg-white/[0.04] shadow-2xl">
+          <Card className="rounded-[2rem] border-cyan-100/10 bg-[#111827]/70 shadow-2xl">
             <CardContent className="p-5 md:p-6">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
@@ -577,13 +667,13 @@ export default function TradingModelTrainingSystem() {
                 </div>
                 <Button
                   onClick={nextQuestion}
-                  className="w-full rounded-full bg-white/10 text-slate-100 hover:bg-white/20 sm:w-auto"
+                  className="w-full rounded-full bg-cyan-100/10 text-slate-100 hover:bg-cyan-100/20 sm:w-auto"
                 >
                   <RefreshCcw className="mr-2 h-4 w-4" /> 换一题
                 </Button>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
+              <div className="rounded-3xl border border-cyan-100/10 bg-[#070B16]/55 p-5">
                 <h3 className="text-lg font-medium leading-8">{question.question}</h3>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {question.options.map((option, index) => {
@@ -599,7 +689,7 @@ export default function TradingModelTrainingSystem() {
                             ? "border-emerald-300/60 bg-emerald-400/15 text-emerald-100"
                             : wrong
                               ? "border-red-300/60 bg-red-400/15 text-red-100"
-                              : "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]"
+                              : "border-cyan-100/10 bg-[#111827]/70 text-slate-300 hover:bg-cyan-300/[0.08]"
                         }`}
                       >
                         {option}
@@ -612,9 +702,9 @@ export default function TradingModelTrainingSystem() {
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-5 rounded-2xl border border-yellow-300/30 bg-yellow-300/10 p-4"
+                    className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4"
                   >
-                    <div className="font-medium text-yellow-100">
+                    <div className="font-medium text-amber-100">
                       {selectedAnswer === question.answer ? "判断正确" : "判断错误"}
                     </div>
                     <p className="mt-2 text-sm leading-7 text-slate-300">{question.explain}</p>
@@ -640,7 +730,7 @@ export default function TradingModelTrainingSystem() {
                   "没有提前确定止损",
                   "只是因为感觉要涨/跌",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-red-300/15 bg-black/20 p-3">
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-red-300/15 bg-[#070B16]/45 p-3">
                     <Ban className="h-4 w-4 shrink-0 text-red-200" />
                     <span className="text-sm text-slate-200">{item}</span>
                   </div>
