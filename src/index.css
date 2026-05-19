@@ -15,16 +15,27 @@
 }
 
 html {
-  background: #F4F9FB;
+  background: #EEF4F7;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #F4F9FB;
+  background: #EEF4F7;
 }
 
 button {
   font: inherit;
+}
+
+
+::selection {
+  background: rgba(13, 148, 136, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: #EEF4F7;
+  }
 }

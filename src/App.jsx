@@ -315,15 +315,15 @@ const preTradeChecks = [
 ];
 
 const colorMap = {
-  yellow: "border-amber-200 bg-amber-50 text-amber-700",
-  amber: "border-orange-200 bg-orange-50 text-orange-700",
-  red: "border-red-200 bg-red-50 text-red-700",
-  blue: "border-sky-200 bg-sky-50 text-sky-700",
-  cyan: "border-cyan-200 bg-cyan-50 text-cyan-700",
-  green: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  orange: "border-amber-200 bg-amber-50 text-amber-700",
-  purple: "border-violet-200 bg-violet-50 text-violet-700",
-  rose: "border-rose-200 bg-rose-50 text-rose-700",
+  yellow: "border-amber-500 bg-amber-100 text-amber-950",
+  amber: "border-orange-500 bg-orange-100 text-orange-950",
+  red: "border-red-500 bg-red-100 text-red-950",
+  blue: "border-sky-500 bg-sky-100 text-sky-950",
+  cyan: "border-cyan-500 bg-cyan-100 text-cyan-950",
+  green: "border-emerald-500 bg-emerald-100 text-emerald-950",
+  orange: "border-amber-500 bg-amber-100 text-amber-950",
+  purple: "border-violet-500 bg-violet-100 text-violet-950",
+  rose: "border-rose-500 bg-rose-100 text-rose-950",
 };
 
 function cn(...classes) {
@@ -363,7 +363,7 @@ function Badge({ children, color = "yellow" }) {
 
 function ChecklistItem({ text }) {
   return (
-    <li className="flex gap-2 text-sm text-slate-700">
+    <li className="flex gap-2 text-sm font-medium text-slate-800">
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
       <span>{text}</span>
     </li>
@@ -372,7 +372,7 @@ function ChecklistItem({ text }) {
 
 function AvoidItem({ text }) {
   return (
-    <li className="flex gap-2 text-sm text-slate-700">
+    <li className="flex gap-2 text-sm font-medium text-slate-800">
       <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
       <span>{text}</span>
     </li>
@@ -411,13 +411,13 @@ export default function TradingModelTrainingSystem() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-cyan-50 to-emerald-50 text-slate-900">
+    <div className="min-h-screen bg-[#EEF4F7] text-slate-950">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 overflow-hidden rounded-[2rem] border border-cyan-100 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.18),transparent_32%),linear-gradient(135deg,#FFFFFF,#F0FDFA_48%,#E0F2FE)] p-6 shadow-xl shadow-cyan-900/10 md:p-8"
+          className="mb-8 overflow-hidden rounded-[2rem] border border-slate-300 bg-white p-6 shadow-2xl shadow-slate-300/70 ring-1 ring-white md:p-8"
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
@@ -425,19 +425,19 @@ export default function TradingModelTrainingSystem() {
                 <Badge color="cyan">交易模型训练系统 v1.0</Badge>
                 <Badge color="red">先风控，后机会</Badge>
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-950 md:text-5xl">
                 黄金 / EUR / 期权高胜率形态强化面板
               </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
+              <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-700 md:text-base">
                 每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权大盘共振、板块龙头，以及最重要的禁止交易条件。
               </p>
             </div>
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm md:w-80">
+            <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100 md:w-80">
               <div className="flex items-center gap-2 text-red-700">
                 <ShieldAlert className="h-5 w-5" />
                 <span className="font-medium">今日默认规则</span>
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
                 没有完整信号，不开单。连续亏损两笔，强制暂停。想回本的时候，所有技术判断自动降级。
               </p>
             </div>
@@ -445,32 +445,32 @@ export default function TradingModelTrainingSystem() {
         </motion.div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <Card className="rounded-3xl border-slate-200 bg-white shadow-lg shadow-slate-200/70">
+          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
             <CardContent className="p-5">
               <Target className="mb-3 h-6 w-6 text-teal-700" />
-              <div className="text-2xl font-semibold">9</div>
-              <div className="text-sm text-slate-500">核心模型</div>
+              <div className="text-2xl font-bold text-slate-950">9</div>
+              <div className="text-sm font-medium text-slate-600">核心模型</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-slate-200 bg-white shadow-lg shadow-slate-200/70">
+          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
             <CardContent className="p-5">
               <Ban className="mb-3 h-6 w-6 text-red-600" />
-              <div className="text-2xl font-semibold">2</div>
-              <div className="text-sm text-slate-500">强制禁止模型</div>
+              <div className="text-2xl font-bold text-slate-950">2</div>
+              <div className="text-sm font-medium text-slate-600">强制禁止模型</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-slate-200 bg-white shadow-lg shadow-slate-200/70">
+          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
             <CardContent className="p-5">
               <Clock className="mb-3 h-6 w-6 text-sky-600" />
-              <div className="text-2xl font-semibold">每日</div>
-              <div className="text-sm text-slate-500">开盘前训练</div>
+              <div className="text-2xl font-bold text-slate-950">每日</div>
+              <div className="text-sm font-medium text-slate-600">开盘前训练</div>
             </CardContent>
           </Card>
-          <Card className="rounded-3xl border-slate-200 bg-white shadow-lg shadow-slate-200/70">
+          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
             <CardContent className="p-5">
               <Brain className="mb-3 h-6 w-6 text-violet-600" />
-              <div className="text-2xl font-semibold">肌肉记忆</div>
-              <div className="text-sm text-slate-500">强化做单逻辑</div>
+              <div className="text-2xl font-bold text-slate-950">肌肉记忆</div>
+              <div className="text-sm font-medium text-slate-600">强化做单逻辑</div>
             </CardContent>
           </Card>
         </div>
@@ -483,8 +483,8 @@ export default function TradingModelTrainingSystem() {
               variant="ghost"
               className={`rounded-full border px-4 ${
                 marketFilter === market
-                  ? "border-teal-600 bg-teal-600 text-white shadow-md shadow-teal-200"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-teal-200 hover:bg-teal-50"
+                  ? "border-teal-800 bg-teal-700 text-white shadow-lg shadow-teal-300"
+                  : "border-slate-300 bg-white text-slate-700 shadow-sm hover:border-teal-400 hover:bg-teal-50"
               }`}
             >
               {market}
@@ -503,8 +503,8 @@ export default function TradingModelTrainingSystem() {
                   onClick={() => setSelectedId(model.id)}
                   className={`w-full rounded-3xl border p-4 text-left transition ${
                     active
-                      ? "border-teal-500 bg-teal-50 shadow-lg shadow-teal-100"
-                      : "border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/70"
+                      ? "border-teal-700 bg-white shadow-xl shadow-teal-200 ring-2 ring-teal-100"
+                      : "border-slate-300 bg-white shadow-sm hover:border-teal-400 hover:bg-teal-50/80"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -516,8 +516,8 @@ export default function TradingModelTrainingSystem() {
                         <Badge color={model.color}>{model.market}</Badge>
                         <Badge color={model.color}>{model.category}</Badge>
                       </div>
-                      <h3 className="mt-3 font-semibold text-slate-900">{model.title}</h3>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+                      <h3 className="mt-3 font-bold text-slate-950">{model.title}</h3>
+                      <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-slate-700">
                         {model.summary}
                       </p>
                     </div>
@@ -532,7 +532,7 @@ export default function TradingModelTrainingSystem() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/80 md:p-6"
+            className="rounded-[2rem] border border-slate-300 bg-white p-5 shadow-2xl shadow-slate-300/70 ring-1 ring-white md:p-6"
           >
             <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
@@ -541,18 +541,18 @@ export default function TradingModelTrainingSystem() {
                   <Badge color={selectedModel.color}>{selectedModel.level}</Badge>
                   <Badge color={selectedModel.color}>{selectedModel.direction}</Badge>
                 </div>
-                <h2 className="text-2xl font-semibold md:text-3xl">{selectedModel.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{selectedModel.summary}</p>
+                <h2 className="text-2xl font-bold text-slate-950 md:text-3xl">{selectedModel.title}</h2>
+                <p className="mt-3 text-sm font-medium leading-7 text-slate-700">{selectedModel.summary}</p>
               </div>
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 md:w-72">
+              <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-sm md:w-72">
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-500">核心口令</div>
-                <div className="mt-2 text-lg font-medium text-amber-800">{selectedModel.mantra}</div>
+                <div className="mt-2 text-lg font-bold text-amber-900">{selectedModel.mantra}</div>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4">
-                <h3 className="mb-3 flex items-center gap-2 font-semibold text-emerald-800">
+              <div className="rounded-3xl border border-emerald-400 bg-white p-4 shadow-sm">
+                <h3 className="mb-3 flex items-center gap-2 font-bold text-emerald-900">
                   <CheckCircle2 className="h-5 w-5" /> 成立条件
                 </h3>
                 <ul className="space-y-2">
@@ -562,8 +562,8 @@ export default function TradingModelTrainingSystem() {
                 </ul>
               </div>
 
-              <div className="rounded-3xl border border-red-200 bg-red-50 p-4">
-                <h3 className="mb-3 flex items-center gap-2 font-semibold text-red-800">
+              <div className="rounded-3xl border border-red-400 bg-red-50 p-4 shadow-sm">
+                <h3 className="mb-3 flex items-center gap-2 font-bold text-red-900">
                   <XCircle className="h-5 w-5" /> 禁止条件
                 </h3>
                 <ul className="space-y-2">
@@ -575,23 +575,23 @@ export default function TradingModelTrainingSystem() {
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-4">
-                <h3 className="mb-2 font-semibold text-slate-900">入场参考</h3>
-                <p className="text-sm leading-7 text-slate-600">{selectedModel.entry}</p>
+              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-4 shadow-sm">
+                <h3 className="mb-2 font-bold text-slate-950">入场参考</h3>
+                <p className="text-sm font-medium leading-7 text-slate-700">{selectedModel.entry}</p>
               </div>
-              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-4">
-                <h3 className="mb-2 font-semibold text-slate-900">出场参考</h3>
-                <p className="text-sm leading-7 text-slate-600">{selectedModel.exit}</p>
+              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-4 shadow-sm">
+                <h3 className="mb-2 font-bold text-slate-950">出场参考</h3>
+                <p className="text-sm font-medium leading-7 text-slate-700">{selectedModel.exit}</p>
               </div>
             </div>
           </motion.div>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="rounded-[2rem] border-slate-200 bg-white shadow-xl shadow-slate-200/80">
+          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
             <CardContent className="p-5 md:p-6">
-              <h2 className="text-2xl font-semibold">开单前 10 秒检查</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <h2 className="text-2xl font-bold text-slate-950">开单前 10 秒检查</h2>
+              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
                 这里不是复盘，是开单前的刹车。全部通过，才进入执行；任意一项没过，就先不碰鼠标。
               </p>
               <div className="mt-5 space-y-3">
@@ -603,8 +603,8 @@ export default function TradingModelTrainingSystem() {
                       onClick={() => toggleCheck(index)}
                       className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${
                         checked
-                          ? "border-teal-500 bg-teal-50 text-teal-900"
-                          : "border-slate-200 bg-slate-50 text-slate-700 hover:border-teal-200 hover:bg-teal-50"
+                          ? "border-teal-700 bg-teal-50 text-teal-950 shadow-sm ring-1 ring-teal-100"
+                          : "border-slate-300 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50"
                       }`}
                     >
                       <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checked ? "text-teal-600" : "text-slate-400"}`} />
@@ -627,10 +627,10 @@ export default function TradingModelTrainingSystem() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem] border-slate-200 bg-white shadow-xl shadow-slate-200/80">
+          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
             <CardContent className="p-5 md:p-6">
-              <h2 className="text-2xl font-semibold">模型优先级顺序</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <h2 className="text-2xl font-bold text-slate-950">模型优先级顺序</h2>
+              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
                 每次判断都按这个顺序来，不能直接从“看到信号”跳到“我要开单”。
               </p>
               <div className="mt-5 space-y-3">
@@ -640,14 +640,14 @@ export default function TradingModelTrainingSystem() {
                   ["03", "触发确认", "长影线收回、回踩不破、放量突破、板块共振。"],
                   ["04", "风险执行", "止损、仓位、最大亏损、连续亏损规则必须先定。"],
                 ].map(([num, title, desc]) => (
-                  <div key={num} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div key={num} className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-200 bg-teal-600 text-sm font-semibold text-white">
                         {num}
                       </div>
                       <div>
-                        <div className="font-medium text-slate-900">{title}</div>
-                        <div className="mt-1 text-sm leading-6 text-slate-600">{desc}</div>
+                        <div className="font-bold text-slate-950">{title}</div>
+                        <div className="mt-1 text-sm font-medium leading-6 text-slate-700">{desc}</div>
                       </div>
                     </div>
                   </div>
@@ -658,11 +658,11 @@ export default function TradingModelTrainingSystem() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="rounded-[2rem] border-slate-200 bg-white shadow-xl shadow-slate-200/80">
+          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
             <CardContent className="p-5 md:p-6">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <h2 className="text-2xl font-semibold">每日形态判断训练</h2>
+                  <h2 className="text-2xl font-bold text-slate-950">每日形态判断训练</h2>
                   <p className="mt-2 text-sm text-slate-600">目的不是答题，而是把“能不能做”练成条件反射。</p>
                 </div>
                 <Button
@@ -673,8 +673,8 @@ export default function TradingModelTrainingSystem() {
                 </Button>
               </div>
 
-              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-5">
-                <h3 className="text-lg font-medium leading-8">{question.question}</h3>
+              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-5">
+                <h3 className="text-lg font-bold leading-8 text-slate-950">{question.question}</h3>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {question.options.map((option, index) => {
                     const chosen = selectedAnswer === index;
@@ -689,7 +689,7 @@ export default function TradingModelTrainingSystem() {
                             ? "border-emerald-400 bg-emerald-100 text-emerald-900"
                             : wrong
                               ? "border-red-400 bg-red-100 text-red-900"
-                              : "border-slate-200 bg-white text-slate-700 hover:border-teal-200 hover:bg-teal-50"
+                              : "border-slate-300 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50"
                         }`}
                       >
                         {option}
@@ -714,9 +714,9 @@ export default function TradingModelTrainingSystem() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem] border-red-200 bg-red-50 shadow-xl shadow-red-100/60">
+          <Card className="rounded-[2rem] border-2 border-red-300 bg-red-50 shadow-2xl shadow-red-200/70">
             <CardContent className="p-5 md:p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-2xl font-semibold text-red-800">
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-red-900">
                 <ShieldAlert className="h-6 w-6" /> 强制停手清单
               </h2>
               <div className="space-y-3">
@@ -730,13 +730,13 @@ export default function TradingModelTrainingSystem() {
                   "没有提前确定止损",
                   "只是因为感觉要涨/跌",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-red-200 bg-white p-3">
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-red-300 bg-white p-3 shadow-sm">
                     <Ban className="h-4 w-4 shrink-0 text-red-600" />
-                    <span className="text-sm text-slate-700">{item}</span>
+                    <span className="text-sm font-medium text-slate-800">{item}</span>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-2xl border border-red-300 bg-red-100 p-4 text-sm leading-7 text-red-800">
+              <div className="mt-5 rounded-2xl border-2 border-red-400 bg-red-100 p-4 text-sm font-semibold leading-7 text-red-900">
                 触发任意一项，都不是错过机会，而是在避免灾难。交易最强的能力，是知道什么时候不交易。
               </div>
             </CardContent>
