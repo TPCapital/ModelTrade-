@@ -315,16 +315,23 @@ const preTradeChecks = [
 ];
 
 const colorMap = {
-  yellow: "border-amber-500 bg-amber-100 text-amber-950",
-  amber: "border-orange-500 bg-orange-100 text-orange-950",
-  red: "border-red-500 bg-red-100 text-red-950",
-  blue: "border-sky-500 bg-sky-100 text-sky-950",
-  cyan: "border-cyan-500 bg-cyan-100 text-cyan-950",
-  green: "border-emerald-500 bg-emerald-100 text-emerald-950",
-  orange: "border-amber-500 bg-amber-100 text-amber-950",
-  purple: "border-violet-500 bg-violet-100 text-violet-950",
-  rose: "border-rose-500 bg-rose-100 text-rose-950",
+  yellow: "border-amber-500 bg-amber-50 text-amber-950",
+  amber: "border-orange-500 bg-orange-50 text-orange-950",
+  red: "border-red-500 bg-red-50 text-red-950",
+  blue: "border-sky-500 bg-sky-50 text-sky-950",
+  cyan: "border-cyan-500 bg-cyan-50 text-cyan-950",
+  green: "border-emerald-500 bg-emerald-50 text-emerald-950",
+  orange: "border-amber-500 bg-amber-50 text-amber-950",
+  purple: "border-violet-500 bg-violet-50 text-violet-950",
+  rose: "border-rose-500 bg-rose-50 text-rose-950",
 };
+
+const statCards = [
+  { label: "核心模型", value: "9", icon: Target, color: "bg-teal-600", bar: "bg-teal-600", shadow: "shadow-teal-100" },
+  { label: "强制禁止模型", value: "2", icon: Ban, color: "bg-red-600", bar: "bg-red-600", shadow: "shadow-red-100" },
+  { label: "开盘前训练", value: "每日", icon: Clock, color: "bg-sky-600", bar: "bg-sky-600", shadow: "shadow-sky-100" },
+  { label: "强化做单逻辑", value: "肌肉记忆", icon: Brain, color: "bg-violet-600", bar: "bg-violet-600", shadow: "shadow-violet-100" },
+];
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -341,9 +348,9 @@ function CardContent({ children, className = "" }) {
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
   const variants = {
     default:
-      "inline-flex items-center justify-center rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-400/70",
+      "inline-flex items-center justify-center rounded-md bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500/70",
     ghost:
-      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-teal-400/70",
+      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-teal-500/70",
   };
 
   return (
@@ -355,15 +362,55 @@ function Button({ children, className = "", variant = "default", type = "button"
 
 function Badge({ children, color = "yellow" }) {
   return (
-    <span className={`rounded-full border px-3 py-1 text-xs ${colorMap[color] || colorMap.yellow}`}>
+    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${colorMap[color] || colorMap.yellow}`}>
       {children}
     </span>
   );
 }
 
+function SectionHeader({ number, title, desc, tone = "teal" }) {
+  const toneMap = {
+    teal: "from-teal-700 to-cyan-600",
+    red: "from-red-700 to-rose-600",
+    amber: "from-amber-700 to-orange-600",
+    blue: "from-sky-700 to-cyan-600",
+  };
+  return (
+    <div className="mb-5 flex items-start gap-4">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${toneMap[tone]} text-sm font-black text-white shadow-lg`}>
+        {number}
+      </div>
+      <div>
+        <h2 className="text-xl font-black tracking-tight text-slate-950 md:text-2xl">{title}</h2>
+        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ item }) {
+  const Icon = item.icon;
+  return (
+    <Card className={cn("relative overflow-hidden rounded-[1.6rem] border-slate-300 bg-white shadow-xl", item.shadow)}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
+            <div className="mt-2 text-sm font-bold text-slate-600">{item.label}</div>
+          </div>
+          <div className={cn("rounded-2xl p-3 text-white shadow-md", item.color)}>
+            <Icon className="h-5 w-5" />
+          </div>
+        </div>
+      </CardContent>
+      <div className={cn("h-1.5 w-full", item.bar)} />
+    </Card>
+  );
+}
+
 function ChecklistItem({ text }) {
   return (
-    <li className="flex gap-2 text-sm font-medium text-slate-800">
+    <li className="flex gap-3 rounded-2xl border border-emerald-200 bg-white p-3 text-sm font-semibold text-slate-800 shadow-sm">
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
       <span>{text}</span>
     </li>
@@ -372,7 +419,7 @@ function ChecklistItem({ text }) {
 
 function AvoidItem({ text }) {
   return (
-    <li className="flex gap-2 text-sm font-medium text-slate-800">
+    <li className="flex gap-3 rounded-2xl border border-red-200 bg-white p-3 text-sm font-semibold text-slate-800 shadow-sm">
       <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
       <span>{text}</span>
     </li>
@@ -409,192 +456,186 @@ export default function TradingModelTrainingSystem() {
 
   const allPreTradeChecked = checkedItems.length === preTradeChecks.length;
 
-
   return (
-    <div className="min-h-screen bg-[#EEF4F7] text-slate-950">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <motion.div
+    <div className="min-h-screen bg-[#EAF1F4] text-slate-950">
+      <div className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-b from-cyan-100 via-teal-50 to-transparent" />
+      <div className="pointer-events-none fixed left-6 top-24 h-64 w-64 rounded-full bg-teal-200/35 blur-3xl" />
+      <div className="pointer-events-none fixed right-10 top-44 h-72 w-72 rounded-full bg-sky-200/35 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
+        <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 overflow-hidden rounded-[2rem] border border-slate-300 bg-white p-6 shadow-2xl shadow-slate-300/70 ring-1 ring-white md:p-8"
+          className="mb-8 overflow-hidden rounded-[2.2rem] border border-slate-300 bg-white/95 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.14)] ring-1 ring-white md:p-8"
         >
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-teal-700 via-cyan-500 to-sky-600" />
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
               <div className="mb-3 flex flex-wrap gap-2">
                 <Badge color="cyan">交易模型训练系统 v1.0</Badge>
                 <Badge color="red">先风控，后机会</Badge>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 md:text-5xl">
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
                 黄金 / EUR / 期权高胜率形态强化面板
               </h1>
-              <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-700 md:text-base">
+              <p className="mt-4 max-w-4xl text-sm font-semibold leading-7 text-slate-700 md:text-base">
                 每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权大盘共振、板块龙头，以及最重要的禁止交易条件。
               </p>
             </div>
-            <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100 md:w-80">
-              <div className="flex items-center gap-2 text-red-700">
-                <ShieldAlert className="h-5 w-5" />
-                <span className="font-medium">今日默认规则</span>
+            <div className="rounded-[1.6rem] border-2 border-red-300 bg-gradient-to-br from-red-50 to-white p-5 shadow-xl shadow-red-100">
+              <div className="flex items-center gap-3 text-red-700">
+                <div className="rounded-2xl bg-red-600 p-2 text-white shadow-md">
+                  <ShieldAlert className="h-5 w-5" />
+                </div>
+                <span className="text-lg font-black">今日默认规则</span>
               </div>
-              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
+              <p className="mt-3 text-sm font-semibold leading-7 text-slate-700">
                 没有完整信号，不开单。连续亏损两笔，强制暂停。想回本的时候，所有技术判断自动降级。
               </p>
             </div>
           </div>
-        </motion.div>
+        </motion.header>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
-            <CardContent className="p-5">
-              <Target className="mb-3 h-6 w-6 text-teal-700" />
-              <div className="text-2xl font-bold text-slate-950">9</div>
-              <div className="text-sm font-medium text-slate-600">核心模型</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
-            <CardContent className="p-5">
-              <Ban className="mb-3 h-6 w-6 text-red-600" />
-              <div className="text-2xl font-bold text-slate-950">2</div>
-              <div className="text-sm font-medium text-slate-600">强制禁止模型</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
-            <CardContent className="p-5">
-              <Clock className="mb-3 h-6 w-6 text-sky-600" />
-              <div className="text-2xl font-bold text-slate-950">每日</div>
-              <div className="text-sm font-medium text-slate-600">开盘前训练</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-3xl border-slate-300 bg-white shadow-xl shadow-slate-300/60">
-            <CardContent className="p-5">
-              <Brain className="mb-3 h-6 w-6 text-violet-600" />
-              <div className="text-2xl font-bold text-slate-950">肌肉记忆</div>
-              <div className="text-sm font-medium text-slate-600">强化做单逻辑</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mb-6 flex flex-wrap gap-2">
-          {markets.map((market) => (
-            <Button
-              key={market}
-              onClick={() => setMarketFilter(market)}
-              variant="ghost"
-              className={`rounded-full border px-4 ${
-                marketFilter === market
-                  ? "border-teal-800 bg-teal-700 text-white shadow-lg shadow-teal-300"
-                  : "border-slate-300 bg-white text-slate-700 shadow-sm hover:border-teal-400 hover:bg-teal-50"
-              }`}
-            >
-              {market}
-            </Button>
+        <div className="mb-8 grid gap-4 md:grid-cols-4">
+          {statCards.map((item) => (
+            <StatCard key={item.label} item={item} />
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.4fr]">
-          <div className="space-y-3">
-            {filteredModels.map((model) => {
-              const Icon = model.icon;
-              const active = selectedId === model.id;
-              return (
-                <button
-                  key={model.id}
-                  onClick={() => setSelectedId(model.id)}
-                  className={`w-full rounded-3xl border p-4 text-left transition ${
-                    active
-                      ? "border-teal-700 bg-white shadow-xl shadow-teal-200 ring-2 ring-teal-100"
-                      : "border-slate-300 bg-white shadow-sm hover:border-teal-400 hover:bg-teal-50/80"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`rounded-2xl border p-3 ${colorMap[model.color]}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap gap-2">
-                        <Badge color={model.color}>{model.market}</Badge>
-                        <Badge color={model.color}>{model.category}</Badge>
-                      </div>
-                      <h3 className="mt-3 font-bold text-slate-950">{model.title}</h3>
-                      <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-slate-700">
-                        {model.summary}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+        <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/70 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+          <SectionHeader number="01" title="模型库导航" desc="先选择今天要强化的市场和形态，不要把所有机会都当成机会。" />
+
+          <div className="mb-6 flex flex-wrap gap-2 rounded-3xl border border-slate-300 bg-slate-50/90 p-2 shadow-inner">
+            {markets.map((market) => (
+              <Button
+                key={market}
+                onClick={() => setMarketFilter(market)}
+                variant="ghost"
+                className={`rounded-2xl border px-4 ${
+                  marketFilter === market
+                    ? "border-teal-800 bg-teal-700 text-white shadow-lg shadow-teal-300"
+                    : "border-slate-300 bg-white text-slate-700 shadow-sm hover:border-teal-500 hover:bg-teal-50"
+                }`}
+              >
+                {market}
+              </Button>
+            ))}
           </div>
 
-          <motion.div
-            key={selectedModel.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="rounded-[2rem] border border-slate-300 bg-white p-5 shadow-2xl shadow-slate-300/70 ring-1 ring-white md:p-6"
-          >
-            <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <div className="mb-3 flex flex-wrap gap-2">
-                  <Badge color={selectedModel.color}>{selectedModel.market}</Badge>
-                  <Badge color={selectedModel.color}>{selectedModel.level}</Badge>
-                  <Badge color={selectedModel.color}>{selectedModel.direction}</Badge>
+          <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
+            <div className="rounded-[1.8rem] border border-slate-300 bg-slate-50 p-3 shadow-inner">
+              <div className="mb-3 px-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Model Index</div>
+              <div className="space-y-3">
+                {filteredModels.map((model, index) => {
+                  const Icon = model.icon;
+                  const active = selectedId === model.id;
+                  return (
+                    <button
+                      key={model.id}
+                      onClick={() => setSelectedId(model.id)}
+                      className={`relative w-full overflow-hidden rounded-3xl border p-4 text-left transition ${
+                        active
+                          ? "border-teal-700 bg-white shadow-xl shadow-teal-200 ring-2 ring-teal-100"
+                          : "border-slate-300 bg-white/80 shadow-sm hover:border-teal-400 hover:bg-white hover:shadow-md"
+                      }`}
+                    >
+                      <div className={`absolute inset-y-0 left-0 w-1.5 ${active ? "bg-teal-700" : "bg-slate-200"}`} />
+                      <div className="flex items-start gap-3 pl-2">
+                        <div className={`rounded-2xl border p-3 shadow-sm ${colorMap[model.color]}`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 text-xs font-black text-slate-500">
+                            <span>{String(index + 1).padStart(2, "0")}</span>
+                            <span>•</span>
+                            <span>{model.market}</span>
+                          </div>
+                          <h3 className="mt-2 font-black text-slate-950">{model.title}</h3>
+                          <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-600">
+                            {model.summary}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <motion.div
+              key={selectedModel.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden rounded-[2rem] border-2 border-teal-700 bg-white shadow-[0_28px_90px_rgba(13,148,136,0.18)] ring-4 ring-teal-100"
+            >
+              <div className="h-2 bg-gradient-to-r from-teal-700 via-cyan-500 to-sky-600" />
+              <div className="p-5 md:p-6">
+                <SectionHeader number="02" title="当前模型拆解" desc="只看成立条件、禁止条件、入场和出场；不临场发明新逻辑。" />
+
+                <div className="mb-5 grid gap-4 xl:grid-cols-[1fr_300px]">
+                  <div>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      <Badge color={selectedModel.color}>{selectedModel.market}</Badge>
+                      <Badge color={selectedModel.color}>{selectedModel.level}</Badge>
+                      <Badge color={selectedModel.color}>{selectedModel.direction}</Badge>
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-950 md:text-3xl">{selectedModel.title}</h2>
+                    <p className="mt-3 text-sm font-semibold leading-7 text-slate-700">{selectedModel.summary}</p>
+                  </div>
+                  <div className="rounded-[1.4rem] border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-4 shadow-lg shadow-amber-100">
+                    <div className="text-xs font-black uppercase tracking-[0.2em] text-amber-700">核心口令</div>
+                    <div className="mt-3 text-lg font-black leading-8 text-amber-950">{selectedModel.mantra}</div>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-950 md:text-3xl">{selectedModel.title}</h2>
-                <p className="mt-3 text-sm font-medium leading-7 text-slate-700">{selectedModel.summary}</p>
-              </div>
-              <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-sm md:w-72">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-500">核心口令</div>
-                <div className="mt-2 text-lg font-bold text-amber-900">{selectedModel.mantra}</div>
-              </div>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-emerald-400 bg-white p-4 shadow-sm">
-                <h3 className="mb-3 flex items-center gap-2 font-bold text-emerald-900">
-                  <CheckCircle2 className="h-5 w-5" /> 成立条件
-                </h3>
-                <ul className="space-y-2">
-                  {selectedModel.conditions.map((item) => (
-                    <ChecklistItem key={item} text={item} />
-                  ))}
-                </ul>
-              </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-[1.6rem] border-2 border-emerald-300 bg-emerald-50 p-4 shadow-lg shadow-emerald-100/70">
+                    <h3 className="mb-3 flex items-center gap-2 font-black text-emerald-950">
+                      <CheckCircle2 className="h-5 w-5" /> 成立条件
+                    </h3>
+                    <ul className="space-y-2">
+                      {selectedModel.conditions.map((item) => (
+                        <ChecklistItem key={item} text={item} />
+                      ))}
+                    </ul>
+                  </div>
 
-              <div className="rounded-3xl border border-red-400 bg-red-50 p-4 shadow-sm">
-                <h3 className="mb-3 flex items-center gap-2 font-bold text-red-900">
-                  <XCircle className="h-5 w-5" /> 禁止条件
-                </h3>
-                <ul className="space-y-2">
-                  {selectedModel.avoid.map((item) => (
-                    <AvoidItem key={item} text={item} />
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-4 shadow-lg shadow-red-100/70">
+                    <h3 className="mb-3 flex items-center gap-2 font-black text-red-950">
+                      <XCircle className="h-5 w-5" /> 禁止条件
+                    </h3>
+                    <ul className="space-y-2">
+                      {selectedModel.avoid.map((item) => (
+                        <AvoidItem key={item} text={item} />
+                      ))}
+                    </ul>
+                  </div>
+                </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-4 shadow-sm">
-                <h3 className="mb-2 font-bold text-slate-950">入场参考</h3>
-                <p className="text-sm font-medium leading-7 text-slate-700">{selectedModel.entry}</p>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-5 shadow-sm">
+                    <div className="mb-3 h-1 w-16 rounded-full bg-teal-700" />
+                    <h3 className="mb-2 font-black text-slate-950">入场参考</h3>
+                    <p className="text-sm font-semibold leading-7 text-slate-700">{selectedModel.entry}</p>
+                  </div>
+                  <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-5 shadow-sm">
+                    <div className="mb-3 h-1 w-16 rounded-full bg-sky-600" />
+                    <h3 className="mb-2 font-black text-slate-950">出场参考</h3>
+                    <p className="text-sm font-semibold leading-7 text-slate-700">{selectedModel.exit}</p>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-4 shadow-sm">
-                <h3 className="mb-2 font-bold text-slate-950">出场参考</h3>
-                <p className="text-sm font-medium leading-7 text-slate-700">{selectedModel.exit}</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+        </section>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
-            <CardContent className="p-5 md:p-6">
-              <h2 className="text-2xl font-bold text-slate-950">开单前 10 秒检查</h2>
-              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
-                这里不是复盘，是开单前的刹车。全部通过，才进入执行；任意一项没过，就先不碰鼠标。
-              </p>
-              <div className="mt-5 space-y-3">
+        <section className="mb-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
+            <CardContent className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-white to-teal-50 p-5 md:p-6">
+              <SectionHeader number="03" title="开单前 10 秒检查" desc="这里不是复盘，是开单前的刹车。全部通过，才进入执行。" />
+              <div className="space-y-3">
                 {preTradeChecks.map((item, index) => {
                   const checked = checkedItems.includes(index);
                   return (
@@ -603,21 +644,21 @@ export default function TradingModelTrainingSystem() {
                       onClick={() => toggleCheck(index)}
                       className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${
                         checked
-                          ? "border-teal-700 bg-teal-50 text-teal-950 shadow-sm ring-1 ring-teal-100"
-                          : "border-slate-300 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50"
+                          ? "border-teal-700 bg-white text-teal-950 shadow-md ring-2 ring-teal-100"
+                          : "border-slate-300 bg-white/90 text-slate-800 shadow-sm hover:border-teal-400 hover:bg-white"
                       }`}
                     >
                       <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checked ? "text-teal-600" : "text-slate-400"}`} />
-                      <span className="text-sm leading-6">{item}</span>
+                      <span className="text-sm font-semibold leading-6">{item}</span>
                     </button>
                   );
                 })}
               </div>
               <div
-                className={`mt-5 rounded-2xl border p-4 text-sm leading-7 ${
+                className={`mt-5 rounded-2xl border-2 p-4 text-sm font-black leading-7 shadow-sm ${
                   allPreTradeChecked
-                    ? "border-teal-300 bg-teal-50 text-teal-800"
-                    : "border-amber-300 bg-amber-50 text-amber-800"
+                    ? "border-teal-400 bg-teal-50 text-teal-900"
+                    : "border-amber-400 bg-amber-50 text-amber-900"
                 }`}
               >
                 {allPreTradeChecked
@@ -627,27 +668,25 @@ export default function TradingModelTrainingSystem() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
-            <CardContent className="p-5 md:p-6">
-              <h2 className="text-2xl font-bold text-slate-950">模型优先级顺序</h2>
-              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
-                每次判断都按这个顺序来，不能直接从“看到信号”跳到“我要开单”。
-              </p>
-              <div className="mt-5 space-y-3">
+          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
+            <CardContent className="rounded-[2rem] border border-sky-100 bg-gradient-to-br from-white to-sky-50 p-5 md:p-6">
+              <SectionHeader number="04" title="模型优先级顺序" desc="每次判断都按这个顺序来，不能直接从看到信号跳到我要开单。" tone="blue" />
+              <div className="space-y-3">
                 {[
-                  ["01", "市场环境", "趋势、震荡、新闻盘、垃圾盘，先判断能不能做。"],
-                  ["02", "关键位置", "边界、FVG、OB、VWAP、前高前低，中间位置默认不做。"],
-                  ["03", "触发确认", "长影线收回、回踩不破、放量突破、板块共振。"],
-                  ["04", "风险执行", "止损、仓位、最大亏损、连续亏损规则必须先定。"],
-                ].map(([num, title, desc]) => (
-                  <div key={num} className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-200 bg-teal-600 text-sm font-semibold text-white">
+                  ["01", "市场环境", "趋势、震荡、新闻盘、垃圾盘，先判断能不能做。", "bg-teal-700"],
+                  ["02", "关键位置", "边界、FVG、OB、VWAP、前高前低，中间位置默认不做。", "bg-sky-700"],
+                  ["03", "触发确认", "长影线收回、回踩不破、放量突破、板块共振。", "bg-violet-700"],
+                  ["04", "风险执行", "止损、仓位、最大亏损、连续亏损规则必须先定。", "bg-red-700"],
+                ].map(([num, title, desc, color]) => (
+                  <div key={num} className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white p-4 shadow-md">
+                    <div className={cn("absolute inset-y-0 left-0 w-1.5", color)} />
+                    <div className="flex items-center gap-3 pl-2">
+                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white shadow-md", color)}>
                         {num}
                       </div>
                       <div>
-                        <div className="font-bold text-slate-950">{title}</div>
-                        <div className="mt-1 text-sm font-medium leading-6 text-slate-700">{desc}</div>
+                        <div className="font-black text-slate-950">{title}</div>
+                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
                       </div>
                     </div>
                   </div>
@@ -655,26 +694,23 @@ export default function TradingModelTrainingSystem() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </section>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="rounded-[2rem] border-slate-300 bg-white shadow-2xl shadow-slate-300/70">
-            <CardContent className="p-5 md:p-6">
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
+            <CardContent className="rounded-[2rem] border border-slate-200 bg-white p-5 md:p-6">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-950">每日形态判断训练</h2>
-                  <p className="mt-2 text-sm text-slate-600">目的不是答题，而是把“能不能做”练成条件反射。</p>
-                </div>
+                <SectionHeader number="05" title="每日形态判断训练" desc="目的不是答题，而是把能不能做练成条件反射。" tone="amber" />
                 <Button
                   onClick={nextQuestion}
-                  className="w-full rounded-full bg-teal-600 text-white hover:bg-teal-700 sm:w-auto"
+                  className="w-full shrink-0 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-200 hover:bg-teal-800 sm:w-auto"
                 >
                   <RefreshCcw className="mr-2 h-4 w-4" /> 换一题
                 </Button>
               </div>
 
-              <div className="rounded-3xl border border-slate-300 bg-slate-50 p-5">
-                <h3 className="text-lg font-bold leading-8 text-slate-950">{question.question}</h3>
+              <div className="rounded-[1.8rem] border border-slate-300 bg-slate-50 p-5 shadow-inner">
+                <h3 className="text-lg font-black leading-8 text-slate-950">{question.question}</h3>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {question.options.map((option, index) => {
                     const chosen = selectedAnswer === index;
@@ -684,12 +720,12 @@ export default function TradingModelTrainingSystem() {
                       <button
                         key={option}
                         onClick={() => setSelectedAnswer(index)}
-                        className={`rounded-2xl border p-4 text-left text-sm transition ${
+                        className={`rounded-2xl border p-4 text-left text-sm font-bold transition ${
                           correct
-                            ? "border-emerald-400 bg-emerald-100 text-emerald-900"
+                            ? "border-emerald-500 bg-emerald-100 text-emerald-950 shadow-md"
                             : wrong
-                              ? "border-red-400 bg-red-100 text-red-900"
-                              : "border-slate-300 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50"
+                              ? "border-red-500 bg-red-100 text-red-950 shadow-md"
+                              : "border-slate-300 bg-white text-slate-800 shadow-sm hover:border-teal-500 hover:bg-teal-50"
                         }`}
                       >
                         {option}
@@ -702,23 +738,21 @@ export default function TradingModelTrainingSystem() {
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-5 rounded-2xl border border-amber-300 bg-amber-50 p-4"
+                    className="mt-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-md"
                   >
-                    <div className="font-medium text-amber-800">
+                    <div className="font-black text-amber-900">
                       {selectedAnswer === question.answer ? "判断正确" : "判断错误"}
                     </div>
-                    <p className="mt-2 text-sm leading-7 text-slate-700">{question.explain}</p>
+                    <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">{question.explain}</p>
                   </motion.div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem] border-2 border-red-300 bg-red-50 shadow-2xl shadow-red-200/70">
-            <CardContent className="p-5 md:p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-red-900">
-                <ShieldAlert className="h-6 w-6" /> 强制停手清单
-              </h2>
+          <Card className="rounded-[2.2rem] border-2 border-red-300 bg-red-50 p-1 shadow-[0_24px_70px_rgba(220,38,38,0.16)]">
+            <CardContent className="rounded-[2rem] border border-red-200 bg-gradient-to-br from-red-50 to-white p-5 md:p-6">
+              <SectionHeader number="06" title="强制停手系统" desc="触发任意一项，停止交易；这不是错过机会，是避免灾难。" tone="red" />
               <div className="space-y-3">
                 {[
                   "连续亏损 2 笔",
@@ -730,18 +764,21 @@ export default function TradingModelTrainingSystem() {
                   "没有提前确定止损",
                   "只是因为感觉要涨/跌",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-red-300 bg-white p-3 shadow-sm">
-                    <Ban className="h-4 w-4 shrink-0 text-red-600" />
-                    <span className="text-sm font-medium text-slate-800">{item}</span>
+                  <div key={item} className="relative overflow-hidden rounded-2xl border border-red-300 bg-white p-4 shadow-md">
+                    <div className="absolute inset-y-0 left-0 w-1.5 bg-red-600" />
+                    <div className="flex items-center gap-3 pl-2">
+                      <Ban className="h-4 w-4 shrink-0 text-red-600" />
+                      <span className="text-sm font-black text-slate-850">{item}</span>
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-2xl border-2 border-red-400 bg-red-100 p-4 text-sm font-semibold leading-7 text-red-900">
+              <div className="mt-5 rounded-2xl border-2 border-red-500 bg-red-100 p-4 text-sm font-black leading-7 text-red-950 shadow-md">
                 触发任意一项，都不是错过机会，而是在避免灾难。交易最强的能力，是知道什么时候不交易。
               </div>
             </CardContent>
           </Card>
-        </div>
+        </section>
       </div>
     </div>
   );
