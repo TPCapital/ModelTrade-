@@ -518,13 +518,184 @@ function AvoidItem({ text }) {
   );
 }
 
+function MetricCard({ label, value, tone = "slate", note }) {
+  const toneMap = {
+    teal: "border-teal-300 bg-teal-50 text-teal-950",
+    red: "border-red-300 bg-red-50 text-red-950",
+    amber: "border-amber-300 bg-amber-50 text-amber-950",
+    sky: "border-sky-300 bg-sky-50 text-sky-950",
+    violet: "border-violet-300 bg-violet-50 text-violet-950",
+    slate: "border-slate-300 bg-slate-50 text-slate-950",
+  };
+  return (
+    <div className={cn("rounded-2xl border p-4 shadow-sm", toneMap[tone] || toneMap.slate)}>
+      <div className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{label}</div>
+      <div className="mt-2 text-lg font-black">{value}</div>
+      {note && <div className="mt-1 text-xs font-bold leading-5 opacity-75">{note}</div>}
+    </div>
+  );
+}
+
+function OptionPriceCalculator() {
+  const [mode, setMode] = useState("call");
+  const [currentStock, setCurrentStock] = useState("520");
+  const [targetStock, setTargetStock] = useState("521");
+  const [optionPrice, setOptionPrice] = useState("1.80");
+  const [delta, setDelta] = useState("0.55");
+  const [contracts, setContracts] = useState("1");
+
+  const current = Number(currentStock);
+  const target = Number(targetStock);
+  const option = Number(optionPrice);
+  const deltaAbs = Math.abs(Number(delta));
+  const contractCount = Math.max(1, Number(contracts) || 1);
+  const isValid = [current, target, option, deltaAbs].every((num) => Number.isFinite(num));
+  const stockMove = isValid ? (mode === "call" ? target - current : current - target) : 0;
+  const optionMove = stockMove * deltaAbs;
+  const projectedOption = Math.max(0, option + optionMove);
+  const pnlPerContract = (projectedOption - option) * 100;
+  const totalPnl = pnlPerContract * contractCount;
+  const pnlPct = option > 0 ? ((projectedOption - option) / option) * 100 : 0;
+
+  const inputClass = "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base font-black text-slate-950 shadow-inner outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-100";
+  const labelClass = "mb-2 block text-xs font-black uppercase tracking-[0.13em] text-slate-500";
+
+  return (
+    <div className="overflow-hidden rounded-[1.9rem] border-2 border-teal-700 bg-white shadow-xl shadow-teal-100">
+      <div className="border-b border-teal-100 bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-5 py-4 text-white">
+        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">Quick Calculator</div>
+        <h3 className="mt-1 text-xl font-black">正股目标 → 期权目标价快捷计算</h3>
+        <p className="mt-2 text-sm font-bold leading-6 text-teal-50">
+          用 Delta（德尔塔）做日内粗算：期权价格变化 ≈ 正股价格变化 × |Delta|。
+        </p>
+      </div>
+
+      <div className="grid gap-5 p-5 lg:grid-cols-[1fr_0.9fr]">
+        <div>
+          <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-slate-300 bg-slate-50 p-2">
+            <button
+              onClick={() => setMode("call")}
+              className={cn(
+                "rounded-xl px-4 py-3 text-sm font-black transition",
+                mode === "call" ? "bg-teal-700 text-white shadow-md" : "bg-white text-slate-700 hover:bg-teal-50"
+              )}
+            >
+              Call 看涨
+            </button>
+            <button
+              onClick={() => setMode("put")}
+              className={cn(
+                "rounded-xl px-4 py-3 text-sm font-black transition",
+                mode === "put" ? "bg-red-700 text-white shadow-md" : "bg-white text-slate-700 hover:bg-red-50"
+              )}
+            >
+              Put 看跌
+            </button>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label>
+              <span className={labelClass}>当前正股价格</span>
+              <input className={inputClass} value={currentStock} onChange={(e) => setCurrentStock(e.target.value)} inputMode="decimal" />
+            </label>
+            <label>
+              <span className={labelClass}>目标 / 止损正股价格</span>
+              <input className={inputClass} value={targetStock} onChange={(e) => setTargetStock(e.target.value)} inputMode="decimal" />
+            </label>
+            <label>
+              <span className={labelClass}>当前期权价格</span>
+              <input className={inputClass} value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} inputMode="decimal" />
+            </label>
+            <label>
+              <span className={labelClass}>Delta 绝对值</span>
+              <input className={inputClass} value={delta} onChange={(e) => setDelta(e.target.value)} inputMode="decimal" />
+            </label>
+            <label className="sm:col-span-2">
+              <span className={labelClass}>合约张数</span>
+              <input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" />
+            </label>
+          </div>
+        </div>
+
+        <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-4 shadow-inner">
+          <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">即时结果</div>
+          <div className="grid gap-3">
+            <MetricCard
+              label="正股方向幅度"
+              value={`${stockMove >= 0 ? "+" : ""}${isValid ? stockMove.toFixed(2) : "--"}`}
+              tone={stockMove >= 0 ? "teal" : "red"}
+              note={mode === "call" ? "Call 需要正股上涨才增值" : "Put 需要正股下跌才增值"}
+            />
+            <MetricCard
+              label="估算期权价格"
+              value={isValid ? projectedOption.toFixed(2) : "--"}
+              tone={projectedOption >= option ? "teal" : "red"}
+              note={`当前 ${Number.isFinite(option) ? option.toFixed(2) : "--"} → 估算 ${isValid ? projectedOption.toFixed(2) : "--"}`}
+            />
+            <MetricCard
+              label="估算盈亏"
+              value={`${totalPnl >= 0 ? "+" : ""}${isValid ? totalPnl.toFixed(0) : "--"} 美元`}
+              tone={totalPnl >= 0 ? "teal" : "red"}
+              note={`${contractCount} 张；约 ${pnlPct >= 0 ? "+" : ""}${isValid ? pnlPct.toFixed(1) : "--"}%`}
+            />
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm font-black leading-7 text-amber-950">
+            这是日内近似计算，不包含 IV（隐含波动率）、Theta（时间价值衰减）、Gamma（加速度）和买卖价差。用于挂单参考，不是精确定价。
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OptionScanningModule() {
+  const scanRules = [
+    ["热门标的", "优先 SPY / QQQ；其次 NVDA / AMD / TSLA / META / AAPL / MSFT", "冷门股期权少碰"],
+    ["平值附近", "ATM 平值优先；轻微 ITM 更稳；强趋势才考虑轻微 OTM", "深虚值不碰"],
+    ["买卖价差", "0.01–0.03 极好；0.04–0.08 可用；0.10 附近谨慎", "0.20+ 不做"],
+    ["成交量", "至少几百张；1000+ 较好；5000+ 很活跃", "0–50 直接不做"],
+    ["盘口厚度", "Bid / Ask Size 最好几十张以上", "薄盘口进出都难"],
+    ["Delta", "0.45–0.65 最适合你；0.60–0.75 更稳但成本高", "0.20 以下太彩票"],
+    ["下单方式", "用中间价挂限价单，5–10秒不成交再微调", "不要市价追"],
+    ["止盈止损", "+20% 开始盯盘；+30%–50% 优先落袋；-15%–25% 警惕/离场", "0DTE 更严格"],
+  ];
+
+  return (
+    <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.95fr]">
+      <div className="rounded-[1.8rem] border-2 border-slate-300 bg-white p-5 shadow-lg">
+        <h3 className="text-lg font-black text-slate-950">期权一眼扫描规则</h3>
+        <p className="mt-2 text-sm font-bold leading-7 text-slate-700">
+          买之前先筛合约，再谈方向。成交量太低、点差太大、盘口太薄，都是一票否决。
+        </p>
+        <div className="mt-4 grid gap-3">
+          {scanRules.map(([name, standard, reject], index) => (
+            <div key={name} className="overflow-hidden rounded-2xl border border-slate-300 bg-slate-50 shadow-sm">
+              <div className="grid gap-0 md:grid-cols-[130px_1fr_150px]">
+                <div className="flex items-center gap-2 border-b border-slate-200 bg-white p-3 md:border-b-0 md:border-r">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-teal-700 text-xs font-black text-white">{index + 1}</span>
+                  <span className="text-sm font-black text-slate-950">{name}</span>
+                </div>
+                <div className="border-b border-slate-200 p-3 text-sm font-semibold leading-6 text-slate-700 md:border-b-0 md:border-r">{standard}</div>
+                <div className="bg-red-50 p-3 text-sm font-black leading-6 text-red-900">{reject}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <OptionPriceCalculator />
+    </div>
+  );
+}
+
 function OptionExecutionModule() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader
         number="03"
-        title="期权五步执行法"
-        desc="把期权交易压缩成固定流程：事件驱动、方向确认、VWAP、量能验证、及时离场。"
+        title="期权执行与合约选择系统"
+        desc="把日内期权压缩为：先筛合约，再判断方向，再用 Delta 估算目标价。"
         tone="blue"
       />
 
@@ -532,18 +703,20 @@ function OptionExecutionModule() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.22em] text-teal-700">Options Execution Framework</div>
-            <h3 className="mt-2 text-2xl font-black text-slate-950">Catalyst → Direction → VWAP → Volume → Exit</h3>
+            <h3 className="mt-2 text-2xl font-black text-slate-950">五步执行法：Catalyst → Direction → VWAP → Volume → Exit</h3>
             <p className="mt-3 max-w-4xl text-sm font-semibold leading-7 text-slate-700">
-              中文就是：事件驱动、方向确认、VWAP 分界、量能验证、及时离场。每天只按这五步执行，避免把期权做成情绪赌博。
+              中文就是：事件驱动、方向确认、VWAP 分界、量能验证、及时离场。期权不是看到股票涨就买 Call，而是先判断这张期权好不好进、好不好出、涨不涨得动。
             </p>
           </div>
           <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-black leading-7 text-red-900 shadow-md">
-            没有事件驱动，不做。没有量，不做。反复穿 VWAP，不做。盈利后不幻想，优先落袋。
+            先筛合约，再谈方向。先看流动性，再看利润。用 Delta 估算目标，用限价单进出。
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <OptionScanningModule />
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {optionExecutionSteps.map((step, index) => (
           <div key={step.key} className="overflow-hidden rounded-[1.7rem] border border-slate-300 bg-white shadow-lg shadow-slate-200/70">
             <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
@@ -551,7 +724,7 @@ function OptionExecutionModule() {
                 <div className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Step {String(index + 1).padStart(2, "0")}</div>
                 <div className="mt-1 text-lg font-black text-slate-950">{step.key} <span className="text-teal-700">{step.cn}</span></div>
               </div>
-              <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-black text-white shadow-md", index === 5 ? "bg-red-700" : "bg-teal-700")}>
+              <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-black text-white shadow-md", index === 5 ? "bg-red-700" : "bg-teal-700")}> 
                 {index + 1}
               </div>
             </div>
@@ -580,19 +753,19 @@ function OptionExecutionModule() {
           <div className="mt-4 grid gap-2 text-sm font-bold leading-7 text-slate-800 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-3">每天最多 1–3 单</div>
             <div className="rounded-2xl bg-slate-50 p-3">单笔只用账户 5%–10% 以内</div>
-            <div className="rounded-2xl bg-slate-50 p-3">优先平值或轻度虚值 / 价内</div>
-            <div className="rounded-2xl bg-slate-50 p-3">方向失效立刻走</div>
+            <div className="rounded-2xl bg-slate-50 p-3">优先 ATM 平值 / 轻微 ITM</div>
+            <div className="rounded-2xl bg-slate-50 p-3">Delta 0.45–0.65 优先</div>
             <div className="rounded-2xl bg-slate-50 p-3">盈利 +30%–50% 优先落袋</div>
-            <div className="rounded-2xl bg-slate-50 p-3">亏损 -20%–30% 直接警惕</div>
+            <div className="rounded-2xl bg-slate-50 p-3">亏损 -15%–25% 警惕离场</div>
           </div>
         </div>
         <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-5 shadow-md shadow-red-100">
           <h3 className="text-lg font-black text-red-950">期权禁止交易提醒</h3>
           <p className="mt-3 text-sm font-bold leading-7 text-red-900">
-            期权最怕的不是看错，而是正股不动。所以没有量，宁愿不做；没有方向，宁愿不做；只是想证明自己，更不能做。
+            成交量太低，不买。点差太大，不买。盘口太薄，不买。正股围绕 VWAP 来回穿，不买。只是想证明自己，更不能买。
           </p>
           <div className="mt-4 rounded-2xl border border-red-300 bg-white p-4 text-base font-black leading-8 text-slate-950">
-            更重要的是：期权要成为你的研究型交易工具，不是情绪发泄工具。
+            股票涨，不代表期权好买；期权要买“会动、有人接、点差小”的那张。
           </div>
         </div>
       </div>
