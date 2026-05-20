@@ -302,7 +302,99 @@ const trainingQuestions = [
     answer: 1,
     explain: "期权日内必须看大盘共振，逆大盘做 Call 容易冲高回落。",
   },
+  {
+    question: "一只股票盘中突然上涨，但没有消息、没有板块共振，成交量也一般。你该怎么处理？",
+    options: ["追 Call", "买便宜虚值", "不做", "等亏了再补仓"],
+    answer: 2,
+    explain: "期权第一步是 Catalyst（事件驱动）。没有原因、没有量、没有共振，默认不做。",
+  },
+  {
+    question: "正股在 VWAP 下方，反抽 VWAP 失败，同时放量下跌。更符合什么机会？",
+    options: ["Call", "Put", "不看方向", "追最便宜合约"],
+    answer: 1,
+    explain: "VWAP 下方反抽不过，再放量转弱，更符合 Put 方向，但仍要控制入场和止损。",
+  },
 ];
+
+
+const optionExecutionSteps = [
+  {
+    key: "Catalyst",
+    cn: "事件驱动",
+    title: "先问：为什么会涨 / 跌？",
+    summary: "没有事件驱动，不做。期权最怕没有原因的波动，因为时间价值会持续流血。",
+    rules: [
+      "有明确消息、财报、评级、订单、政策或板块热点，才进入观察",
+      "个股消息必须和板块、大盘方向共振，不能只看一条利好/利空",
+      "没有原因的上涨或下跌，默认不做，宁愿错过也不乱买期权",
+    ],
+    example: "AMD利空 + 半导体走弱 + QQQ跌破VWAP = Put；NVDA利好 + AI板块强 + QQQ站上VWAP = Call。",
+  },
+  {
+    key: "Direction",
+    cn: "方向确认",
+    title: "方向不是感觉，是多因素同向",
+    summary: "期权方向必须来自消息、板块、大盘和价格结构的共同确认，而不是单纯看一根K线。",
+    rules: [
+      "做 Call：利好/热点 + 板块强 + 大盘不拖后腿 + 价格站上关键位",
+      "做 Put：利空/弱势 + 板块弱 + 大盘转弱 + 价格跌破关键位",
+      "如果盯盘半天还不知道做多做空，那就不是你的行情",
+    ],
+    example: "真正适合期权的行情，不应该让你纠结；纠结说明条件不完整。",
+  },
+  {
+    key: "VWAP",
+    cn: "日内分界",
+    title: "VWAP 是日内多空边界线",
+    summary: "VWAP 用来决定你优先找 Call 还是 Put，不是用来频繁猜顶底。",
+    rules: [
+      "价格在 VWAP 上方：只优先找 Call，不轻易逆势做 Put",
+      "价格在 VWAP 下方：只优先找 Put，不轻易逆势做 Call",
+      "反复穿 VWAP：不做，因为多空没有清晰控制权",
+    ],
+    example: "VWAP 附近反复拉扯，就是期权买方的消耗区。",
+  },
+  {
+    key: "Volume",
+    cn: "量能验证",
+    title: "量能确认市场有没有真钱进来",
+    summary: "期权最怕正股不动。没有量，就算方向看对，也可能因为时间价值衰减而亏。",
+    rules: [
+      "放量突破：可以考虑顺势进入",
+      "缩量反弹：多半只是反抽，不要当成趋势",
+      "放量跌破：优先观察 Put 机会",
+      "无量横盘：期权买方地狱，宁愿不做",
+    ],
+    example: "没有量，不是不够刺激，而是期权合约没有足够的正股推动。",
+  },
+  {
+    key: "Entry",
+    cn: "入场框架",
+    title: "最好的入场不是追最猛那根",
+    summary: "期权日内最好的入场，通常是第一次放量确认、回踩失败，或突破 VWAP 后反抽不过。",
+    rules: [
+      "第一波放量站稳，可以小仓试错",
+      "回踩 VWAP / 支撑不破，再做 Call 更稳",
+      "跌破 VWAP 后反抽不过，再做 Put 更稳",
+      "已经连续三四根大阳/大阴，不要追，容易吃反弹或回落",
+    ],
+    example: "你不需要吃完整段，只需要拿走中间最确定的一段。",
+  },
+  {
+    key: "Exit",
+    cn: "及时离场",
+    title: "离场是期权真正的护城河",
+    summary: "期权日内最爽的地方不是拿到终点，而是方向对的时候及时拿走利润。",
+    rules: [
+      "盈利 +20%：开始认真盯盘，不再幻想",
+      "盈利 +30%–50%：优先落袋，至少保护利润",
+      "盈利 +80%–100%：不要幻想，优先分批退出",
+      "跌回 VWAP、量能衰退、方向失效：直接走",
+    ],
+    example: "期权要成为研究型交易工具，不是情绪发泄工具。",
+  },
+];
+
 
 
 const preTradeChecks = [
@@ -426,6 +518,88 @@ function AvoidItem({ text }) {
   );
 }
 
+function OptionExecutionModule() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader
+        number="03"
+        title="期权五步执行法"
+        desc="把期权交易压缩成固定流程：事件驱动、方向确认、VWAP、量能验证、及时离场。"
+        tone="blue"
+      />
+
+      <div className="mb-5 rounded-[1.6rem] border-2 border-teal-700 bg-gradient-to-br from-white via-teal-50 to-cyan-50 p-5 shadow-xl shadow-teal-100">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.22em] text-teal-700">Options Execution Framework</div>
+            <h3 className="mt-2 text-2xl font-black text-slate-950">Catalyst → Direction → VWAP → Volume → Exit</h3>
+            <p className="mt-3 max-w-4xl text-sm font-semibold leading-7 text-slate-700">
+              中文就是：事件驱动、方向确认、VWAP 分界、量能验证、及时离场。每天只按这五步执行，避免把期权做成情绪赌博。
+            </p>
+          </div>
+          <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-black leading-7 text-red-900 shadow-md">
+            没有事件驱动，不做。没有量，不做。反复穿 VWAP，不做。盈利后不幻想，优先落袋。
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        {optionExecutionSteps.map((step, index) => (
+          <div key={step.key} className="overflow-hidden rounded-[1.7rem] border border-slate-300 bg-white shadow-lg shadow-slate-200/70">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
+              <div>
+                <div className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Step {String(index + 1).padStart(2, "0")}</div>
+                <div className="mt-1 text-lg font-black text-slate-950">{step.key} <span className="text-teal-700">{step.cn}</span></div>
+              </div>
+              <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-black text-white shadow-md", index === 5 ? "bg-red-700" : "bg-teal-700")}>
+                {index + 1}
+              </div>
+            </div>
+            <div className="p-5">
+              <h4 className="text-base font-black leading-7 text-slate-950">{step.title}</h4>
+              <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">{step.summary}</p>
+              <ul className="mt-4 space-y-2">
+                {step.rules.map((rule) => (
+                  <li key={rule} className="flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />
+                    <span>{rule}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-black leading-6 text-amber-950">
+                {step.example}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-[1.6rem] border-2 border-slate-300 bg-white p-5 shadow-md">
+          <h3 className="text-lg font-black text-slate-950">期权执行纪律</h3>
+          <div className="mt-4 grid gap-2 text-sm font-bold leading-7 text-slate-800 sm:grid-cols-2">
+            <div className="rounded-2xl bg-slate-50 p-3">每天最多 1–3 单</div>
+            <div className="rounded-2xl bg-slate-50 p-3">单笔只用账户 5%–10% 以内</div>
+            <div className="rounded-2xl bg-slate-50 p-3">优先平值或轻度虚值 / 价内</div>
+            <div className="rounded-2xl bg-slate-50 p-3">方向失效立刻走</div>
+            <div className="rounded-2xl bg-slate-50 p-3">盈利 +30%–50% 优先落袋</div>
+            <div className="rounded-2xl bg-slate-50 p-3">亏损 -20%–30% 直接警惕</div>
+          </div>
+        </div>
+        <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-5 shadow-md shadow-red-100">
+          <h3 className="text-lg font-black text-red-950">期权禁止交易提醒</h3>
+          <p className="mt-3 text-sm font-bold leading-7 text-red-900">
+            期权最怕的不是看错，而是正股不动。所以没有量，宁愿不做；没有方向，宁愿不做；只是想证明自己，更不能做。
+          </p>
+          <div className="mt-4 rounded-2xl border border-red-300 bg-white p-4 text-base font-black leading-8 text-slate-950">
+            更重要的是：期权要成为你的研究型交易工具，不是情绪发泄工具。
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function TradingModelTrainingSystem() {
   const [marketFilter, setMarketFilter] = useState("全部");
   const [selectedId, setSelectedId] = useState(models[0].id);
@@ -480,7 +654,7 @@ export default function TradingModelTrainingSystem() {
                 黄金 / EUR / 期权高胜率形态强化面板
               </h1>
               <p className="mt-4 max-w-4xl text-sm font-semibold leading-7 text-slate-700 md:text-base">
-                每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权大盘共振、板块龙头，以及最重要的禁止交易条件。
+                每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权五步执行法、板块龙头、大盘共振，以及最重要的禁止交易条件。
               </p>
             </div>
             <div className="rounded-[1.6rem] border-2 border-red-300 bg-gradient-to-br from-red-50 to-white p-5 shadow-xl shadow-red-100">
@@ -631,10 +805,12 @@ export default function TradingModelTrainingSystem() {
           </div>
         </section>
 
+        <OptionExecutionModule />
+
         <section className="mb-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
             <CardContent className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-white to-teal-50 p-5 md:p-6">
-              <SectionHeader number="03" title="开单前 10 秒检查" desc="这里不是复盘，是开单前的刹车。全部通过，才进入执行。" />
+              <SectionHeader number="04" title="开单前 10 秒检查" desc="这里不是复盘，是开单前的刹车。全部通过，才进入执行。" />
               <div className="space-y-3">
                 {preTradeChecks.map((item, index) => {
                   const checked = checkedItems.includes(index);
@@ -670,7 +846,7 @@ export default function TradingModelTrainingSystem() {
 
           <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
             <CardContent className="rounded-[2rem] border border-sky-100 bg-gradient-to-br from-white to-sky-50 p-5 md:p-6">
-              <SectionHeader number="04" title="模型优先级顺序" desc="每次判断都按这个顺序来，不能直接从看到信号跳到我要开单。" tone="blue" />
+              <SectionHeader number="05" title="模型优先级顺序" desc="每次判断都按这个顺序来，不能直接从看到信号跳到我要开单。" tone="blue" />
               <div className="space-y-3">
                 {[
                   ["01", "市场环境", "趋势、震荡、新闻盘、垃圾盘，先判断能不能做。", "bg-teal-700"],
@@ -700,7 +876,7 @@ export default function TradingModelTrainingSystem() {
           <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
             <CardContent className="rounded-[2rem] border border-slate-200 bg-white p-5 md:p-6">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <SectionHeader number="05" title="每日形态判断训练" desc="目的不是答题，而是把能不能做练成条件反射。" tone="amber" />
+                <SectionHeader number="06" title="每日形态判断训练" desc="目的不是答题，而是把能不能做练成条件反射。" tone="amber" />
                 <Button
                   onClick={nextQuestion}
                   className="w-full shrink-0 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-200 hover:bg-teal-800 sm:w-auto"
@@ -752,7 +928,7 @@ export default function TradingModelTrainingSystem() {
 
           <Card className="rounded-[2.2rem] border-2 border-red-300 bg-red-50 p-1 shadow-[0_24px_70px_rgba(220,38,38,0.16)]">
             <CardContent className="rounded-[2rem] border border-red-200 bg-gradient-to-br from-red-50 to-white p-5 md:p-6">
-              <SectionHeader number="06" title="强制停手系统" desc="触发任意一项，停止交易；这不是错过机会，是避免灾难。" tone="red" />
+              <SectionHeader number="07" title="强制停手系统" desc="触发任意一项，停止交易；这不是错过机会，是避免灾难。" tone="red" />
               <div className="space-y-3">
                 {[
                   "连续亏损 2 笔",
