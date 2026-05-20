@@ -984,6 +984,41 @@ export default function TradingModelTrainingSystem() {
           <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
             <CardContent className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-white to-teal-50 p-5 md:p-6">
               <SectionHeader number="04" title="开单前 10 秒检查" desc="这里不是复盘，是开单前的刹车。全部通过，才进入执行。" />
+              <div className="mb-5 overflow-hidden rounded-[1.7rem] border-2 border-slate-300 bg-white shadow-lg">
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Traffic Light Gate</div>
+                    <div className="mt-1 text-sm font-black text-slate-950">开单通行灯：{checkedItems.length} / {preTradeChecks.length} 已点亮</div>
+                  </div>
+                  <div
+                    className={`rounded-full border-2 px-4 py-2 text-xs font-black shadow-sm ${
+                      allPreTradeChecked
+                        ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
+                        : "border-red-500 bg-red-50 text-red-800 shadow-red-100"
+                    }`}
+                  >
+                    {allPreTradeChecked ? "全部绿灯 · 可以进入执行" : "红灯未清 · 禁止开单"}
+                  </div>
+                </div>
+                <div className="grid grid-cols-6 gap-2 p-4">
+                  {preTradeChecks.map((_, index) => {
+                    const checked = checkedItems.includes(index);
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => toggleCheck(index)}
+                        aria-label={`检查项 ${index + 1}`}
+                        className={`h-5 rounded-full border-2 transition ${
+                          checked
+                            ? "border-emerald-700 bg-emerald-500 shadow-lg shadow-emerald-200"
+                            : "border-red-400 bg-red-100 shadow-inner"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-3">
                 {preTradeChecks.map((item, index) => {
                   const checked = checkedItems.includes(index);
@@ -991,28 +1026,53 @@ export default function TradingModelTrainingSystem() {
                     <button
                       key={item}
                       onClick={() => toggleCheck(index)}
-                      className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${
+                      className={`group relative flex w-full items-stretch overflow-hidden rounded-[1.35rem] border-2 text-left transition ${
                         checked
-                          ? "border-teal-700 bg-white text-teal-950 shadow-md ring-2 ring-teal-100"
-                          : "border-slate-300 bg-white/90 text-slate-800 shadow-sm hover:border-teal-400 hover:bg-white"
+                          ? "border-emerald-700 bg-emerald-500 text-white shadow-xl shadow-emerald-200 ring-4 ring-emerald-100"
+                          : "border-red-300 bg-white text-slate-800 shadow-md hover:border-red-500 hover:bg-red-50"
                       }`}
                     >
-                      <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checked ? "text-teal-600" : "text-slate-400"}`} />
-                      <span className="text-sm font-semibold leading-6">{item}</span>
+                      <div
+                        className={`flex w-16 shrink-0 items-center justify-center border-r-2 ${
+                          checked ? "border-emerald-300 bg-emerald-700" : "border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <div
+                          className={`flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-md ${
+                            checked
+                              ? "border-white bg-white text-emerald-700"
+                              : "border-red-400 bg-red-100 text-red-600"
+                          }`}
+                        >
+                          {checked ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        </div>
+                      </div>
+                      <div className="flex flex-1 items-center justify-between gap-4 p-4">
+                        <span className={`text-sm font-black leading-6 ${checked ? "text-white" : "text-slate-900"}`}>{item}</span>
+                        <span
+                          className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${
+                            checked
+                              ? "border-white/60 bg-white/20 text-white"
+                              : "border-red-300 bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {checked ? "绿灯" : "红灯"}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
               </div>
               <div
-                className={`mt-5 rounded-2xl border-2 p-4 text-sm font-black leading-7 shadow-sm ${
+                className={`mt-5 rounded-[1.5rem] border-2 p-5 text-sm font-black leading-7 shadow-lg ${
                   allPreTradeChecked
-                    ? "border-teal-400 bg-teal-50 text-teal-900"
-                    : "border-amber-400 bg-amber-50 text-amber-900"
+                    ? "border-emerald-700 bg-emerald-600 text-white shadow-emerald-200"
+                    : "border-red-500 bg-red-50 text-red-900 shadow-red-100"
                 }`}
               >
                 {allPreTradeChecked
-                  ? "可以进入下一步：只按计划执行，不能临场扩大仓位。"
-                  : "暂不允许交易：先把条件补齐，别让感觉替你下单。"}
+                  ? "绿灯全亮：可以进入下一步。只按计划执行，不能临场扩大仓位。"
+                  : "红灯未清：暂不允许交易。必须全部点亮，才允许进入执行。"}
               </div>
             </CardContent>
           </Card>
