@@ -315,10 +315,22 @@ const trainingQuestions = [
     explain: "VWAP 下方反抽不过，再放量转弱，更符合 Put 方向，但仍要控制入场和止损。",
   },
   {
-    question: "SPY 开盘第 3 分钟突然急跌，你想立刻买 ATM Put。更专业的动作是什么？",
-    options: ["马上追 Put", "等 9:40 后 VWAP 反抽不过或结构确认", "买最便宜 OTM Put", "直接满仓"],
+    question: "SPY 围绕 VWAP 反复穿越，9EMA 和 20EMA 缠在一起，K线小实体和十字星很多。这个盘面最适合做什么？",
+    options: ["买 ATM Call", "买 ATM Put", "不做，属于期权买方低胜率区", "买更远到期的合约硬扛"],
+    answer: 2,
+    explain: "这是典型的输时间盘：方向不清、量能不足、正股每次突破都被拉回。期权买方即使方向没大错，也容易被 Theta 和价差消耗。",
+  },
+  {
+    question: "SPY 有支撑没有跌破，你想买 Call。更完整的判断是什么？",
+    options: ["有支撑就可以买 Call", "只要不跌就会涨", "支撑只说明暂时跌不下去，Call 还需要能持续站上 VWAP/均线并放量", "买最便宜虚值 Call"],
+    answer: 2,
+    explain: "有支撑不等于可以做 Call。Call 需要的是能持续涨上去；如果只是跌不下去，期权买方仍然可能被时间价值磨损。",
+  },
+  {
+    question: "你买的是 5DTE，比 0DTE 更抗磨。这个理解正确吗？",
+    options: ["完全正确，所以可以随便拿", "部分正确，但正股不走照样难赚钱", "错误，5DTE 比 0DTE 更快归零", "只要是 SPY 就不用管时间价值"],
     answer: 1,
-    explain: "SPY 期权不是不能做空，而是做空不能急。开盘前 10 分钟只观察，等 VWAP 确认或结构清楚的第二波。",
+    explain: "5DTE 确实比 0DTE 抗磨，但不是不怕磨。期权买方最终仍然需要正股速度和方向，否则只是亏得慢一点。",
   },
 ];
 
@@ -410,6 +422,7 @@ const preTradeChecks = [
   "没有处于连续亏损、回本冲动、烦躁追单状态",
   "黄金避开数据前后乱扫；期权确认大盘/板块/个股共振",
   "如果做 SPY / QQQ 日内 ATM 期权，已经避开开盘前10分钟第一波急拉/急跌",
+  "没有处于期权买方低胜率区：VWAP反复穿越、均线缠绕、小实体多、量能不足",
   "入场不是第一根冲动K，而是等待过确认、回踩或 VWAP 反抽失败",
 ];
 
@@ -777,13 +790,98 @@ function SPYAtmRhythmModule() {
   );
 }
 
+
+function OptionLowWinRateZoneModule() {
+  const lowWinSignals = [
+    "价格围绕 VWAP 反复穿越，没有清晰站上或跌破",
+    "9EMA 和 20EMA 缠在一起，趋势没有展开",
+    "K线小实体多、十字星多，上下影线反复扫",
+    "量能没有连续放大，只是局部脉冲",
+    "上方压力和下方支撑距离很近，没有足够空间",
+    "正股每次突破都很快被拉回，延续性差",
+    "期权价格涨不上去，但跌起来很快",
+  ];
+
+  const lessons = [
+    ["5DTE 抗磨，但也怕磨", "不是当日期权才怕震荡，所有买方期权都怕没速度。5DTE 只是给你更多时间，不是给你免死金牌。"],
+    ["SPY 流动性好，不代表任何行情都好做", "流动性好只是让你容易进出；如果正股不走，期权照样难赚钱。"],
+    ["有支撑，不等于可以买 Call", "支撑只说明暂时跌不下去，但 Call 需要的是能持续涨上去。这个区别非常关键。"],
+  ];
+
+  const framework = [
+    ["方向", "今天为什么会涨/跌？没有原因，不做。"],
+    ["VWAP", "VWAP 上方优先 Call，下方优先 Put，反复穿越不做。"],
+    ["量能", "放量突破才有买方速度；无量横盘是期权买方地狱。"],
+    ["空间", "支撑和压力太近，不做；没有空间，就没有盈亏比。"],
+    ["离场", "+30%–50% 优先落袋；方向失效立刻走。"],
+  ];
+
+  return (
+    <div className="mt-5 overflow-hidden rounded-[1.9rem] border-2 border-amber-300 bg-white shadow-xl shadow-amber-100">
+      <div className="border-b border-amber-200 bg-gradient-to-r from-amber-700 via-orange-700 to-red-700 px-5 py-4 text-white">
+        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Option Buyer Low-Win Zone</div>
+        <h3 className="mt-1 text-xl font-black">期权买方低胜率区识别</h3>
+        <p className="mt-2 text-sm font-bold leading-6 text-amber-50">
+          看到类似结构，直接标记为：不输方向，输时间。不是看错行情，而是期权买方没有速度优势。
+        </p>
+      </div>
+
+      <div className="grid gap-5 p-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100">
+          <h4 className="text-base font-black text-red-950">低胜率区核心特征</h4>
+          <p className="mt-2 rounded-2xl border border-red-200 bg-white p-3 text-sm font-black leading-6 text-red-900">
+            期权买方低胜率区 = 方向不清 + 空间不够 + 量能不足 + 时间价值持续流血。
+          </p>
+          <ul className="mt-3 grid gap-2">
+            {lowWinSignals.map((item, index) => (
+              <li key={item} className="flex gap-3 rounded-2xl border border-red-200 bg-white p-3 text-sm font-bold leading-6 text-slate-800 shadow-sm">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-700 text-xs font-black text-white">{index + 1}</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md shadow-teal-100">
+            <h4 className="text-base font-black text-teal-950">今天这个案例真正教你的三件事</h4>
+            <div className="mt-3 grid gap-3">
+              {lessons.map(([title, desc], index) => (
+                <div key={title} className="rounded-2xl border border-teal-200 bg-white p-3 shadow-sm">
+                  <div className="text-sm font-black text-teal-800">{index + 1}. {title}</div>
+                  <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[1.5rem] border-2 border-slate-300 bg-slate-50 p-4 shadow-md shadow-slate-200">
+            <h4 className="text-base font-black text-slate-950">最适合你的执行框架</h4>
+            <div className="mt-3 grid gap-2">
+              {framework.map(([name, desc]) => (
+                <div key={name} className="grid gap-2 rounded-2xl border border-slate-300 bg-white p-3 text-sm leading-6 shadow-sm sm:grid-cols-[72px_1fr]">
+                  <span className="font-black text-teal-800">{name}</span>
+                  <span className="font-semibold text-slate-700">{desc}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-black leading-6 text-amber-950">
+              核心口令：不追第一波，不赌最后一波；不在低胜率区证明自己，只拿确认后的中间段。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function OptionExecutionModule() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader
         number="03"
         title="期权执行与合约选择系统"
-        desc="把日内期权压缩为：先筛合约，再判断方向，等 VWAP 节奏，再用 Delta 估算目标价。"
+        desc="把日内期权压缩为：先筛合约，再判断方向，等 VWAP 节奏，识别低胜率区，再用 Delta 估算目标价。"
         tone="blue"
       />
 
@@ -804,6 +902,7 @@ function OptionExecutionModule() {
 
       <OptionScanningModule />
       <SPYAtmRhythmModule />
+      <OptionLowWinRateZoneModule />
 
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {optionExecutionSteps.map((step, index) => (
