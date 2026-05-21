@@ -314,6 +314,12 @@ const trainingQuestions = [
     answer: 1,
     explain: "VWAP 下方反抽不过，再放量转弱，更符合 Put 方向，但仍要控制入场和止损。",
   },
+  {
+    question: "SPY 开盘第 3 分钟突然急跌，你想立刻买 ATM Put。更专业的动作是什么？",
+    options: ["马上追 Put", "等 9:40 后 VWAP 反抽不过或结构确认", "买最便宜 OTM Put", "直接满仓"],
+    answer: 1,
+    explain: "SPY 期权不是不能做空，而是做空不能急。开盘前 10 分钟只观察，等 VWAP 确认或结构清楚的第二波。",
+  },
 ];
 
 
@@ -403,7 +409,8 @@ const preTradeChecks = [
   "已经明确止损位置，亏损金额可以接受",
   "没有处于连续亏损、回本冲动、烦躁追单状态",
   "黄金避开数据前后乱扫；期权确认大盘/板块/个股共振",
-  "入场不是第一根冲动K，而是等待过确认或回踩",
+  "如果做 SPY / QQQ 日内 ATM 期权，已经避开开盘前10分钟第一波急拉/急跌",
+  "入场不是第一根冲动K，而是等待过确认、回踩或 VWAP 反抽失败",
 ];
 
 const colorMap = {
@@ -689,13 +696,94 @@ function OptionScanningModule() {
   );
 }
 
+
+function SPYAtmRhythmModule() {
+  const rhythm = [
+    ["9:30–9:40 美东 / 21:30–21:40 北京", "只观察，不急着交易", "第一波急拉/急跌常常是诱多、诱空或止损扫荡。"],
+    ["9:40–10:00 美东 / 21:40–22:00 北京", "等第一次 VWAP 确认", "站上回踩不破再考虑 Call；跌破反抽不过再考虑 Put。"],
+    ["10:00 以后美东 / 22:00 以后北京", "只做结构清楚的第二波", "做延续或反转都可以，但必须有 VWAP、量能和结构确认。"],
+  ];
+
+  const entryRules = [
+    ["Call 规则", "价格站上 VWAP 后，等回踩 VWAP 不破，再考虑 ATM Call。"],
+    ["Put 规则", "价格跌破 VWAP 后，等反抽 VWAP 不过，再考虑 ATM Put。"],
+    ["标准差外侧", "冲到上轨但量能不跟、上影线多，可小仓看回落；砸到下轨但不破且量能衰减，可小仓看反弹。"],
+    ["核心口令", "不追第一波，不赌最后一波，只拿确认后的中间段。"],
+  ];
+
+  const banRules = [
+    "刚开盘第一波急拉 / 急跌立刻追",
+    "连续三四根大阳 / 大阴之后才进场",
+    "价格反复穿 VWAP，多空没有控制权",
+    "没有量能配合，只是看起来要涨 / 跌",
+  ];
+
+  return (
+    <div className="mt-5 overflow-hidden rounded-[1.9rem] border-2 border-violet-300 bg-white shadow-xl shadow-violet-100">
+      <div className="border-b border-violet-200 bg-gradient-to-r from-violet-700 via-sky-700 to-teal-700 px-5 py-4 text-white">
+        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">SPY / QQQ ATM Rhythm</div>
+        <h3 className="mt-1 text-xl font-black">SPY 日内 ATM 期权进场节奏</h3>
+        <p className="mt-2 text-sm font-bold leading-6 text-violet-50">
+          不是不能做空，而是做空不能急；先观察、等 VWAP 确认、只拿结构清楚的一段。
+        </p>
+      </div>
+
+      <div className="grid gap-5 p-5 xl:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <h4 className="text-base font-black text-slate-950">日内时间节奏</h4>
+          <div className="mt-3 grid gap-3">
+            {rhythm.map(([time, action, desc], index) => (
+              <div key={time} className="grid gap-3 rounded-2xl border border-slate-300 bg-slate-50 p-4 shadow-sm md:grid-cols-[190px_1fr]">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-700 text-xs font-black text-white">{index + 1}</span>
+                  <span className="text-sm font-black leading-6 text-slate-950">{time}</span>
+                </div>
+                <div>
+                  <div className="text-sm font-black text-teal-800">{action}</div>
+                  <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md shadow-teal-100">
+            <h4 className="text-base font-black text-teal-950">最佳入场位置</h4>
+            <div className="mt-3 grid gap-2">
+              {entryRules.map(([name, desc]) => (
+                <div key={name} className="rounded-2xl border border-teal-200 bg-white p-3 text-sm leading-6 shadow-sm">
+                  <span className="font-black text-teal-800">{name}：</span>
+                  <span className="font-semibold text-slate-700">{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100">
+            <h4 className="text-base font-black text-red-950">禁止动作</h4>
+            <ul className="mt-3 space-y-2">
+              {banRules.map((rule) => (
+                <li key={rule} className="flex gap-2 rounded-2xl border border-red-200 bg-white p-3 text-sm font-bold leading-6 text-slate-800 shadow-sm">
+                  <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-700" />
+                  <span>{rule}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function OptionExecutionModule() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader
         number="03"
         title="期权执行与合约选择系统"
-        desc="把日内期权压缩为：先筛合约，再判断方向，再用 Delta 估算目标价。"
+        desc="把日内期权压缩为：先筛合约，再判断方向，等 VWAP 节奏，再用 Delta 估算目标价。"
         tone="blue"
       />
 
@@ -715,6 +803,7 @@ function OptionExecutionModule() {
       </div>
 
       <OptionScanningModule />
+      <SPYAtmRhythmModule />
 
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {optionExecutionSteps.map((step, index) => (
@@ -752,6 +841,7 @@ function OptionExecutionModule() {
           <h3 className="text-lg font-black text-slate-950">期权执行纪律</h3>
           <div className="mt-4 grid gap-2 text-sm font-bold leading-7 text-slate-800 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-3">每天最多 1–3 单</div>
+            <div className="rounded-2xl bg-slate-50 p-3">开盘前10分钟只观察</div>
             <div className="rounded-2xl bg-slate-50 p-3">单笔只用账户 5%–10% 以内</div>
             <div className="rounded-2xl bg-slate-50 p-3">优先 ATM 平值 / 轻微 ITM</div>
             <div className="rounded-2xl bg-slate-50 p-3">Delta 0.45–0.65 优先</div>
@@ -820,7 +910,7 @@ export default function TradingModelTrainingSystem() {
           <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
               <div className="mb-3 flex flex-wrap gap-2">
-                <Badge color="cyan">交易模型训练系统 v1.0</Badge>
+                <Badge color="cyan">交易模型训练系统 v1.1</Badge>
                 <Badge color="red">先风控，后机会</Badge>
               </div>
               <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
