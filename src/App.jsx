@@ -167,12 +167,12 @@ const models = [
     icon: Zap,
     color: "green",
     summary:
-      "盘前明确利好推动高开，开盘不追，等回踩 VWAP 或关键支撑不破后做 Call。",
+      "盘前明确利好推动高开，开盘不追；VWAP 不是直接入场点，而是观察点，必须等回踩不破/收回确认后做 Call。",
     conditions: [
       "盘前有明确利好，不是无原因乱涨",
       "盘前成交量明显放大",
       "开盘高开后没有直接瀑布",
-      "回踩 VWAP / 前高 / 支撑不破",
+      "回踩 VWAP / 前高 / 支撑后，不破或快速收回",
       "期权成交量足，买卖价差小",
     ],
     avoid: [
@@ -181,9 +181,9 @@ const models = [
       "IV 过高，期权已经被买贵",
       "买卖价差大，进去就亏很多",
     ],
-    entry: "等第一次回踩站稳，再买近月/当周期权的平值或轻度价内 Call。",
+    entry: "等第一次回踩站稳，或跌破后快速收回并重新站上，再买近月/当周期权的平值或轻度价内 Call。",
     exit: "盈利 30%-50% 先保护；跌破 VWAP 或关键位直接撤。",
-    mantra: "期权不要追热闹，要等回踩证明强。",
+    mantra: "VWAP不是入场点，是观察点；确认收回才顺势。",
   },
   {
     id: "option-sector-leader",
@@ -286,9 +286,9 @@ const trainingQuestions = [
   },
   {
     question: "一只股票盘前利好高开，开盘第一分钟直接拉升，你想买 Call。正确动作是？",
-    options: ["马上追", "等回踩 VWAP 或关键位", "买最便宜虚值合约", "满仓进"],
+    options: ["马上追", "等回踩 / 收回 / 放量确认", "买最便宜虚值合约", "满仓进"],
     answer: 1,
-    explain: "期权开盘追涨风险极高，第一版系统优先训练回踩确认。",
+    explain: "期权开盘追涨风险极高。先看 Catalyst、Direction，再等确认，不追第一根。",
   },
   {
     question: "今天已经连续亏损两笔，但你看到黄金出现了一个还不错的FVG回补。你该怎么做？",
@@ -309,16 +309,22 @@ const trainingQuestions = [
     explain: "期权第一步是 Catalyst（事件驱动）。没有原因、没有量、没有共振，默认不做。",
   },
   {
-    question: "正股在 VWAP 下方，反抽 VWAP 失败，同时放量下跌。更符合什么机会？",
-    options: ["Call", "Put", "不看方向", "追最便宜合约"],
+    question: "价格从下方反抽到 VWAP，没有明显上影线，也没有放量阴线，反而重新站上并横住。你还能买 Put 吗？",
+    options: ["能，到线就空", "不能，空头压制没有确认成功", "能，因为上涨都是诱多", "可以加倍买Put"],
     answer: 1,
-    explain: "VWAP 下方反抽不过，再放量转弱，更符合 Put 方向，但仍要控制入场和止损。",
+    explain: "VWAP 是测试区，不是按钮。站不上并跌回下方才是反抽失败；重新站上并横住，就不能机械做空。",
   },
   {
-    question: "SPY 围绕 VWAP 反复穿越，9EMA 和 20EMA 缠在一起，K线小实体和十字星很多。这个盘面最适合做什么？",
+    question: "你买了 Put，但价格重新站上 VWAP，9EMA 开始上拐，并且小碎步往上爬。更专业的处理是什么？",
+    options: ["继续硬扛", "承认规则失效，能接受的亏损内先走或减仓", "立刻加仓摊平", "马上反手满仓Call"],
+    answer: 1,
+    explain: "Put 的反抽失败条件已经被破坏。继续硬扛容易从技术单变成情绪单。",
+  },
+  {
+    question: "SPY 围绕 VWAP 反复穿越，9EMA 和 20EMA 缠在一起，小实体和十字星很多。这个盘面最适合做什么？",
     options: ["买 ATM Call", "买 ATM Put", "不做，属于期权买方低胜率区", "买更远到期的合约硬扛"],
     answer: 2,
-    explain: "这是典型的输时间盘：方向不清、量能不足、正股每次突破都被拉回。期权买方即使方向没大错，也容易被 Theta 和价差消耗。",
+    explain: "这是典型的输时间盘：方向不清、量能不足、空间不足。期权买方容易被 Theta 和价差消耗。",
   },
   {
     question: "SPY 有支撑没有跌破，你想买 Call。更完整的判断是什么？",
@@ -330,7 +336,7 @@ const trainingQuestions = [
     question: "你买的是 5DTE，比 0DTE 更抗磨。这个理解正确吗？",
     options: ["完全正确，所以可以随便拿", "部分正确，但正股不走照样难赚钱", "错误，5DTE 比 0DTE 更快归零", "只要是 SPY 就不用管时间价值"],
     answer: 1,
-    explain: "5DTE 确实比 0DTE 抗磨，但不是不怕磨。期权买方最终仍然需要正股速度和方向，否则只是亏得慢一点。",
+    explain: "5DTE 确实比 0DTE 抗磨，但不是不怕磨。期权买方最终仍然需要正股速度和方向。",
   },
 ];
 
@@ -362,15 +368,16 @@ const optionExecutionSteps = [
   },
   {
     key: "VWAP",
-    cn: "日内分界",
-    title: "VWAP 是日内多空边界线",
-    summary: "VWAP 用来决定你优先找 Call 还是 Put，不是用来频繁猜顶底。",
+    cn: "观察确认",
+    title: "VWAP 不是压力/支撑线，而是确认观察区",
+    summary: "VWAP 用来观察多空控制权，不能机械当压力位或支撑位。入场必须等失败、收回或放量确认。",
     rules: [
-      "价格在 VWAP 上方：只优先找 Call，不轻易逆势做 Put",
-      "价格在 VWAP 下方：只优先找 Put，不轻易逆势做 Call",
+      "价格在 VWAP 上方：只说明多头暂时占优；不是追 Call，仍要等回踩不破、快速收回或放量延续",
+      "价格在 VWAP 下方：只说明空头暂时占优；不是追 Put，仍要等反抽不过、跌回下方或放量转弱",
+      "到 VWAP 不等于开仓；VWAP 附近没有确认，默认不做",
       "反复穿 VWAP：不做，因为多空没有清晰控制权",
     ],
-    example: "VWAP 附近反复拉扯，就是期权买方的消耗区。",
+    example: "VWAP 是观察点，不是按钮；确认失败才反转，确认收回才顺势。",
   },
   {
     key: "Volume",
@@ -389,14 +396,14 @@ const optionExecutionSteps = [
     key: "Entry",
     cn: "入场框架",
     title: "最好的入场不是追最猛那根",
-    summary: "期权日内最好的入场，通常是第一次放量确认、回踩失败，或突破 VWAP 后反抽不过。",
+    summary: "期权日内最好的入场，不是碰到 VWAP 就开仓，而是等 VWAP 附近完成确认。",
     rules: [
-      "第一波放量站稳，可以小仓试错",
-      "回踩 VWAP / 支撑不破，再做 Call 更稳",
-      "跌破 VWAP 后反抽不过，再做 Put 更稳",
+      "第一波放量站稳，可以小仓试错，但必须有明确止损",
+      "做 Call：回踩 VWAP 不破，或跌破后快速收回并重新站上",
+      "做 Put：反抽 VWAP 不过，或站上失败后重新跌回下方",
       "已经连续三四根大阳/大阴，不要追，容易吃反弹或回落",
     ],
-    example: "你不需要吃完整段，只需要拿走中间最确定的一段。",
+    example: "你不需要吃完整段，只需要拿走确认后的中间段。",
   },
   {
     key: "Exit",
@@ -416,14 +423,15 @@ const optionExecutionSteps = [
 
 
 const preTradeChecks = [
-  "当前价格不在区间中间，至少靠近边界 / FVG / OB / VWAP / 关键位",
-  "这笔交易符合 9 个核心模型之一，而不是临时找理由",
-  "已经明确止损位置，亏损金额可以接受",
-  "没有处于连续亏损、回本冲动、烦躁追单状态",
-  "黄金避开数据前后乱扫；期权确认大盘/板块/个股共振",
-  "如果做 SPY / QQQ 日内 ATM 期权，已经避开开盘前10分钟第一波急拉/急跌",
-  "没有处于期权买方低胜率区：VWAP反复穿越、均线缠绕、小实体多、量能不足",
-  "入场不是第一根冲动K，而是等待过确认、回踩或 VWAP 反抽失败",
+  "位置明确：靠近边界 / FVG / OB / VWAP观察区 / 关键结构，不在中间乱做",
+  "模型匹配：这笔交易符合核心模型之一，不是临场找理由",
+  "确认完整：已经等到失败 / 收回 / 放量 / 回踩不破之一，而不是看到线就开仓",
+  "风险可控：止损位置和亏损金额已提前确定，错了能马上走",
+  "情绪正常：没有连续亏损、回本冲动、烦躁追单或想证明自己",
+  "期权过滤：合约流动性、买卖价差、Delta、成交量都合格",
+  "市场环境：黄金避开数据乱扫；期权确认大盘 / 板块 / 个股方向共振",
+  "节奏正确：SPY / QQQ 已避开开盘前10分钟第一波急拉急跌",
+  "低胜率区排除：没有 VWAP 反复穿越、均线缠绕、小实体多、量能不足",
 ];
 
 const colorMap = {
@@ -713,31 +721,40 @@ function OptionScanningModule() {
 function SPYAtmRhythmModule() {
   const rhythm = [
     ["9:30–9:40 美东 / 21:30–21:40 北京", "只观察，不急着交易", "第一波急拉/急跌常常是诱多、诱空或止损扫荡。"],
-    ["9:40–10:00 美东 / 21:40–22:00 北京", "等第一次 VWAP 确认", "站上回踩不破再考虑 Call；跌破反抽不过再考虑 Put。"],
+    ["9:40–10:00 美东 / 21:40–22:00 北京", "等第一次 VWAP 确认", "不是到 VWAP 就做，必须等回踩不破、反抽不过、快速收回或放量失败。"],
     ["10:00 以后美东 / 22:00 以后北京", "只做结构清楚的第二波", "做延续或反转都可以，但必须有 VWAP、量能和结构确认。"],
   ];
 
   const entryRules = [
-    ["Call 规则", "价格站上 VWAP 后，等回踩 VWAP 不破，再考虑 ATM Call。"],
-    ["Put 规则", "价格跌破 VWAP 后，等反抽 VWAP 不过，再考虑 ATM Put。"],
+    ["Call 规则", "不是跌到 VWAP 就多；回踩 VWAP 不破，或跌破后快速收回，下一根重新站上，9EMA 重新上拐，才考虑 ATM Call。"],
+    ["Put 规则", "不是到 VWAP 就空；反抽 VWAP 站不上，出现上影线/放量失败，下一根重新跌回 VWAP 下方，3分钟20EMA继续压制，才考虑 ATM Put。"],
     ["标准差外侧", "冲到上轨但量能不跟、上影线多，可小仓看回落；砸到下轨但不破且量能衰减，可小仓看反弹。"],
-    ["核心口令", "不追第一波，不赌最后一波，只拿确认后的中间段。"],
+    ["核心口令", "VWAP不是入场点，是观察点；不追第一波，不赌最后一波，只拿确认后的中间段。"],
   ];
 
+  const vwapConfirmRules = [
+    ["Put 可以考虑", "从下方反抽 VWAP → 站不上 / 上影线 / 放量失败 → 下一根重新跌回 VWAP 下方 → 3分钟20EMA继续压制 → 跌破回踩低点。"],
+    ["Put 禁止", "反抽 VWAP 后没有被打下来、没有放量阴线、重新站上并横住、9EMA上拐、小碎步往上爬。"],
+    ["Call 可以考虑", "回踩 VWAP 不破，或跌破后快速收回 → 下一根重新站上 → 9EMA重新上拐 → 量能没有衰退。"],
+    ["核心修正", "VWAP不开仓，VWAP只观察；确认失败才反转，确认收回才顺势。"],
+  ];
   const banRules = [
     "刚开盘第一波急拉 / 急跌立刻追",
     "连续三四根大阳 / 大阴之后才进场",
+    "价格到 VWAP 就直接当压力/支撑开仓",
+    "反抽 VWAP 后已经重新站上，还继续硬买 Put",
+    "价格回踩 VWAP 后已经快速收回，还继续硬做空",
     "价格反复穿 VWAP，多空没有控制权",
-    "没有量能配合，只是看起来要涨 / 跌",
+    "没有失败/收回/放量确认，只是看起来要涨 / 跌",
   ];
 
   return (
     <div className="mt-5 overflow-hidden rounded-[1.9rem] border-2 border-violet-300 bg-white shadow-xl shadow-violet-100">
       <div className="border-b border-violet-200 bg-gradient-to-r from-violet-700 via-sky-700 to-teal-700 px-5 py-4 text-white">
         <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">SPY / QQQ ATM Rhythm</div>
-        <h3 className="mt-1 text-xl font-black">SPY 日内 ATM 期权进场节奏</h3>
+        <h3 className="mt-1 text-xl font-black">SPY / QQQ 日内 ATM 节奏与 VWAP 确认</h3>
         <p className="mt-2 text-sm font-bold leading-6 text-violet-50">
-          不是不能做空，而是做空不能急；先观察、等 VWAP 确认、只拿结构清楚的一段。
+          VWAP 不是支撑/压力按钮，而是观察区。先等测试结果：失败才反转，收回才顺势，只拿结构清楚的一段。
         </p>
       </div>
 
@@ -767,6 +784,18 @@ function SPYAtmRhythmModule() {
               {entryRules.map(([name, desc]) => (
                 <div key={name} className="rounded-2xl border border-teal-200 bg-white p-3 text-sm leading-6 shadow-sm">
                   <span className="font-black text-teal-800">{name}：</span>
+                  <span className="font-semibold text-slate-700">{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[1.5rem] border-2 border-sky-300 bg-sky-50 p-4 shadow-md shadow-sky-100">
+            <h4 className="text-base font-black text-sky-950">VWAP 确认协议</h4>
+            <div className="mt-3 grid gap-2">
+              {vwapConfirmRules.map(([name, desc]) => (
+                <div key={name} className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6 shadow-sm">
+                  <span className="font-black text-sky-800">{name}：</span>
                   <span className="font-semibold text-slate-700">{desc}</span>
                 </div>
               ))}
@@ -810,7 +839,7 @@ function OptionLowWinRateZoneModule() {
 
   const framework = [
     ["方向", "今天为什么会涨/跌？没有原因，不做。"],
-    ["VWAP", "VWAP 上方优先 Call，下方优先 Put，反复穿越不做。"],
+    ["VWAP", "VWAP上方/下方只是观察方向，不是开仓理由；必须等失败、收回或放量确认。"],
     ["量能", "放量突破才有买方速度；无量横盘是期权买方地狱。"],
     ["空间", "支撑和压力太近，不做；没有空间，就没有盈亏比。"],
     ["离场", "+30%–50% 优先落袋；方向失效立刻走。"],
@@ -822,7 +851,7 @@ function OptionLowWinRateZoneModule() {
         <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Option Buyer Low-Win Zone</div>
         <h3 className="mt-1 text-xl font-black">期权买方低胜率区识别</h3>
         <p className="mt-2 text-sm font-bold leading-6 text-amber-50">
-          看到类似结构，直接标记为：不输方向，输时间。不是看错行情，而是期权买方没有速度优势。
+          看到类似结构，直接标记为：买方低胜率区。不是只判断方向，而是同时判断速度、空间和时间价值。
         </p>
       </div>
 
@@ -844,7 +873,7 @@ function OptionLowWinRateZoneModule() {
 
         <div className="grid gap-4">
           <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md shadow-teal-100">
-            <h4 className="text-base font-black text-teal-950">今天这个案例真正教你的三件事</h4>
+            <h4 className="text-base font-black text-teal-950">低胜率区必须记住的三件事</h4>
             <div className="mt-3 grid gap-3">
               {lessons.map(([title, desc], index) => (
                 <div key={title} className="rounded-2xl border border-teal-200 bg-white p-3 shadow-sm">
@@ -881,7 +910,7 @@ function OptionExecutionModule() {
       <SectionHeader
         number="03"
         title="期权执行与合约选择系统"
-        desc="把日内期权压缩为：先筛合约，再判断方向，等 VWAP 节奏，识别低胜率区，再用 Delta 估算目标价。"
+        desc="把日内期权统一成一条执行链：合约筛选、事件方向、VWAP确认、量能空间、低胜率过滤、目标价估算。"
         tone="blue"
       />
 
@@ -889,13 +918,13 @@ function OptionExecutionModule() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.22em] text-teal-700">Options Execution Framework</div>
-            <h3 className="mt-2 text-2xl font-black text-slate-950">五步执行法：Catalyst → Direction → VWAP → Volume → Exit</h3>
+            <h3 className="mt-2 text-2xl font-black text-slate-950">五步执行法：Catalyst → Direction → VWAP Confirm → Volume → Exit</h3>
             <p className="mt-3 max-w-4xl text-sm font-semibold leading-7 text-slate-700">
-              中文就是：事件驱动、方向确认、VWAP 分界、量能验证、及时离场。期权不是看到股票涨就买 Call，而是先判断这张期权好不好进、好不好出、涨不涨得动。
+              中文就是：事件驱动、方向确认、VWAP观察确认、量能验证、及时离场。期权不是看到股票涨就买 Call，也不是到 VWAP 就做反转；先确认合约好不好进出，再确认正股有没有方向、速度和空间。
             </p>
           </div>
           <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-black leading-7 text-red-900 shadow-md">
-            先筛合约，再谈方向。先看流动性，再看利润。用 Delta 估算目标，用限价单进出。
+            模块优先级：先修改旧规则，再新增内容。所有期权入场都统一回到五步执行法，不再靠补丁规则临场判断。
           </div>
         </div>
       </div>
@@ -1016,7 +1045,7 @@ export default function TradingModelTrainingSystem() {
                 黄金 / EUR / 期权高胜率形态强化面板
               </h1>
               <p className="mt-4 max-w-4xl text-sm font-semibold leading-7 text-slate-700 md:text-base">
-                每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权五步执行法、板块龙头、大盘共振，以及最重要的禁止交易条件。
+                每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权五步执行法、板块龙头、大盘共振、低胜率过滤，以及最重要的禁止交易条件。
               </p>
             </div>
             <div className="rounded-[1.6rem] border-2 border-red-300 bg-gradient-to-br from-red-50 to-white p-5 shadow-xl shadow-red-100">
