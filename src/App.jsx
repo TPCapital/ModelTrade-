@@ -389,42 +389,46 @@ function DecisionSignalBoard({ title, items, tone = "teal" }) {
   );
 }
 
-function FlagBubble({ emoji, label }) {
+function FlagBubble({ emoji }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-1.5 shadow-sm">
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-base">{emoji}</span>
-      <span className="text-xs font-black text-slate-700">{label}</span>
-    </div>
+    <motion.div
+      whileHover={{ scale: 1.08, rotate: -4 }}
+      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/90 bg-white/95 text-2xl shadow-[0_12px_26px_rgba(15,23,42,0.12)]"
+      aria-label="flag"
+    >
+      <span>{emoji}</span>
+    </motion.div>
   );
 }
 
-function TrafficLightIcon({ active = "green" }) {
+function SignalLamp({ active = "green", size = "lg" }) {
   const [hovered, setHovered] = useState(false);
-  const on = hovered ? active : null;
-  const lampClass = (color) => {
-    const isOn = on === color;
+  const sizeMap = {
+    sm: { wrap: "h-14 w-14", bulb: "h-7 w-7" },
+    lg: { wrap: "h-20 w-20", bulb: "h-10 w-10" },
+  };
+  const chosen = sizeMap[size] || sizeMap.lg;
+  const lampClass = () => {
+    const isOn = hovered;
     const map = {
-      red: isOn ? "bg-red-500 shadow-[0_0_18px_rgba(239,68,68,0.75)]" : "bg-red-200",
-      yellow: isOn ? "bg-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.75)]" : "bg-amber-200",
-      green: isOn ? "bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.75)]" : "bg-emerald-200",
+      red: isOn ? "bg-red-500 shadow-[0_0_26px_rgba(239,68,68,0.9)]" : "bg-red-200/90",
+      yellow: isOn ? "bg-amber-400 shadow-[0_0_26px_rgba(245,158,11,0.88)]" : "bg-amber-200/90",
+      green: isOn ? "bg-emerald-500 shadow-[0_0_26px_rgba(16,185,129,0.9)]" : "bg-emerald-200/90",
     };
-    return map[color];
+    return map[active];
   };
   return (
     <motion.div
-      whileHover={{ scale: 1.04 }}
+      whileHover={{ scale: 1.06 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex w-14 flex-col items-center gap-2 rounded-[1.2rem] border border-slate-300 bg-slate-950 px-3 py-3 shadow-[0_16px_30px_rgba(15,23,42,0.22)]"
+      className={cn("flex items-center justify-center rounded-full border border-slate-200 bg-slate-950 shadow-[0_18px_42px_rgba(15,23,42,0.18)]", chosen.wrap)}
     >
-      {['red', 'yellow', 'green'].map((color) => (
-        <motion.div
-          key={color}
-          className={cn('h-7 w-7 rounded-full border border-white/20 transition-all duration-300', lampClass(color))}
-          animate={{ scale: hovered && active === color ? [1, 1.08, 1] : 1 }}
-          transition={{ duration: 0.55 }}
-        />
-      ))}
+      <motion.div
+        className={cn("rounded-full border border-white/30 transition-all duration-300", chosen.bulb, lampClass())}
+        animate={{ scale: hovered ? [1, 1.12, 1] : 1 }}
+        transition={{ duration: 0.55 }}
+      />
     </motion.div>
   );
 }
@@ -467,13 +471,13 @@ function OptionSignalLightBoard() {
       </div>
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((item) => (
-          <motion.div key={item.label} whileHover={{ y: -3 }} className={cn('rounded-[1.5rem] border p-4 shadow-sm transition', item.card)}>
+          <motion.div key={item.label} whileHover={{ y: -5, scale: 1.012 }} className={cn('group rounded-[1.5rem] border p-4 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.13)]', item.card)}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className={cn('inline-flex rounded-full border px-2.5 py-1 text-[11px] font-black', item.chip)}>{item.label}</div>
                 <div className="mt-4 text-sm font-black text-slate-950">{item.title}</div>
               </div>
-              <TrafficLightIcon active={item.active} />
+              <SignalLamp active={item.active} />
             </div>
             <div className="mt-4 text-sm font-bold leading-6 text-slate-600">{item.text}</div>
           </motion.div>
@@ -518,13 +522,13 @@ function KillZoneBoard() {
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <motion.div key={item.title} whileHover={{ y: -3 }} className={cn('rounded-[1.5rem] border p-4 shadow-sm', item.cls)}>
+            <motion.div key={item.title} whileHover={{ y: -5, scale: 1.01 }} className={cn('group rounded-[1.5rem] border p-4 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]', item.cls)}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Icon className={cn('h-5 w-5 shrink-0', item.iconCls)} />
                   <div className="text-lg font-black text-slate-950">{item.title}</div>
                 </div>
-                {item.emoji ? <FlagBubble emoji={item.emoji} label={item.flag} /> : null}
+                {item.emoji ? <FlagBubble emoji={item.emoji} /> : null}
               </div>
               <div className="mt-4 text-lg font-black leading-8 text-slate-950">{item.text}</div>
             </motion.div>
@@ -967,11 +971,26 @@ function OptionSystem() {
             <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
             <AlertTriangle className="h-5 w-5 text-red-700" />
           </div>
-          <div className="mt-4 grid flex-1 gap-3 sm:grid-cols-2">
-            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">Theta</span></div><div className="text-lg font-black leading-8 text-red-950">入场太早，被时间磨死</div></motion.div>
-            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">IV</span></div><div className="text-lg font-black leading-8 text-red-950">IV过高，方向对也不赚钱</div></motion.div>
-            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">VWAP</span></div><div className="text-lg font-black leading-8 text-red-950">把观察区误当开仓点</div></motion.div>
-            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">止损</span></div><div className="text-lg font-black leading-8 text-red-950">小亏不走，变成大亏</div></motion.div>
+          <div className="mt-4 grid flex-1 gap-4 sm:grid-cols-2">
+            {[
+              ["Theta", "入场太早", "被时间磨死"],
+              ["IV", "IV过高", "方向对也不赚钱"],
+              ["VWAP", "误把观察区", "当成开仓点"],
+              ["止损", "小亏不走", "最后变成大亏"],
+            ].map(([tag, a, b]) => (
+              <motion.div
+                key={tag}
+                whileHover={{ y: -6, scale: 1.015 }}
+                className="group rounded-[1.5rem] border border-red-200 bg-white p-5 transition-all duration-300 hover:border-red-300 hover:shadow-[0_24px_60px_rgba(127,29,29,0.18)]"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3 text-red-800">
+                  <div className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" /><span className="text-sm font-black uppercase tracking-[0.16em]">{tag}</span></div>
+                  <div className="h-2 w-14 rounded-full bg-red-100"><div className="h-2 w-8 rounded-full bg-red-700 transition-all duration-300 group-hover:w-14" /></div>
+                </div>
+                <div className="text-2xl font-black leading-10 text-red-950">{a}</div>
+                <div className="mt-1 text-lg font-black leading-8 text-red-800/90">{b}</div>
+              </motion.div>
+            ))}
           </div>
         </Card>
         <OptionPriceCalculator />
@@ -1125,7 +1144,7 @@ export default function TradingModelTrainingSystem() {
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.9</Badge><Badge tone="red">终端交互版</Badge><Badge tone="blue">图形可视化</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v3.1</Badge><Badge tone="red">浅色交互版</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
