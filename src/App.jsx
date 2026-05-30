@@ -26,7 +26,7 @@ function cn(...classes) {
 }
 
 function Card({ children, className = "" }) {
-  return <div className={cn("border bg-white shadow-lg", className)}>{children}</div>;
+  return <div className={cn("border border-slate-200/90 bg-white/95 backdrop-blur-md shadow-[0_22px_55px_rgba(15,23,42,0.10)]", className)}>{children}</div>;
 }
 
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
@@ -120,7 +120,7 @@ function RuleCard({ label, text, tone = "teal", icon: Icon = CheckCircle2 }) {
 
 function FlowCard({ title, badge, tone = "teal", items = [] }) {
   return (
-    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-xl shadow-slate-200/80">
+    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
       <div
         className={cn(
           "h-2",
@@ -156,24 +156,44 @@ function FlowCard({ title, badge, tone = "teal", items = [] }) {
 }
 
 function VisualMeter({ label, left, right, fill = 50, tone = "teal", note }) {
-  const color = {
-    teal: "bg-teal-600",
-    red: "bg-red-600",
-    amber: "bg-amber-500",
-    blue: "bg-sky-600",
-    violet: "bg-violet-600",
-    green: "bg-emerald-600",
+  const [hovered, setHovered] = useState(false);
+  const theme = {
+    teal: { base: "bg-teal-500", soft: "bg-teal-400/30", dot: "border-teal-200 bg-teal-500 shadow-[0_0_18px_rgba(13,148,136,0.65)]", glow: "shadow-[0_0_18px_rgba(13,148,136,0.55)]" },
+    red: { base: "bg-red-500", soft: "bg-red-400/25", dot: "border-red-200 bg-red-500 shadow-[0_0_18px_rgba(239,68,68,0.65)]", glow: "shadow-[0_0_18px_rgba(239,68,68,0.55)]" },
+    amber: { base: "bg-amber-500", soft: "bg-amber-300/30", dot: "border-amber-100 bg-amber-500 shadow-[0_0_18px_rgba(245,158,11,0.65)]", glow: "shadow-[0_0_18px_rgba(245,158,11,0.55)]" },
+    blue: { base: "bg-sky-500", soft: "bg-sky-300/30", dot: "border-sky-100 bg-sky-500 shadow-[0_0_18px_rgba(14,165,233,0.65)]", glow: "shadow-[0_0_18px_rgba(14,165,233,0.55)]" },
+    violet: { base: "bg-violet-500", soft: "bg-violet-300/30", dot: "border-violet-100 bg-violet-500 shadow-[0_0_18px_rgba(139,92,246,0.65)]", glow: "shadow-[0_0_18px_rgba(139,92,246,0.55)]" },
+    green: { base: "bg-emerald-500", soft: "bg-emerald-300/30", dot: "border-emerald-100 bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.65)]", glow: "shadow-[0_0_18px_rgba(16,185,129,0.55)]" },
   }[tone];
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+    <div
+      className="rounded-2xl border border-slate-200 bg-slate-50/90 p-3 transition duration-300 hover:border-slate-300 hover:bg-white"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <div className="flex items-center justify-between text-xs font-black text-slate-500">
         <span>{label}</span>
         <span>{note}</span>
       </div>
-      <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200">
-        <div className={cn("h-full rounded-full", color)} style={{ width: `${fill}%` }} />
+      <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200/90 ring-1 ring-slate-200">
+        <div className={cn("absolute hidden", theme.base)} />
+        <div className={cn("h-full rounded-full", theme.soft)} style={{ width: `${fill}%` }} />
+        <motion.div
+          className={cn("-mt-3 h-3 rounded-full", theme.base, theme.glow)}
+          initial={false}
+          animate={{ width: hovered ? `${fill}%` : "0%" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
       </div>
-      <div className="mt-2 flex justify-between text-xs font-bold text-slate-500">
+      <div className="relative mt-1 h-4">
+        <motion.div
+          className={cn("absolute top-0.5 h-3 w-3 rounded-full border-2", theme.dot)}
+          initial={false}
+          animate={{ left: hovered ? `calc(${fill}% - 6px)` : "-12px", opacity: hovered ? 1 : 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+      <div className="mt-1 flex justify-between text-xs font-bold text-slate-500">
         <span>{left}</span>
         <span>{right}</span>
       </div>
@@ -210,23 +230,30 @@ function ProcessRail({ steps, tone = "teal" }) {
 }
 
 function HeatWindow({ title, rows }) {
+  const [active, setActive] = useState(null);
   return (
-    <Card className="rounded-[1.7rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+    <Card className="rounded-[1.7rem] border-slate-300 bg-white/95 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-lg font-black text-slate-950">{title}</h3>
         <Clock className="h-5 w-5 text-slate-500" />
       </div>
       <div className="mt-4 space-y-3">
-        {rows.map((row) => (
-          <div key={row.label}>
-            <div className="mb-1 flex items-center justify-between text-xs font-black text-slate-500">
+        {rows.map((row, idx) => (
+          <div key={row.label} onMouseEnter={() => setActive(idx)} onMouseLeave={() => setActive(null)} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition hover:border-slate-300 hover:bg-white">
+            <div className="mb-2 flex items-center justify-between text-xs font-black text-slate-500">
               <span>{row.label}</span>
               <span>{row.status}</span>
             </div>
-            <div className="h-4 overflow-hidden rounded-full bg-slate-100">
-              <div className={cn("h-full rounded-full", row.className)} style={{ width: `${row.fill}%` }} />
+            <div className="relative h-4 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
+              <div className={cn("h-full rounded-full opacity-20", row.className)} style={{ width: `${row.fill}%` }} />
+              <motion.div
+                className={cn("-mt-4 h-4 rounded-full", row.className, "shadow-[0_0_18px_rgba(15,23,42,0.20)]")}
+                initial={false}
+                animate={{ width: active === idx ? `${row.fill}%` : "0%" }}
+                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              />
             </div>
-            <div className="mt-1 text-xs font-bold text-slate-600">{row.note}</div>
+            <div className="mt-2 text-xs font-bold text-slate-600">{row.note}</div>
           </div>
         ))}
       </div>
@@ -243,7 +270,7 @@ function VisualDecision({ title, tone = "teal", items }) {
     red: "bg-red-700 text-white",
   }[tone];
   return (
-    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-xl shadow-slate-200/80">
+    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
       <div className={cn("px-5 py-4", headClass)}>
         <h3 className="text-lg font-black">{title}</h3>
       </div>
@@ -462,7 +489,7 @@ function TradingMatrix() {
         {matrix.map((item) => {
           const Icon = iconMap[item.name];
           return (
-            <Card key={item.name} className="rounded-[1.7rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+            <Card key={item.name} className="rounded-[1.7rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
               <div className="mb-4 flex items-center justify-between">
                 <Badge tone={item.tone}>{item.role}</Badge>
                 <div className="rounded-2xl bg-slate-100 p-3"><Icon className="h-5 w-5 text-slate-600" /></div>
@@ -522,7 +549,7 @@ function OptionSystem() {
         ]}
       />
       <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-black text-slate-950">VWAP 状态机</h3>
             <Zap className="h-5 w-5 text-slate-500" />
@@ -557,7 +584,7 @@ function OptionSystem() {
               { label: "15:45-16:00", status: "禁做", fill: 18, className: "bg-red-500", note: "尾盘对冲，波动异常。" },
             ]}
           />
-          <Card className="rounded-[1.7rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+          <Card className="rounded-[1.7rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-lg font-black text-slate-950">合约与风控仪表</h3>
               <Gauge className="h-5 w-5 text-slate-500" />
@@ -572,7 +599,7 @@ function OptionSystem() {
         </div>
       </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <Card className="rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-xl shadow-red-100">
+        <Card className="rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-[0_20px_55px_rgba(239,68,68,0.16)]">
           <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <RuleCard label="Theta" text="入场太早，被时间磨死" tone="red" icon={AlertTriangle} />
@@ -593,7 +620,7 @@ function ExpansionSystem() {
       <SectionHeader number="04" title="正股配置系统" desc="保留必要内容，但图形化展示，避免和日内模块抢注意力。" tone="violet" />
       <div className="grid gap-4 lg:grid-cols-2">
         {stockModels.map((m) => <FlowCard key={m.title} {...m} />)}
-        <Card className="rounded-[1.7rem] border-violet-300 bg-violet-50 p-5 shadow-xl shadow-violet-100">
+        <Card className="rounded-[1.7rem] border-violet-300 bg-violet-50 p-5 shadow-[0_20px_55px_rgba(139,92,246,0.14)]">
           <Badge tone="violet">加密暂缓</Badge>
           <h3 className="mt-3 text-lg font-black text-slate-950">加密合约 / 期权</h3>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -612,7 +639,7 @@ function MacroAndModels() {
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤做成一眼可看懂的风险地图，让阅读变成扫视。" tone="slate" />
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-black text-slate-950">VIX 风险地图</h3>
             <Gauge className="h-5 w-5 text-slate-500" />
@@ -626,7 +653,7 @@ function MacroAndModels() {
             重点不是只看 <KeyWord tone="slate">VIX 绝对值</KeyWord>，还要看 <KeyWord tone="amber">当日方向</KeyWord>。
           </div>
         </Card>
-        <Card className="rounded-[1.8rem] border-teal-700 bg-white p-5 shadow-xl shadow-teal-100/70">
+        <Card className="rounded-[1.8rem] border-teal-700 bg-white p-5 shadow-[0_22px_60px_rgba(13,148,136,0.15)]">
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <h3 className="text-xl font-black text-slate-950">高胜率模型库</h3>
@@ -715,9 +742,9 @@ export default function TradingModelTrainingSystem() {
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dff7f4_0,#f4fbff_32%,#f8fafc_70%)] text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d1fae5_0,#ebf8ff_22%,#f8fafc_55%,#eef4fb_100%)] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-300 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.14)]">
+        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
             <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.5</Badge><Badge tone="red">图形精简版</Badge><Badge tone="blue">低阅读压力</Badge></div>
@@ -736,7 +763,7 @@ export default function TradingModelTrainingSystem() {
           </div>
         </motion.header>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-300 p-5 shadow-xl"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
+        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] p-5 shadow-[0_20px_50px_rgba(15,23,42,0.12)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
 
         <TradingMatrix />
         <GoldEurSystem />
