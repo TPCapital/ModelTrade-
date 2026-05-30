@@ -213,9 +213,29 @@ const optionModels = [
     badge: "先筛再做",
     tone: "teal",
     items: [
-      { label: "Delta", text: "日内优先0.45-0.65", tone: "teal" },
+      { label: "Delta", text: "日内0.45-0.55；波段0.40-0.50；激进0.35-0.45", tone: "teal" },
       { label: "价差", text: "0.01-0.08较好；0.20+默认放弃", tone: "amber" },
-      { label: "止损", text: "日内亏损20%-30%警惕/离场", tone: "red", icon: ShieldAlert },
+      { label: "止损", text: "-20%警戒；-25%硬止损；不等-30%", tone: "red", icon: ShieldAlert },
+    ],
+  },
+  {
+    title: "时间窗口",
+    badge: "日内过滤",
+    tone: "blue",
+    items: [
+      { label: "优先", text: "09:45-11:30 / 13:30-15:00 ET", tone: "green" },
+      { label: "避开", text: "09:30-09:45、午盘、尾盘15分钟", tone: "red", icon: Ban },
+      { label: "数据", text: "FOMC/CPI/非农后30分钟不急进", tone: "amber" },
+    ],
+  },
+  {
+    title: "大盘/板块协同",
+    badge: "方向确认",
+    tone: "violet",
+    items: [
+      { label: "NVDA", text: "看QQQ + XLK，同向才升级", tone: "violet" },
+      { label: "TSLA", text: "看QQQ + XLY，冲突就降级", tone: "blue" },
+      { label: "原则", text: "个股强但大盘/板块冲突，放弃或小仓", tone: "red", icon: AlertTriangle },
     ],
   },
 ];
@@ -234,9 +254,10 @@ const stockModels = [
 ];
 
 const macroCards = [
-  { state: "Risk ON", cond: "VIX < 18 + DXY下行", action: "正股 / QQQ Call 更友好；黄金谨慎", tone: "green" },
-  { state: "Risk OFF", cond: "VIX > 25 + DXY上行", action: "黄金避险 / Put / 观望优先", tone: "red" },
+  { state: "强Risk ON", cond: "VIX<18 且当日下行", action: "Call环境更友好；可正常筛选机会", tone: "green" },
+  { state: "低位转弱", cond: "VIX<18 但当日上行", action: "缩小仓位；警惕低位转向", tone: "amber" },
   { state: "过渡期", cond: "VIX 18-25", action: "降仓，等方向，不扩大交易", tone: "amber" },
+  { state: "Risk OFF", cond: "VIX>25 且继续上行", action: "Put/观望优先；谨慎做多", tone: "red" },
 ];
 
 const highWinModels = [
@@ -287,11 +308,13 @@ const checklist = [
   "位置不在中间位，也不是机械到线开仓。",
   "方向完整：大盘、板块、品种结构不冲突。",
   "期权已检查：DTE、Delta、价差、成交量、IV风险。",
+  "期权处于高概率时间窗口，避开开盘乱流/午盘/尾盘。",
   "VWAP只作观察区，已出现失败/收回确认。",
   "量能和空间足够，不是低胜率磨损区。",
-  "黄金/EUR已确认结构、流动性、趋势强度。",
-  "风险已写清：止损、止盈、最大亏损。",
-  "避开开盘乱扫、午盘低流动性、重大数据前。",
+  "黄金/EUR已确认Kill Zone、结构、流动性、趋势强度。",
+  "风险已写清：-25%硬止损、+50%保护、最大亏损。",
+  "VIX方向支持或已降仓处理。",
+  "没有触发连续亏损熔断：2笔连亏/日损5%/3日连亏。",
   "情绪正常：不是回本、证明自己、连续亏损后追单。",
 ];
 
@@ -301,6 +324,9 @@ const questions = [
   { q: "EUR均线缠绕、ADX低，还能做趋势回踩吗？", options: ["能", "不能，趋势强度不足", "只看MACD", "追突破"], a: 1, exp: "趋势系统必须先有趋势环境。" },
   { q: "IVR > 60 时，买方期权最怕什么？", options: ["买太便宜", "IV Crush和买贵", "成交太多", "Delta太高"], a: 1, exp: "IV高位时，方向对也可能被波动率回落杀掉利润。" },
   { q: "正股是否只靠K线入场？", options: ["是", "不是，先有基本面锚定", "只看PE", "只看消息"], a: 1, exp: "正股是低频配置系统，基本面锚定优先。" },
+  { q: "日内期权亏损到-25%，正确动作是什么？", options: ["再等到-30%", "硬止损离场", "加仓摊平", "换合约继续赌"], a: 1, exp: "-20%是警戒，-25%是硬止损，不给情绪留空间。" },
+  { q: "NVDA想买Call，但QQQ和XLK都弱，怎么办？", options: ["正常买", "方向冲突，降级或放弃", "买更虚值", "无视大盘"], a: 1, exp: "日内个股期权需要大盘/板块协同，冲突时胜率下降。" },
+  { q: "黄金亚洲盘中间位出现信号，可以主动追吗？", options: ["可以", "不追，优先等伦敦/纽约Kill Zone", "满仓试", "只看FVG"], a: 1, exp: "黄金/EUR要加入时间过滤，亚洲盘中间位假信号多。" },
 ];
 
 function OptionPriceCalculator() {
@@ -379,6 +405,14 @@ function GoldEurSystem() {
         <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md"><KeyWord tone="teal">Level 2</KeyWord><h3 className="mt-2 font-black text-slate-950">4H / 1H</h3><p className="mt-1 text-sm font-bold text-slate-700">找位置：BSL/SSL、FVG、POC集中区。</p></div>
         <div className="rounded-[1.5rem] border-2 border-sky-300 bg-sky-50 p-4 shadow-md"><KeyWord tone="blue">Level 3</KeyWord><h3 className="mt-2 font-black text-slate-950">15M / 5M</h3><p className="mt-1 text-sm font-bold text-slate-700">等确认：收回、拒绝、CHoCH/BOS。</p></div>
       </div>
+      <div className="mb-5 rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-4 shadow-md">
+        <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="red">Kill Zone</KeyWord><span className="text-sm font-black text-red-950">时间过滤优先于普通信号</span></div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <RuleCard label="伦敦" text="15:00-17:00 北京：扫亚洲盘高低点" tone="amber" />
+          <RuleCard label="纽约" text="21:30-23:30 北京：扫伦敦高低点后定方向" tone="blue" />
+          <RuleCard label="禁区" text="亚洲盘中间位默认不追，数据前后不做" tone="red" icon={Ban} />
+        </div>
+      </div>
       <div className="grid gap-4 lg:grid-cols-3">{goldModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">{eurModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
     </section>
@@ -389,7 +423,15 @@ function OptionSystem() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/85 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader number="03" title="期权买方系统" desc="先区分日内/波段，再判断方向、时间、波动率。" tone="blue" />
-      <div className="grid gap-4 lg:grid-cols-3">{optionModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
+      <div className="grid gap-4 lg:grid-cols-3 2xl:grid-cols-5">{optionModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
+      <div className="mt-5 rounded-[1.6rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md">
+        <div className="grid gap-3 md:grid-cols-4">
+          <RuleCard label="警戒" text="-20%：检查正股结构是否失效" tone="amber" icon={AlertTriangle} />
+          <RuleCard label="硬止损" text="-25%：必须离场" tone="red" icon={ShieldAlert} />
+          <RuleCard label="保护" text="+50%：至少平一半" tone="green" />
+          <RuleCard label="不贪" text="+80%-100%：优先全平" tone="teal" />
+        </div>
+      </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
         <Card className="rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-xl shadow-red-100">
           <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
@@ -417,8 +459,8 @@ function ExpansionSystem() {
           <h3 className="mt-3 text-lg font-black text-slate-950">加密合约 / 期权</h3>
           <div className="mt-4 grid gap-2">
             <RuleCard label="看" text="OI、Funding、清算尖峰" tone="violet" />
-            <RuleCard label="等" text="清算后Pin Bar/吞没确认" tone="teal" />
-            <RuleCard label="禁" text="高杠杆、插针前猜底顶" tone="red" icon={Ban} />
+            <RuleCard label="等" text="清算后15-45分钟，5M/15M确认" tone="teal" />
+            <RuleCard label="禁" text="1M噪音追反转；高杠杆猜顶底" tone="red" icon={Ban} />
           </div>
         </Card>
       </div>
@@ -430,7 +472,7 @@ function MacroAndModels() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
       <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="先判断环境，再选择模型。没有触发，就不是机会。" tone="slate" />
-      <div className="mb-5 grid gap-3 lg:grid-cols-3">
+      <div className="mb-5 grid gap-3 lg:grid-cols-4">
         {macroCards.map((m) => <RuleCard key={m.state} label={`${m.state}｜${m.cond}`} text={m.action} tone={m.tone} icon={Gauge} />)}
       </div>
       <div className="rounded-[1.8rem] border-2 border-teal-700 bg-white p-4 shadow-xl shadow-teal-100/70">
@@ -492,9 +534,9 @@ function DisciplineSystem() {
         <h3 className="text-xl font-black text-red-950">账户生存法则</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-4">
           <RuleCard label="次数" text="每日最多3笔" tone="red" />
-          <RuleCard label="熔断" text="连续亏损2笔停止" tone="red" />
-          <RuleCard label="日损" text="亏损≤账户5%" tone="red" />
-          <RuleCard label="底线" text="规则误用单，不拖成情绪单" tone="red" />
+          <RuleCard label="连亏" text="当日连续亏损2笔，暂停1小时" tone="red" />
+          <RuleCard label="日损" text="当日亏损>账户5%，停止交易" tone="red" />
+          <RuleCard label="周期" text="连续3日亏损，回模拟盘1周" tone="red" />
         </div>
       </Card>
     </section>
@@ -515,7 +557,7 @@ export default function TradingModelTrainingSystem() {
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-300 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.14)]">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.3</Badge><Badge tone="red">精简核心版</Badge><Badge tone="blue">关键词标注</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.4</Badge><Badge tone="red">执行精确版</Badge><Badge tone="blue">关键词标注</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
