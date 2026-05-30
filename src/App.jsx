@@ -389,47 +389,54 @@ function DecisionSignalBoard({ title, items, tone = "teal" }) {
   );
 }
 
-function FlagBubble({ emoji }) {
+function FlagCorner({ type = "uk" }) {
+  const isUS = type === "us";
+  const bg = isUS
+    ? "linear-gradient(180deg,#b91c1c 0 7.7%,#fff 7.7% 15.4%,#b91c1c 15.4% 23.1%,#fff 23.1% 30.8%,#b91c1c 30.8% 38.5%,#fff 38.5% 46.2%,#b91c1c 46.2% 53.9%,#fff 53.9% 61.6%,#b91c1c 61.6% 69.3%,#fff 69.3% 77%,#b91c1c 77% 84.7%,#fff 84.7% 92.4%,#b91c1c 92.4% 100%)"
+    : "linear-gradient(45deg,transparent 42%,#fff 42% 48%,#b91c1c 48% 54%,#fff 54% 60%,transparent 60%),linear-gradient(-45deg,transparent 42%,#fff 42% 48%,#b91c1c 48% 54%,#fff 54% 60%,transparent 60%),linear-gradient(90deg,transparent 42%,#fff 42% 47%,#b91c1c 47% 53%,#fff 53% 58%,transparent 58%),linear-gradient(0deg,transparent 38%,#fff 38% 45%,#b91c1c 45% 55%,#fff 55% 62%,transparent 62%),#1e3a8a";
   return (
     <motion.div
-      whileHover={{ scale: 1.08, rotate: -4 }}
-      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/90 bg-white/95 text-2xl shadow-[0_12px_26px_rgba(15,23,42,0.12)]"
-      aria-label="flag"
+      aria-label={isUS ? "US flag" : "UK flag"}
+      whileHover={{ scale: 1.08, rotate: -2 }}
+      className="pointer-events-none absolute bottom-0 right-0 h-14 w-24 overflow-hidden rounded-tl-[1.2rem] rounded-br-[1.45rem] border-l border-t border-white/70 shadow-[0_12px_28px_rgba(15,23,42,0.16)]"
+      style={{ background: bg }}
     >
-      <span>{emoji}</span>
+      {isUS && <div className="absolute left-0 top-0 h-[54%] w-[42%] bg-blue-900" />}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-black/18" />
     </motion.div>
   );
 }
 
-function SignalLamp({ active = "green", size = "lg" }) {
+function SignalLamp({ active = "green" }) {
   const [hovered, setHovered] = useState(false);
-  const sizeMap = {
-    sm: { wrap: "h-14 w-14", bulb: "h-7 w-7" },
-    lg: { wrap: "h-20 w-20", bulb: "h-10 w-10" },
-  };
-  const chosen = sizeMap[size] || sizeMap.lg;
-  const lampClass = () => {
-    const isOn = hovered;
-    const map = {
-      red: isOn ? "bg-red-500 shadow-[0_0_26px_rgba(239,68,68,0.9)]" : "bg-red-200/90",
-      yellow: isOn ? "bg-amber-400 shadow-[0_0_26px_rgba(245,158,11,0.88)]" : "bg-amber-200/90",
-      green: isOn ? "bg-emerald-500 shadow-[0_0_26px_rgba(16,185,129,0.9)]" : "bg-emerald-200/90",
-    };
-    return map[active];
-  };
+  const color = {
+    green: {
+      off: "radial-gradient(circle at 35% 30%,#d8f8e5 0,#a7f3d0 38%,#57c58a 72%,#18925d 100%)",
+      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#b8ffe0 20%,#34d399 52%,#059669 100%)",
+      glow: "0 0 0 7px rgba(16,185,129,0.12),0 0 28px rgba(16,185,129,0.62),inset -5px -7px 12px rgba(4,120,87,0.35),inset 5px 6px 10px rgba(255,255,255,0.55)",
+    },
+    yellow: {
+      off: "radial-gradient(circle at 35% 30%,#fff8cf 0,#fde68a 42%,#d6a822 78%,#a46b00 100%)",
+      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#fff4b8 20%,#facc15 55%,#d97706 100%)",
+      glow: "0 0 0 7px rgba(245,158,11,0.12),0 0 28px rgba(245,158,11,0.62),inset -5px -7px 12px rgba(146,64,14,0.35),inset 5px 6px 10px rgba(255,255,255,0.58)",
+    },
+    red: {
+      off: "radial-gradient(circle at 35% 30%,#ffe1e1 0,#fecaca 42%,#db6b6b 76%,#991b1b 100%)",
+      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#ffc4c4 20%,#ef4444 55%,#b91c1c 100%)",
+      glow: "0 0 0 7px rgba(239,68,68,0.12),0 0 28px rgba(239,68,68,0.62),inset -5px -7px 12px rgba(127,29,29,0.36),inset 5px 6px 10px rgba(255,255,255,0.55)",
+    },
+  }[active];
   return (
     <motion.div
-      whileHover={{ scale: 1.06 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={cn("flex items-center justify-center rounded-full border border-slate-200 bg-slate-950 shadow-[0_18px_42px_rgba(15,23,42,0.18)]", chosen.wrap)}
-    >
-      <motion.div
-        className={cn("rounded-full border border-white/30 transition-all duration-300", chosen.bulb, lampClass())}
-        animate={{ scale: hovered ? [1, 1.12, 1] : 1 }}
-        transition={{ duration: 0.55 }}
-      />
-    </motion.div>
+      whileHover={{ scale: 1.12 }}
+      className="h-11 w-11 shrink-0 rounded-full border border-white/70"
+      style={{
+        background: hovered ? color.on : color.off,
+        boxShadow: hovered ? color.glow : "inset -5px -7px 12px rgba(15,23,42,0.18),inset 5px 6px 10px rgba(255,255,255,0.52),0 8px 18px rgba(15,23,42,0.12)",
+      }}
+    />
   );
 }
 
@@ -522,15 +529,16 @@ function KillZoneBoard() {
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <motion.div key={item.title} whileHover={{ y: -5, scale: 1.01 }} className={cn('group rounded-[1.5rem] border p-4 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]', item.cls)}>
+            <motion.div key={item.title} whileHover={{ y: -5, scale: 1.01 }} className={cn('group relative overflow-hidden rounded-[1.5rem] border p-4 pr-28 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]', item.cls)}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Icon className={cn('h-5 w-5 shrink-0', item.iconCls)} />
                   <div className="text-lg font-black text-slate-950">{item.title}</div>
                 </div>
-                {item.emoji ? <FlagBubble emoji={item.emoji} /> : null}
+                
               </div>
               <div className="mt-4 text-lg font-black leading-8 text-slate-950">{item.text}</div>
+              {item.emoji ? <FlagCorner type={item.title === '纽约' ? 'us' : 'uk'} /> : null}
             </motion.div>
           );
         })}
