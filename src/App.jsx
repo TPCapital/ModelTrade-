@@ -389,21 +389,25 @@ function DecisionSignalBoard({ title, items, tone = "teal" }) {
   );
 }
 
-function FlagCorner({ type = "uk" }) {
-  const isUS = type === "us";
-  const bg = isUS
-    ? "linear-gradient(180deg,#b91c1c 0 7.7%,#fff 7.7% 15.4%,#b91c1c 15.4% 23.1%,#fff 23.1% 30.8%,#b91c1c 30.8% 38.5%,#fff 38.5% 46.2%,#b91c1c 46.2% 53.9%,#fff 53.9% 61.6%,#b91c1c 61.6% 69.3%,#fff 69.3% 77%,#b91c1c 77% 84.7%,#fff 84.7% 92.4%,#b91c1c 92.4% 100%)"
-    : "linear-gradient(45deg,transparent 42%,#fff 42% 48%,#b91c1c 48% 54%,#fff 54% 60%,transparent 60%),linear-gradient(-45deg,transparent 42%,#fff 42% 48%,#b91c1c 48% 54%,#fff 54% 60%,transparent 60%),linear-gradient(90deg,transparent 42%,#fff 42% 47%,#b91c1c 47% 53%,#fff 53% 58%,transparent 58%),linear-gradient(0deg,transparent 38%,#fff 38% 45%,#b91c1c 45% 55%,#fff 55% 62%,transparent 62%),#1e3a8a";
+function FlagBackdrop({ type = "uk" }) {
+  const src = type === "us" ? "/flag-us.png" : "/flag-gb.png";
   return (
-    <motion.div
-      aria-label={isUS ? "US flag" : "UK flag"}
-      whileHover={{ scale: 1.08, rotate: -2 }}
-      className="pointer-events-none absolute bottom-0 right-0 h-14 w-24 overflow-hidden rounded-tl-[1.2rem] rounded-br-[1.45rem] border-l border-t border-white/70 shadow-[0_12px_28px_rgba(15,23,42,0.16)]"
-      style={{ background: bg }}
-    >
-      {isUS && <div className="absolute left-0 top-0 h-[54%] w-[42%] bg-blue-900" />}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-black/18" />
-    </motion.div>
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.5rem]">
+      <motion.img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        initial={{ opacity: 0.18, x: 12 }}
+        whileHover={{ opacity: 0.32, x: 0 }}
+        transition={{ duration: 0.45 }}
+        className="absolute bottom-0 right-0 h-full w-[68%] object-cover object-center"
+        style={{
+          WebkitMaskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 32%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.68) 100%)",
+          maskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 32%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.68) 100%)",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-white/72 via-white/55 to-white/10" />
+    </div>
   );
 }
 
@@ -411,30 +415,30 @@ function SignalLamp({ active = "green" }) {
   const [hovered, setHovered] = useState(false);
   const color = {
     green: {
-      off: "radial-gradient(circle at 35% 30%,#d8f8e5 0,#a7f3d0 38%,#57c58a 72%,#18925d 100%)",
-      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#b8ffe0 20%,#34d399 52%,#059669 100%)",
-      glow: "0 0 0 7px rgba(16,185,129,0.12),0 0 28px rgba(16,185,129,0.62),inset -5px -7px 12px rgba(4,120,87,0.35),inset 5px 6px 10px rgba(255,255,255,0.55)",
+      off: "radial-gradient(circle at 32% 28%,#ffffff 0,#c8f7dc 24%,#8ad9ad 58%,#3e9f70 100%)",
+      on: "radial-gradient(circle at 30% 24%,#ffffff 0,#bcffe2 22%,#34d399 58%,#059669 100%)",
+      glow: "0 0 0 4px rgba(16,185,129,0.10),0 0 20px rgba(16,185,129,0.58),inset -4px -5px 9px rgba(4,120,87,0.38),inset 4px 4px 8px rgba(255,255,255,0.68)",
     },
     yellow: {
-      off: "radial-gradient(circle at 35% 30%,#fff8cf 0,#fde68a 42%,#d6a822 78%,#a46b00 100%)",
-      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#fff4b8 20%,#facc15 55%,#d97706 100%)",
-      glow: "0 0 0 7px rgba(245,158,11,0.12),0 0 28px rgba(245,158,11,0.62),inset -5px -7px 12px rgba(146,64,14,0.35),inset 5px 6px 10px rgba(255,255,255,0.58)",
+      off: "radial-gradient(circle at 32% 28%,#ffffff 0,#fff1b8 24%,#e4ca63 60%,#b98209 100%)",
+      on: "radial-gradient(circle at 30% 24%,#ffffff 0,#fff4b8 22%,#facc15 58%,#d97706 100%)",
+      glow: "0 0 0 4px rgba(245,158,11,0.10),0 0 20px rgba(245,158,11,0.58),inset -4px -5px 9px rgba(146,64,14,0.38),inset 4px 4px 8px rgba(255,255,255,0.68)",
     },
     red: {
-      off: "radial-gradient(circle at 35% 30%,#ffe1e1 0,#fecaca 42%,#db6b6b 76%,#991b1b 100%)",
-      on: "radial-gradient(circle at 35% 28%,#ffffff 0,#ffc4c4 20%,#ef4444 55%,#b91c1c 100%)",
-      glow: "0 0 0 7px rgba(239,68,68,0.12),0 0 28px rgba(239,68,68,0.62),inset -5px -7px 12px rgba(127,29,29,0.36),inset 5px 6px 10px rgba(255,255,255,0.55)",
+      off: "radial-gradient(circle at 32% 28%,#ffffff 0,#ffd0d0 24%,#e59a9a 60%,#b43b3b 100%)",
+      on: "radial-gradient(circle at 30% 24%,#ffffff 0,#ffc4c4 22%,#ef4444 58%,#b91c1c 100%)",
+      glow: "0 0 0 4px rgba(239,68,68,0.10),0 0 20px rgba(239,68,68,0.58),inset -4px -5px 9px rgba(127,29,29,0.38),inset 4px 4px 8px rgba(255,255,255,0.68)",
     },
   }[active];
   return (
     <motion.div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      whileHover={{ scale: 1.12 }}
-      className="h-11 w-11 shrink-0 rounded-full border border-white/70"
+      whileHover={{ scale: 1.16 }}
+      className="h-8 w-8 shrink-0 rounded-full"
       style={{
         background: hovered ? color.on : color.off,
-        boxShadow: hovered ? color.glow : "inset -5px -7px 12px rgba(15,23,42,0.18),inset 5px 6px 10px rgba(255,255,255,0.52),0 8px 18px rgba(15,23,42,0.12)",
+        boxShadow: hovered ? color.glow : "inset -4px -5px 9px rgba(15,23,42,0.16),inset 4px 4px 8px rgba(255,255,255,0.62),0 6px 13px rgba(15,23,42,0.10)",
       }}
     />
   );
@@ -529,16 +533,16 @@ function KillZoneBoard() {
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <motion.div key={item.title} whileHover={{ y: -5, scale: 1.01 }} className={cn('group relative overflow-hidden rounded-[1.5rem] border p-4 pr-28 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]', item.cls)}>
-              <div className="flex items-start justify-between gap-3">
+            <motion.div key={item.title} whileHover={{ y: -5, scale: 1.01 }} className={cn('group relative overflow-hidden rounded-[1.5rem] border p-5 shadow-sm transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]', item.cls)}>
+              <div className="relative z-10 flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Icon className={cn('h-5 w-5 shrink-0', item.iconCls)} />
                   <div className="text-lg font-black text-slate-950">{item.title}</div>
                 </div>
                 
               </div>
-              <div className="mt-4 text-lg font-black leading-8 text-slate-950">{item.text}</div>
-              {item.emoji ? <FlagCorner type={item.title === '纽约' ? 'us' : 'uk'} /> : null}
+              <div className="relative z-10 mt-4 max-w-[72%] text-lg font-black leading-8 text-slate-950">{item.text}</div>
+              {item.emoji ? <FlagBackdrop type={item.title === '纽约' ? 'us' : 'uk'} /> : null}
             </motion.div>
           );
         })}
