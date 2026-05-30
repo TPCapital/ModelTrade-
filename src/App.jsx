@@ -26,16 +26,16 @@ function cn(...classes) {
 }
 
 function Card({ children, className = "" }) {
-  return <div className={cn("border border-slate-700/80 bg-slate-900/88 backdrop-blur-xl shadow-[0_28px_70px_rgba(2,6,23,0.42)]", className)}>{children}</div>;
+  return <div className={cn("border border-slate-200/90 bg-white/95 backdrop-blur-md shadow-[0_22px_55px_rgba(15,23,42,0.10)]", className)}>{children}</div>;
 }
 
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
   const base =
     "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition focus:outline-none focus:ring-4";
   const variants = {
-    default: "bg-cyan-700 text-white hover:bg-cyan-600 focus:ring-cyan-900/30",
-    ghost: "bg-slate-900 text-slate-200 hover:bg-slate-800 focus:ring-cyan-900/30 border border-slate-700",
-    danger: "bg-rose-700 text-white hover:bg-rose-600 focus:ring-rose-900/30",
+    default: "bg-teal-700 text-white hover:bg-teal-800 focus:ring-teal-200",
+    ghost: "bg-white text-slate-700 hover:bg-slate-50 focus:ring-teal-100 border border-slate-300",
+    danger: "bg-red-700 text-white hover:bg-red-800 focus:ring-red-200",
   };
   return (
     <button type={type} className={cn(base, variants[variant] || variants.default, className)} {...props}>
@@ -46,38 +46,38 @@ function Button({ children, className = "", variant = "default", type = "button"
 
 function Badge({ children, tone = "teal" }) {
   const toneMap = {
-    teal: "border-cyan-700/60 bg-cyan-950/70 text-cyan-100",
-    red: "border-rose-700/60 bg-rose-950/60 text-rose-100",
-    amber: "border-amber-700/60 bg-amber-950/50 text-amber-100",
-    blue: "border-sky-700/60 bg-sky-950/60 text-sky-100",
-    violet: "border-violet-700/60 bg-violet-950/60 text-violet-100",
-    slate: "border-slate-600 bg-slate-900 text-slate-100",
-    green: "border-emerald-700/60 bg-emerald-950/60 text-emerald-100",
+    teal: "border-teal-600 bg-teal-50 text-teal-900",
+    red: "border-red-600 bg-red-50 text-red-900",
+    amber: "border-amber-600 bg-amber-50 text-amber-950",
+    blue: "border-sky-600 bg-sky-50 text-sky-950",
+    violet: "border-violet-600 bg-violet-50 text-violet-950",
+    slate: "border-slate-500 bg-slate-50 text-slate-800",
+    green: "border-emerald-600 bg-emerald-50 text-emerald-950",
   };
   return <span className={cn("rounded-full border px-3 py-1 text-xs font-black", toneMap[tone])}>{children}</span>;
 }
 
 function KeyWord({ children, tone = "teal" }) {
   const toneMap = {
-    teal: "bg-cyan-800 text-cyan-50",
-    red: "bg-rose-800 text-rose-50",
-    amber: "bg-amber-700 text-amber-50",
-    blue: "bg-sky-800 text-sky-50",
-    violet: "bg-violet-800 text-violet-50",
-    slate: "bg-slate-700 text-slate-50",
-    green: "bg-emerald-800 text-emerald-50",
+    teal: "bg-teal-700 text-white",
+    red: "bg-red-700 text-white",
+    amber: "bg-amber-600 text-white",
+    blue: "bg-sky-700 text-white",
+    violet: "bg-violet-700 text-white",
+    slate: "bg-slate-800 text-white",
+    green: "bg-emerald-700 text-white",
   };
   return <span className={cn("inline-flex rounded-lg px-2 py-0.5 text-xs font-black", toneMap[tone])}>{children}</span>;
 }
 
 function SectionHeader({ number, title, desc, tone = "teal" }) {
   const toneMap = {
-    teal: "from-slate-900 to-cyan-800",
-    blue: "from-slate-900 to-sky-800",
-    red: "from-slate-900 to-rose-800",
-    amber: "from-slate-900 to-amber-800",
-    violet: "from-slate-900 to-violet-800",
-    slate: "from-slate-900 to-slate-700",
+    teal: "from-teal-700 to-cyan-600",
+    blue: "from-sky-700 to-blue-600",
+    red: "from-red-700 to-rose-600",
+    amber: "from-amber-700 to-orange-600",
+    violet: "from-violet-700 to-fuchsia-600",
+    slate: "from-slate-800 to-slate-600",
   };
   return (
     <div className="mb-5 flex items-start gap-4">
@@ -126,15 +126,15 @@ function FlowCard({ title, badge, tone = "teal", items = [] }) {
         className={cn(
           "h-2",
           tone === "teal"
-            ? "bg-cyan-800"
+            ? "bg-teal-700"
             : tone === "blue"
-              ? "bg-slate-700"
+              ? "bg-sky-700"
               : tone === "amber"
                 ? "bg-amber-600"
                 : tone === "red"
-                  ? "bg-rose-800"
+                  ? "bg-red-700"
                   : tone === "violet"
-                    ? "bg-violet-800"
+                    ? "bg-violet-700"
                     : tone === "green"
                       ? "bg-emerald-700"
                       : "bg-slate-700"
@@ -617,11 +617,11 @@ function MacroRadarBoard() {
 
 function VisualDecision({ title, tone = "teal", items }) {
   const headClass = {
-    teal: "bg-cyan-800 text-cyan-50",
-    amber: "bg-amber-700 text-amber-50",
-    blue: "bg-sky-800 text-sky-50",
-    violet: "bg-violet-800 text-violet-50",
-    red: "bg-rose-800 text-rose-50",
+    teal: "bg-teal-700 text-white",
+    amber: "bg-amber-600 text-white",
+    blue: "bg-sky-700 text-white",
+    violet: "bg-violet-700 text-white",
+    red: "bg-red-700 text-white",
   }[tone];
   return (
     <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
@@ -1120,28 +1120,28 @@ export default function TradingModelTrainingSystem() {
   );
 
   return (
-    <div className="intj-theme min-h-screen bg-[radial-gradient(circle_at_top_left,#0f172a_0,#0b1120_28%,#111827_68%,#020617_100%)] text-slate-100">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d7f3e8_0,#edf5ff_20%,#f3f7fb_52%,#e8eef7_100%)] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-700/80 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(2,6,23,0.94))] shadow-[0_40px_120px_rgba(2,6,23,0.52)] ring-1 ring-white/5">
-          <div className="h-1.5 bg-gradient-to-r from-cyan-700 via-slate-500 to-violet-800" />
+        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
+          <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="slate">交易模型训练系统 v3.0</Badge><Badge tone="blue">极简冷感 INTJ 版</Badge><Badge tone="teal">终端化重构</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.9</Badge><Badge tone="red">终端交互版</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统 · INTJ</h1>
-                <p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-300">
+                <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
+                <p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-700">
                   把复杂内容压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。
                 </p>
               </div>
-              <div className="rounded-[1.5rem] border border-slate-700 bg-slate-900/80 p-4 shadow-[0_20px_50px_rgba(2,6,23,0.35)]">
-                <div className="flex items-center gap-2 text-cyan-100"><AlertTriangle className="h-5 w-5" /><span className="font-black">总原则</span></div>
-                <p className="mt-2 text-sm font-bold leading-7 text-slate-300">信号不完整，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p>
+              <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-lg">
+                <div className="flex items-center gap-2 text-red-900"><AlertTriangle className="h-5 w-5" /><span className="font-black">总原则</span></div>
+                <p className="mt-2 text-sm font-bold leading-7 text-red-900">信号不完整，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p>
               </div>
             </div>
           </div>
         </motion.header>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-200 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.88))] p-5 shadow-[0_24px_60px_rgba(2,6,23,0.36)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
+        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] p-5 shadow-[0_20px_50px_rgba(15,23,42,0.12)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
 
         <TradingMatrix />
         <GoldEurSystem />
