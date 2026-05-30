@@ -347,31 +347,35 @@ const trainingQuestions = [
 const highWinModels = [
   {
     market: "黄金/EUR",
-    title: "扫流动性 + 收回确认",
-    desc: "扫前高/前低后必须收回关键区间，并出现CHoCH或反向动能确认。",
-    doRules: ["等收回", "等反向确认", "止损放影线外/结构外", "目标看对侧流动性"],
-    banRules: ["只扫不收回", "新闻刚公布", "区间中间", "连续止损后硬做"],
+    title: "扫流动性收回",
+    use: "扫前高/前低后不追，等价格收回关键区间。",
+    trigger: "长影线拒绝 + CHoCH/反向K确认 + 止损能放在影线/结构外。",
+    action: "只做收回后的回踩或小级别确认；目标看中轴/对侧流动性。",
+    avoid: "只扫不收回、新闻刚公布、区间中间、连续亏损后硬做。",
   },
   {
     market: "黄金/EUR",
-    title: "POC集中区 + OB + FVG 共振回踩",
-    desc: "强推动后回补FVG，叠加3-5个相邻POC形成的成本区和OB/结构位，等待拒绝确认后顺势。",
-    doRules: ["强推动来源", "FVG未反复穿透", "POC集中区共振", "出现拒绝K和量能确认"],
-    banRules: ["单一POC机械开仓", "FVG反复被穿", "无趋势背景", "追第一根"],
+    title: "POC集中区共振",
+    use: "3-5个相邻POC形成成本区，叠加OB/FVG/结构位。",
+    trigger: "回踩到共振区后出现拒绝K，量能放大或动能重新启动。",
+    action: "顺原推动方向试仓；无拒绝不进，穿透共振区直接放弃。",
+    avoid: "单一POC当按钮、FVG反复被穿、无趋势背景、追第一根。",
   },
   {
     market: "EUR/外汇",
-    title: "EMA9/21/55 + ADX 趋势回踩",
-    desc: "外汇更适合趋势跟踪。破位后不追，等回踩EMA21或结构位，ADX确认趋势强度。",
-    doRules: ["EMA顺序排列", "ADX > 25更优", "回踩EMA21/结构位", "K线拒绝确认"],
-    banRules: ["ADX低迷", "均线缠绕", "固定10-15点机械入场", "数据前硬做"],
+    title: "EMA趋势回踩",
+    use: "EMA9/21/55顺序排列，ADX确认趋势环境。",
+    trigger: "破位后回踩EMA21/结构位，K线拒绝或重新站回趋势侧。",
+    action: "回踩确认后顺势；RR不足1:2不做，1:2后保护本金。",
+    avoid: "ADX低、均线缠绕、数据前硬做、固定点数机械入场。",
   },
   {
     market: "期权日内",
-    title: "VWAP确认 + 量能 + 合约过滤",
-    desc: "只做确认后的中间段，不在VWAP机械开仓。先筛合约，再谈方向。",
-    doRules: ["Catalyst", "大盘共振", "VWAP确认", "量能放大", "合约价差小"],
-    banRules: ["开盘前15分钟乱追", "反复穿VWAP", "无量横盘", "IV过高"],
+    title: "VWAP确认 + 合约过滤",
+    use: "先筛合约，再看方向；只拿确认后的中间段。",
+    trigger: "Catalyst + 大盘共振 + VWAP收回/失败 + 量能放大 + 价差小。",
+    action: "Call等回踩收回；Put等反抽失败；盈利30%-50%优先落袋。",
+    avoid: "到VWAP就开仓、反复穿VWAP、无量横盘、IV过高、开盘乱追。",
   },
 ];
 
@@ -563,12 +567,76 @@ function ExpansionSystem() {
 }
 
 function MacroAndModels() {
+  const toneForState = (state) => state === "Risk OFF" ? "red" : state === "Risk ON" ? "green" : "amber";
+  const modelTone = (market) => market === "期权日内" ? "teal" : market === "EUR/外汇" ? "blue" : "amber";
+
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
-      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="每周只需要用宏观矩阵确定环境；每天只需要练少数高胜率形态。" tone="slate" />
-      <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
-        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl"><h3 className="text-xl font-black text-slate-950">风险偏好矩阵</h3><div className="mt-4 space-y-3">{macroMatrix.map(([state, cond, action]) => <div key={state} className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center gap-2"><Badge tone={state === "Risk OFF" ? "red" : state === "Risk ON" ? "green" : "amber"}>{state}</Badge><span className="text-sm font-black text-slate-800">{cond}</span></div><p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{action}</p></div>)}</div></Card>
-        <div className="grid gap-4 lg:grid-cols-3">{highWinModels.map((m) => <Card key={m.title} className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl"><Badge tone={m.market === "期权日内" ? "teal" : "amber"}>{m.market}</Badge><h3 className="mt-3 text-lg font-black text-slate-950">{m.title}</h3><p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{m.desc}</p><div className="mt-3 space-y-2"><div className="text-xs font-black text-teal-700">必须满足</div>{m.doRules.map((r) => <RuleLine key={r} tone="teal">{r}</RuleLine>)}<div className="pt-2 text-xs font-black text-red-700">禁止</div>{m.banRules.map((r) => <RuleLine key={r} tone="red">{r}</RuleLine>)}</div></Card>)}</div>
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="这一栏改成横向执行卡：先判断环境，再选择模型。每张卡只保留开盘时真正能执行的触发、动作和放弃条件。" tone="slate" />
+
+      <div className="rounded-[1.8rem] border-2 border-slate-300 bg-slate-50 p-4 shadow-inner">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h3 className="text-lg font-black text-slate-950">风险偏好矩阵｜先定今天能不能放大交易</h3>
+          <Badge tone="slate">每周/每日开盘前</Badge>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {macroMatrix.map(([state, cond, action]) => (
+            <div key={state} className="rounded-[1.4rem] border border-slate-300 bg-white p-4 shadow-md">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <Badge tone={toneForState(state)}>{state}</Badge>
+                <span className="text-sm font-black text-slate-900">{cond}</span>
+              </div>
+              <p className="text-sm font-bold leading-6 text-slate-700">{action}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[1.8rem] border-2 border-teal-700 bg-white p-4 shadow-xl shadow-teal-100/70">
+        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h3 className="text-xl font-black text-slate-950">高胜率模型库｜只练少数可执行模型</h3>
+            <p className="mt-1 text-sm font-bold text-slate-600">不写概念堆叠，只写：适用场景、触发条件、执行动作、放弃条件。</p>
+          </div>
+          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-black text-red-900">没有触发 = 不交易</div>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-4">
+          {highWinModels.map((m) => (
+            <Card key={m.title} className="flex min-h-[360px] flex-col overflow-hidden rounded-[1.7rem] border-slate-300 shadow-xl shadow-slate-200/80">
+              <div className={cn(
+                "h-2",
+                modelTone(m.market) === "teal" ? "bg-teal-700" : modelTone(m.market) === "blue" ? "bg-sky-700" : "bg-amber-600"
+              )} />
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge tone={modelTone(m.market)}>{m.market}</Badge>
+                  <Target className="h-5 w-5 text-slate-500" />
+                </div>
+                <h3 className="mt-3 text-lg font-black leading-7 text-slate-950">{m.title}</h3>
+
+                <div className="mt-4 space-y-3 text-sm leading-6">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="font-black text-slate-950">适用场景</div>
+                    <p className="mt-1 font-semibold text-slate-700">{m.use}</p>
+                  </div>
+                  <div className="rounded-2xl border border-teal-200 bg-teal-50 p-3">
+                    <div className="font-black text-teal-900">触发条件</div>
+                    <p className="mt-1 font-semibold text-teal-950">{m.trigger}</p>
+                  </div>
+                  <div className="rounded-2xl border border-blue-200 bg-sky-50 p-3">
+                    <div className="font-black text-sky-900">执行动作</div>
+                    <p className="mt-1 font-semibold text-sky-950">{m.action}</p>
+                  </div>
+                  <div className="mt-auto rounded-2xl border border-red-300 bg-red-50 p-3">
+                    <div className="font-black text-red-900">放弃条件</div>
+                    <p className="mt-1 font-semibold text-red-950">{m.avoid}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
