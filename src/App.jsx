@@ -1,573 +1,384 @@
 import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
+  Activity,
+  AlertTriangle,
+  Ban,
+  BarChart3,
+  Brain,
+  CheckCircle2,
+  CircleDollarSign,
+  Clock,
+  Flame,
+  Gauge,
+  Layers,
+  LineChart,
+  Radar,
+  RefreshCcw,
   ShieldAlert,
   Target,
-  Brain,
   TrendingUp,
-  Ban,
-  CheckCircle2,
   XCircle,
-  RefreshCcw,
-  Flame,
-  Activity,
-  Clock,
-  Layers,
   Zap,
 } from "lucide-react";
-
-const models = [
-  {
-    id: "gold-liquidity-sweep",
-    market: "黄金 XAUUSD",
-    category: "反转模型",
-    title: "扫流动性 + 长影线拒绝",
-    level: "核心必练",
-    direction: "多空都可",
-    icon: ShieldAlert,
-    color: "yellow",
-    summary:
-      "价格先扫前高/前低，制造突破假象，随后长影线收回关键区间，形成反向机会。",
-    conditions: [
-      "价格明确扫掉前高或前低",
-      "出现长上影或长下影拒绝",
-      "K线重新收回关键区间内",
-      "反向动能开始出现，不是单根影线就盲进",
-      "止损可以放在影线外，风险清晰",
-    ],
-    avoid: [
-      "数据刚公布后的第一波乱扫",
-      "只扫了高低点但没有收回",
-      "价格在区间中间，没有边界意义",
-      "影线很长但后续没有反向确认",
-    ],
-    entry: "等待收回关键位后的回踩或小级别反向确认，不追第一根反转K。",
-    exit: "第一目标看区间中轴/前结构位；若反向动能衰减，先减仓或离场。",
-    mantra: "扫了不等于反转，收回才有意义。",
-  },
-  {
-    id: "gold-fvg-ob-continuation",
-    market: "黄金 XAUUSD",
-    category: "趋势延续",
-    title: "FVG + OB 回踩延续",
-    level: "核心必练",
-    direction: "顺势",
-    icon: Layers,
-    color: "amber",
-    summary:
-      "强推动留下 FVG，价格回补到订单块附近，出现拒绝后顺原方向继续。",
-    conditions: [
-      "前面必须有明显推动，不是弱震荡",
-      "FVG 来自强势K线或连续推动",
-      "回补时价格减速，而不是猛烈反穿",
-      "附近有 OB / POC / 结构位共振",
-      "出现长影线、吞没、重新放量等确认",
-    ],
-    avoid: [
-      "FVG 被多次穿透，已经失效",
-      "没有趋势背景，只是在震荡里乱画区域",
-      "回补时速度太快，说明支撑/阻力弱",
-      "止损空间过大，盈亏比不合理",
-    ],
-    entry: "回补 FVG 后等拒绝确认，顺原推动方向入场。",
-    exit: "目标看前高/前低、流动性池或下一磁吸区域。",
-    mantra: "FVG 不是入场理由，共振和拒绝才是。",
-  },
-  {
-    id: "gold-trash-range-ban",
-    market: "黄金 XAUUSD",
-    category: "禁止交易",
-    title: "垃圾震荡识别模型",
-    level: "保命模型",
-    direction: "不交易",
-    icon: Ban,
-    color: "red",
-    summary:
-      "上下影线乱扫、实体小、ATR下降、结构混乱时，黄金最容易反复打损。",
-    conditions: [
-      "上下影线频繁出现，多空都被扫",
-      "K线实体变小，方向没有延续",
-      "ATR 下降但价格来回穿关键位",
-      "FVG / OB 频繁失效",
-      "价格卡在区间中间，没有边界优势",
-    ],
-    avoid: [
-      "想靠一单回本",
-      "因为无聊或不甘心强行找机会",
-      "连续亏损后加大仓位",
-      "用趋势模型硬套震荡盘",
-    ],
-    entry: "没有入场，直接关闭交易冲动。",
-    exit: "离场、休息、等待伦敦盘/纽约盘重新定方向。",
-    mantra: "看不懂不是错，硬做才是错。",
-  },
-  {
-    id: "eur-trend-pullback",
-    market: "EURUSD",
-    category: "趋势延续",
-    title: "趋势回踩延续模型",
-    level: "稳定模型",
-    direction: "顺势",
-    icon: TrendingUp,
-    color: "blue",
-    summary:
-      "EUR 经常不是暴力单边，而是在杂乱K线中慢慢延续趋势，适合等回踩。",
-    conditions: [
-      "高低点结构清晰，同向推进",
-      "回踩到均线 / 结构位 / FVG 附近",
-      "回踩力度弱，没有破坏趋势结构",
-      "小级别出现拒绝或重新放量",
-      "止损放在回踩结构外，风险可控",
-    ],
-    avoid: [
-      "追连续大阳/大阴之后的末端",
-      "趋势已经走太久但没有回踩",
-      "回踩直接破坏前低/前高",
-      "伦敦/纽约切换时无方向乱扫",
-    ],
-    entry: "只在回踩确认后顺势做，不在第一波突破时追。",
-    exit: "前高/前低、通道边界或动能衰减时分批。",
-    mantra: "EUR 要耐心，慢趋势比猛冲更可靠。",
-  },
-  {
-    id: "eur-range-boundary",
-    market: "EURUSD",
-    category: "区间模型",
-    title: "区间边界拒绝模型",
-    level: "稳定模型",
-    direction: "边界反向",
-    icon: Activity,
-    color: "cyan",
-    summary:
-      "EUR 在区间中更适合只做边界，不在中间位置被噪音牵着走。",
-    conditions: [
-      "区间上沿/下沿清晰",
-      "价格触碰边界后出现拒绝",
-      "假突破后重新收回区间更优",
-      "中间区域坚决不做",
-      "止损放在边界外侧，亏损有限",
-    ],
-    avoid: [
-      "区间边界不清晰",
-      "刚突破还没确认真假",
-      "在中轴附近因为指标变色入场",
-      "波动太小，盈亏比不足",
-    ],
-    entry: "边界拒绝后入场，或假突破收回后入场。",
-    exit: "目标看区间中轴和对侧边界，不贪满段。",
-    mantra: "区间只做边界，中间全是噪音。",
-  },
-  {
-    id: "option-gap-vwap-call",
-    market: "美股期权",
-    category: "日内 Call 模型",
-    title: "盘前利好 + 回踩 VWAP",
-    level: "核心必练",
-    direction: "Call 看涨",
-    icon: Zap,
-    color: "green",
-    summary:
-      "盘前明确利好推动高开，开盘不追；VWAP 不是直接入场点，而是观察点，必须等回踩不破/收回确认后做 Call。",
-    conditions: [
-      "盘前有明确利好，不是无原因乱涨",
-      "盘前成交量明显放大",
-      "开盘高开后没有直接瀑布",
-      "回踩 VWAP / 前高 / 支撑后，不破或快速收回",
-      "期权成交量足，买卖价差小",
-    ],
-    avoid: [
-      "开盘前5分钟情绪乱扫直接追",
-      "利好很虚，没有成交量确认",
-      "IV 过高，期权已经被买贵",
-      "买卖价差大，进去就亏很多",
-    ],
-    entry: "等第一次回踩站稳，或跌破后快速收回并重新站上，再买近月/当周期权的平值或轻度价内 Call。",
-    exit: "盈利 30%-50% 先保护；跌破 VWAP 或关键位直接撤。",
-    mantra: "VWAP不是入场点，是观察点；确认收回才顺势。",
-  },
-  {
-    id: "option-sector-leader",
-    market: "美股期权",
-    category: "热点模型",
-    title: "板块共振 + 龙头突破",
-    level: "核心必练",
-    direction: "Call 看涨",
-    icon: Flame,
-    color: "orange",
-    summary:
-      "不是一只股票孤立上涨，而是整个板块被资金攻击，选择最强龙头做突破。",
-    conditions: [
-      "同板块多只股票同步上涨",
-      "有清晰主题：AI / 机器人 / 芯片 / 核电 / 军工等",
-      "龙头涨幅、成交量、新闻强度都领先",
-      "突破关键位时大盘没有拖后腿",
-      "期权链流动性好，价差可接受",
-    ],
-    avoid: [
-      "只是一只小票孤立拉升",
-      "板块已经冲太高，龙头开始放量滞涨",
-      "追后排弱股",
-      "消息不明，只有社媒情绪",
-    ],
-    entry: "优先做龙头第一次有效突破或突破后回踩确认。",
-    exit: "板块热度衰减、龙头跌回突破位、期权利润快速回吐时离场。",
-    mantra: "热钱打的是方向，交易只做最强龙头。",
-  },
-  {
-    id: "option-market-confluence",
-    market: "美股期权",
-    category: "大盘共振",
-    title: "SPY / QQQ / VIX 共振模型",
-    level: "核心必练",
-    direction: "Call / Put",
-    icon: Target,
-    color: "purple",
-    summary:
-      "期权日内不能只看个股，方向必须和大盘环境、VIX、板块强弱共振。",
-    conditions: [
-      "做 Call：SPY/QQQ 向上，VIX 下降",
-      "目标股强于大盘，而不是被大盘拖着走",
-      "做 Put：SPY/QQQ 下跌，VIX 上升",
-      "标的方向和板块方向一致",
-      "入场前确认期权流动性，不买冷门合约",
-    ],
-    avoid: [
-      "个股利好但大盘明显走弱",
-      "VIX 快速拉升还硬做 Call",
-      "只看K线，不看当天市场状态",
-      "买临近归零的极端虚值合约赌博",
-    ],
-    entry: "大盘、板块、个股三者同向时才开仓。",
-    exit: "大盘转弱、VIX反向、个股跌破关键位时不恋战。",
-    mantra: "期权不是只赌方向，还要赌时间和环境。",
-  },
-  {
-    id: "risk-revenge-ban",
-    market: "全市场",
-    category: "风控模型",
-    title: "连续亏损 / 回本冲动禁止交易",
-    level: "最高优先级",
-    direction: "强制暂停",
-    icon: XCircle,
-    color: "rose",
-    summary:
-      "当交易动机变成回本、证明自己、追回亏损时，所有技术分析都会变形。",
-    conditions: [
-      "今天已经连续亏损2笔",
-      "你正在想用一单把亏损打回来",
-      "仓位明显大于平时",
-      "没有等到完整信号就想提前进",
-      "开单前心跳加速、烦躁、不甘心",
-    ],
-    avoid: [
-      "加仓摊平亏损",
-      "因为错过行情而追单",
-      "爆仓后马上换品种继续赌",
-      "用更高杠杆制造刺激感",
-    ],
-    entry: "禁止交易。离开屏幕至少15分钟。",
-    exit: "当天最大亏损触发后，关闭交易平台，只允许观察。",
-    mantra: "想回本的时候，市场最容易把你清零。",
-  },
-];
-
-const trainingQuestions = [
-  {
-    question: "黄金扫了前低，出现长下影，但K线还没有重新收回关键区间。你该怎么做？",
-    options: ["立刻做多", "立刻做空", "等待收回确认", "加大仓位搏反转"],
-    answer: 2,
-    explain: "扫低点不等于反转，必须等价格收回关键区间并出现确认。",
-  },
-  {
-    question: "EUR 在区间中轴附近，指标突然变多，但上下边界都很远。你该怎么做？",
-    options: ["做多", "做空", "不做，等边界", "双向挂单"],
-    answer: 2,
-    explain: "区间交易只做边界，中间位置没有盈亏比优势。",
-  },
-  {
-    question: "一只股票盘前利好高开，开盘第一分钟直接拉升，你想买 Call。正确动作是？",
-    options: ["马上追", "等回踩 / 收回 / 放量确认", "买最便宜虚值合约", "满仓进"],
-    answer: 1,
-    explain: "期权开盘追涨风险极高。先看 Catalyst、Direction，再等确认，不追第一根。",
-  },
-  {
-    question: "今天已经连续亏损两笔，但你看到黄金出现了一个还不错的FVG回补。你该怎么做？",
-    options: ["继续做", "加仓追回", "强制暂停", "换EUR继续做"],
-    answer: 2,
-    explain: "连续亏损后，风控模型优先级高于任何技术模型。",
-  },
-  {
-    question: "SPY 和 QQQ 下跌，VIX 上升，但某只股票有小利好。你想买 Call。是否合适？",
-    options: ["合适", "不合适，缺少大盘共振", "只要利好就买", "买更远虚值"],
-    answer: 1,
-    explain: "期权日内必须看大盘共振，逆大盘做 Call 容易冲高回落。",
-  },
-  {
-    question: "一只股票盘中突然上涨，但没有消息、没有板块共振，成交量也一般。你该怎么处理？",
-    options: ["追 Call", "买便宜虚值", "不做", "等亏了再补仓"],
-    answer: 2,
-    explain: "期权第一步是 Catalyst（事件驱动）。没有原因、没有量、没有共振，默认不做。",
-  },
-  {
-    question: "价格从下方反抽到 VWAP，没有明显上影线，也没有放量阴线，反而重新站上并横住。你还能买 Put 吗？",
-    options: ["能，到线就空", "不能，空头压制没有确认成功", "能，因为上涨都是诱多", "可以加倍买Put"],
-    answer: 1,
-    explain: "VWAP 是测试区，不是按钮。站不上并跌回下方才是反抽失败；重新站上并横住，就不能机械做空。",
-  },
-  {
-    question: "你买了 Put，但价格重新站上 VWAP，9EMA 开始上拐，并且小碎步往上爬。更专业的处理是什么？",
-    options: ["继续硬扛", "承认规则失效，能接受的亏损内先走或减仓", "立刻加仓摊平", "马上反手满仓Call"],
-    answer: 1,
-    explain: "Put 的反抽失败条件已经被破坏。继续硬扛容易从技术单变成情绪单。",
-  },
-  {
-    question: "SPY 围绕 VWAP 反复穿越，9EMA 和 20EMA 缠在一起，小实体和十字星很多。这个盘面最适合做什么？",
-    options: ["买 ATM Call", "买 ATM Put", "不做，属于期权买方低胜率区", "买更远到期的合约硬扛"],
-    answer: 2,
-    explain: "这是典型的输时间盘：方向不清、量能不足、空间不足。期权买方容易被 Theta 和价差消耗。",
-  },
-  {
-    question: "SPY 有支撑没有跌破，你想买 Call。更完整的判断是什么？",
-    options: ["有支撑就可以买 Call", "只要不跌就会涨", "支撑只说明暂时跌不下去，Call 还需要能持续站上 VWAP/均线并放量", "买最便宜虚值 Call"],
-    answer: 2,
-    explain: "有支撑不等于可以做 Call。Call 需要的是能持续涨上去；如果只是跌不下去，期权买方仍然可能被时间价值磨损。",
-  },
-  {
-    question: "你买的是 5DTE，比 0DTE 更抗磨。这个理解正确吗？",
-    options: ["完全正确，所以可以随便拿", "部分正确，但正股不走照样难赚钱", "错误，5DTE 比 0DTE 更快归零", "只要是 SPY 就不用管时间价值"],
-    answer: 1,
-    explain: "5DTE 确实比 0DTE 抗磨，但不是不怕磨。期权买方最终仍然需要正股速度和方向。",
-  },
-];
-
-
-const optionExecutionSteps = [
-  {
-    key: "Catalyst",
-    cn: "事件驱动",
-    title: "先问：为什么会涨 / 跌？",
-    summary: "没有事件驱动，不做。期权最怕没有原因的波动，因为时间价值会持续流血。",
-    rules: [
-      "有明确消息、财报、评级、订单、政策或板块热点，才进入观察",
-      "个股消息必须和板块、大盘方向共振，不能只看一条利好/利空",
-      "没有原因的上涨或下跌，默认不做，宁愿错过也不乱买期权",
-    ],
-    example: "AMD利空 + 半导体走弱 + QQQ跌破VWAP = Put；NVDA利好 + AI板块强 + QQQ站上VWAP = Call。",
-  },
-  {
-    key: "Direction",
-    cn: "方向确认",
-    title: "方向不是感觉，是多因素同向",
-    summary: "期权方向必须来自消息、板块、大盘和价格结构的共同确认，而不是单纯看一根K线。",
-    rules: [
-      "做 Call：利好/热点 + 板块强 + 大盘不拖后腿 + 价格站上关键位",
-      "做 Put：利空/弱势 + 板块弱 + 大盘转弱 + 价格跌破关键位",
-      "如果盯盘半天还不知道做多做空，那就不是你的行情",
-    ],
-    example: "真正适合期权的行情，不应该让你纠结；纠结说明条件不完整。",
-  },
-  {
-    key: "VWAP",
-    cn: "观察确认",
-    title: "VWAP 不是压力/支撑线，而是确认观察区",
-    summary: "VWAP 用来观察多空控制权，不能机械当压力位或支撑位。入场必须等失败、收回或放量确认。",
-    rules: [
-      "价格在 VWAP 上方：只说明多头暂时占优；不是追 Call，仍要等回踩不破、快速收回或放量延续",
-      "价格在 VWAP 下方：只说明空头暂时占优；不是追 Put，仍要等反抽不过、跌回下方或放量转弱",
-      "到 VWAP 不等于开仓；VWAP 附近没有确认，默认不做",
-      "反复穿 VWAP：不做，因为多空没有清晰控制权",
-    ],
-    example: "VWAP 是观察点，不是按钮；确认失败才反转，确认收回才顺势。",
-  },
-  {
-    key: "Volume",
-    cn: "量能验证",
-    title: "量能确认市场有没有真钱进来",
-    summary: "期权最怕正股不动。没有量，就算方向看对，也可能因为时间价值衰减而亏。",
-    rules: [
-      "放量突破：可以考虑顺势进入",
-      "缩量反弹：多半只是反抽，不要当成趋势",
-      "放量跌破：优先观察 Put 机会",
-      "无量横盘：期权买方地狱，宁愿不做",
-    ],
-    example: "没有量，不是不够刺激，而是期权合约没有足够的正股推动。",
-  },
-  {
-    key: "Entry",
-    cn: "入场框架",
-    title: "最好的入场不是追最猛那根",
-    summary: "期权日内最好的入场，不是碰到 VWAP 就开仓，而是等 VWAP 附近完成确认。",
-    rules: [
-      "第一波放量站稳，可以小仓试错，但必须有明确止损",
-      "做 Call：回踩 VWAP 不破，或跌破后快速收回并重新站上",
-      "做 Put：反抽 VWAP 不过，或站上失败后重新跌回下方",
-      "已经连续三四根大阳/大阴，不要追，容易吃反弹或回落",
-    ],
-    example: "你不需要吃完整段，只需要拿走确认后的中间段。",
-  },
-  {
-    key: "Exit",
-    cn: "及时离场",
-    title: "离场是期权真正的护城河",
-    summary: "期权日内最爽的地方不是拿到终点，而是方向对的时候及时拿走利润。",
-    rules: [
-      "盈利 +20%：开始认真盯盘，不再幻想",
-      "盈利 +30%–50%：优先落袋，至少保护利润",
-      "盈利 +80%–100%：不要幻想，优先分批退出",
-      "跌回 VWAP、量能衰退、方向失效：直接走",
-    ],
-    example: "期权要成为研究型交易工具，不是情绪发泄工具。",
-  },
-];
-
-
-
-const preTradeChecks = [
-  "位置明确：靠近边界 / FVG / OB / VWAP观察区 / 关键结构，不在中间乱做",
-  "模型匹配：这笔交易符合核心模型之一，不是临场找理由",
-  "确认完整：已经等到失败 / 收回 / 放量 / 回踩不破之一，而不是看到线就开仓",
-  "风险可控：止损位置和亏损金额已提前确定，错了能马上走",
-  "情绪正常：没有连续亏损、回本冲动、烦躁追单或想证明自己",
-  "期权过滤：合约流动性、买卖价差、Delta、成交量都合格",
-  "市场环境：黄金避开数据乱扫；期权确认大盘 / 板块 / 个股方向共振",
-  "节奏正确：SPY / QQQ 已避开开盘前10分钟第一波急拉急跌",
-  "低胜率区排除：没有 VWAP 反复穿越、均线缠绕、小实体多、量能不足",
-];
-
-const colorMap = {
-  yellow: "border-amber-500 bg-amber-50 text-amber-950",
-  amber: "border-orange-500 bg-orange-50 text-orange-950",
-  red: "border-red-500 bg-red-50 text-red-950",
-  blue: "border-sky-500 bg-sky-50 text-sky-950",
-  cyan: "border-cyan-500 bg-cyan-50 text-cyan-950",
-  green: "border-emerald-500 bg-emerald-50 text-emerald-950",
-  orange: "border-amber-500 bg-amber-50 text-amber-950",
-  purple: "border-violet-500 bg-violet-50 text-violet-950",
-  rose: "border-rose-500 bg-rose-50 text-rose-950",
-};
-
-const statCards = [
-  { label: "核心模型", value: "9", icon: Target, color: "bg-teal-600", bar: "bg-teal-600", shadow: "shadow-teal-100" },
-  { label: "强制禁止模型", value: "2", icon: Ban, color: "bg-red-600", bar: "bg-red-600", shadow: "shadow-red-100" },
-  { label: "开盘前训练", value: "每日", icon: Clock, color: "bg-sky-600", bar: "bg-sky-600", shadow: "shadow-sky-100" },
-  { label: "强化做单逻辑", value: "肌肉记忆", icon: Brain, color: "bg-violet-600", bar: "bg-violet-600", shadow: "shadow-violet-100" },
-];
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 function Card({ children, className = "" }) {
-  return <div className={cn("border", className)}>{children}</div>;
-}
-
-function CardContent({ children, className = "" }) {
-  return <div className={className}>{children}</div>;
+  return <div className={cn("border bg-white shadow-lg", className)}>{children}</div>;
 }
 
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
+  const base = "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition focus:outline-none focus:ring-4";
   const variants = {
-    default:
-      "inline-flex items-center justify-center rounded-md bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500/70",
-    ghost:
-      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-teal-500/70",
+    default: "bg-teal-700 text-white hover:bg-teal-800 focus:ring-teal-200",
+    ghost: "bg-white text-slate-700 hover:bg-slate-50 focus:ring-teal-100 border border-slate-300",
+    danger: "bg-red-700 text-white hover:bg-red-800 focus:ring-red-200",
   };
-
-  return (
-    <button type={type} className={cn(variants[variant] || variants.default, className)} {...props}>
-      {children}
-    </button>
-  );
-}
-
-function Badge({ children, color = "yellow" }) {
-  return (
-    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${colorMap[color] || colorMap.yellow}`}>
-      {children}
-    </span>
-  );
+  return <button type={type} className={cn(base, variants[variant] || variants.default, className)} {...props}>{children}</button>;
 }
 
 function SectionHeader({ number, title, desc, tone = "teal" }) {
   const toneMap = {
     teal: "from-teal-700 to-cyan-600",
+    blue: "from-sky-700 to-blue-600",
     red: "from-red-700 to-rose-600",
     amber: "from-amber-700 to-orange-600",
-    blue: "from-sky-700 to-cyan-600",
+    violet: "from-violet-700 to-fuchsia-600",
+    slate: "from-slate-800 to-slate-600",
   };
   return (
     <div className="mb-5 flex items-start gap-4">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${toneMap[tone]} text-sm font-black text-white shadow-lg`}>
-        {number}
-      </div>
+      <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-black text-white shadow-lg", toneMap[tone])}>{number}</div>
       <div>
-        <h2 className="text-xl font-black tracking-tight text-slate-950 md:text-2xl">{title}</h2>
-        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{desc}</p>
+        <h2 className="text-2xl font-black tracking-tight text-slate-950">{title}</h2>
+        <p className="mt-1 max-w-4xl text-sm font-semibold leading-7 text-slate-600">{desc}</p>
       </div>
     </div>
   );
 }
 
-function StatCard({ item }) {
-  const Icon = item.icon;
-  return (
-    <Card className={cn("relative overflow-hidden rounded-[1.6rem] border-slate-300 bg-white shadow-xl", item.shadow)}>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
-            <div className="mt-2 text-sm font-bold text-slate-600">{item.label}</div>
-          </div>
-          <div className={cn("rounded-2xl p-3 text-white shadow-md", item.color)}>
-            <Icon className="h-5 w-5" />
-          </div>
-        </div>
-      </CardContent>
-      <div className={cn("h-1.5 w-full", item.bar)} />
-    </Card>
-  );
-}
-
-function ChecklistItem({ text }) {
-  return (
-    <li className="flex gap-3 rounded-2xl border border-emerald-200 bg-white p-3 text-sm font-semibold text-slate-800 shadow-sm">
-      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-      <span>{text}</span>
-    </li>
-  );
-}
-
-function AvoidItem({ text }) {
-  return (
-    <li className="flex gap-3 rounded-2xl border border-red-200 bg-white p-3 text-sm font-semibold text-slate-800 shadow-sm">
-      <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
-      <span>{text}</span>
-    </li>
-  );
-}
-
-function MetricCard({ label, value, tone = "slate", note }) {
+function Badge({ children, tone = "teal" }) {
   const toneMap = {
-    teal: "border-teal-300 bg-teal-50 text-teal-950",
-    red: "border-red-300 bg-red-50 text-red-950",
-    amber: "border-amber-300 bg-amber-50 text-amber-950",
-    sky: "border-sky-300 bg-sky-50 text-sky-950",
-    violet: "border-violet-300 bg-violet-50 text-violet-950",
-    slate: "border-slate-300 bg-slate-50 text-slate-950",
+    teal: "border-teal-600 bg-teal-50 text-teal-900",
+    red: "border-red-600 bg-red-50 text-red-900",
+    amber: "border-amber-600 bg-amber-50 text-amber-950",
+    blue: "border-sky-600 bg-sky-50 text-sky-950",
+    violet: "border-violet-600 bg-violet-50 text-violet-950",
+    slate: "border-slate-500 bg-slate-50 text-slate-800",
+    green: "border-emerald-600 bg-emerald-50 text-emerald-950",
+  };
+  return <span className={cn("rounded-full border px-3 py-1 text-xs font-black", toneMap[tone])}>{children}</span>;
+}
+
+function RuleLine({ children, tone = "teal", index }) {
+  const colors = {
+    teal: "border-teal-200 bg-teal-50 text-teal-800",
+    red: "border-red-200 bg-red-50 text-red-800",
+    amber: "border-amber-200 bg-amber-50 text-amber-900",
+    blue: "border-sky-200 bg-sky-50 text-sky-900",
+    slate: "border-slate-200 bg-slate-50 text-slate-800",
+    violet: "border-violet-200 bg-violet-50 text-violet-900",
   };
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-sm", toneMap[tone] || toneMap.slate)}>
-      <div className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{label}</div>
-      <div className="mt-2 text-lg font-black">{value}</div>
-      {note && <div className="mt-1 text-xs font-bold leading-5 opacity-75">{note}</div>}
+    <div className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold leading-6 text-slate-800 shadow-sm">
+      <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-black", colors[tone])}>{index ?? <CheckCircle2 className="h-4 w-4" />}</span>
+      <span>{children}</span>
     </div>
   );
 }
+
+const tradeMatrix = [
+  {
+    name: "黄金 / EUR",
+    role: "主战场",
+    icon: ShieldAlert,
+    tone: "amber",
+    core: "流动性扫荡 + 价格行为",
+    edge: "Kill Zone、OB/FVG、扫前高前低后的确认",
+    risk: "假突破、新闻盘、区间中间乱做",
+  },
+  {
+    name: "期权买方",
+    role: "当前重点",
+    icon: Zap,
+    tone: "teal",
+    core: "方向 + 时间 + 波动率",
+    edge: "有限亏损博大波动，适合日内确认后的中间段",
+    risk: "Theta、IV买贵、VWAP假突破、扛亏损",
+  },
+  {
+    name: "正股",
+    role: "辅助学习",
+    icon: TrendingUp,
+    tone: "blue",
+    core: "基本面锚定 + 技术择时",
+    edge: "财报/成长逻辑支撑，中线更稳定",
+    risk: "财报黑天鹅、基本面恶化、追高回撤",
+  },
+  {
+    name: "加密合约/期权",
+    role: "暂缓扩展",
+    icon: Flame,
+    tone: "violet",
+    core: "趋势 + OI + Funding + 清算",
+    edge: "情绪极端后的反转，插针后反弹",
+    risk: "插针爆仓、点差大、流动性差、过高杠杆",
+  },
+];
+
+const smcLevels = [
+  ["Level 1 宏观结构层", "周线 / 日线", "确认趋势偏向、关键 OB、主要支撑阻力。只决定方向，不直接开单。"],
+  ["Level 2 中观流动性层", "4H / 1H", "定位 BSL/SSL、FVG、POI、POC 磁吸区，判断价格可能先扫哪里。"],
+  ["Level 3 微观入场层", "15M / 5M / 3M", "等 CHoCH/BOS、长影线收回、OB+FVG 重叠区，再考虑执行。"],
+];
+
+const smcConcepts = [
+  ["BSL / SSL", "前高/前低聚集的止损流动性", "扫完流动性后反向，才有交易意义。"],
+  ["OB", "导致大幅位移前的最后反向K线", "和FVG/POC重叠时更强，不能孤立使用。"],
+  ["FVG / IFVG", "三根K线之间的不平衡区域", "回补50%附近更值得观察，但必须等确认。"],
+  ["POC", "成交量分布峰值 / 价格磁吸区", "单点POC不够，优先看3-5个相邻POC形成的成本集中区。"],
+  ["CHoCH / BOS", "结构转变 / 趋势延续确认", "CHoCH用于早期反转，BOS用于趋势延续。"],
+];
+
+const goldRefinements = [
+  ["POC集中区", "不只看单一POC，优先看3-5个相邻POC形成的成交密集成本区。价格在集中区上方偏强，下方偏弱。"],
+  ["FVG精准化", "优先选择来自强推动、3根以上未被快速回补、未被多次穿透，并与OB/POC/流动性池共振的FVG。"],
+  ["MA9 / MA21", "替代MA20/50作为日内动能过滤。价格 > MA9 > MA21 代表短线强势，但不是直接追单理由。"],
+  ["量能激增", "当前量能 > 过去20根均量 × 1.5，可视为异动确认。注意黄金/外汇多为tick volume，只做辅助确认。"],
+];
+
+const fxTrendRules = [
+  ["宏观过滤", "先看DXY方向、重大数据时间、美元强弱环境。数据前后不把技术信号当确定性。"],
+  ["趋势排列", "EMA9 > EMA21 > EMA55 偏多；反向偏空。ADX > 25 说明趋势强度更可交易。"],
+  ["动能确认", "MACD可做辅助，不作为核心开单理由。价格结构与EMA/ADX优先级更高。"],
+  ["入场方式", "破位后不追，等待回踩EMA21或结构位，再用K线收回/拒绝确认。不要机械固定10-15 pips。"],
+  ["管理规则", "RR至少1:2；达到1:2后移动止损到进场价附近；1:3以上分批止盈。"],
+];
+
+const optionCoreSteps = [
+  {
+    key: "Direction",
+    cn: "方向",
+    icon: Target,
+    tone: "teal",
+    title: "不是感觉，是结构 + 大盘 + 板块 + 催化剂同向",
+    rules: [
+      "Call：正股结构向上，SPY/QQQ不拖后腿，板块有资金，VIX不快速拉升。",
+      "Put：正股弱于大盘，大盘走弱或VIX上升，跌破关键结构后反抽失败。",
+      "看不出方向，就不是你的行情；不需要硬选 Call 或 Put。",
+    ],
+  },
+  {
+    key: "Time",
+    cn: "时间",
+    icon: Clock,
+    tone: "blue",
+    title: "日内和波段分开，不能混用规则",
+    rules: [
+      "日内：0DTE / 1DTE / 3-5DTE，只做快进快出，严格止损。",
+      "波段：14-45DTE，看日线结构、IVR、催化剂和持仓时间。",
+      "期权持有时间不要超过原计划到期日的一半；该走就走。",
+    ],
+  },
+  {
+    key: "Volatility",
+    cn: "波动率",
+    icon: Gauge,
+    tone: "violet",
+    title: "IV 便宜才适合买方，IV 高位要警惕被收割",
+    rules: [
+      "IVR = (当前IV - 52周最低IV) / (52周最高IV - 52周最低IV) × 100。",
+      "波段买方优先IVR < 30-40；IVR 30-60中性；IVR > 60必须降仓或放弃。",
+      "Skew只判断哪一侧期权更贵，不作为当前阶段的单独入场信号。",
+      "财报前、重大事件前 IV 常被抬高，方向对也可能 IV Crush。",
+      "VIX低不等于随便买Call，仍然要看个股IV、方向、成交量和空间。",
+    ],
+  },
+];
+
+const optionIntradayModels = [
+  {
+    name: "A｜VWAP回踩 / 反抽确认",
+    bestFor: "趋势日最常用",
+    conditions: [
+      "正股先站上VWAP，回踩时缩量，不破或快速收回。",
+      "做Call：回踩VWAP不破，下一根重新站上，9EMA上拐。",
+      "做Put：从下方反抽VWAP不过，出现上影线/放量失败，重新跌回下方。",
+    ],
+    ban: "到VWAP就开仓 = 错误。VWAP是观察区，不是按钮。",
+  },
+  {
+    name: "B｜ORB开盘区间突破",
+    bestFor: "开盘后方向明确",
+    conditions: [
+      "开盘15分钟形成高低区间，不在第一波乱追。",
+      "突破ORB高/低点时放量，且VWAP在突破方向同侧。",
+      "突破后第一根K线收盘确认，回撤进区间内就止损。",
+    ],
+    ban: "1.5小时内没有达到目标或失去动能，无论盈亏都不恋战。",
+  },
+  {
+    name: "C｜VWAP ±2σ 极值反转",
+    bestFor: "震荡日，不适合趋势日",
+    conditions: [
+      "大盘当日没有明确趋势，QQQ/SPY涨跌温和。",
+      "价格触及+2σ后滞涨反包，考虑Put；触及-2σ后止跌反包，考虑Call。",
+      "极值处量能衰减，而不是趋势加速放量。",
+    ],
+    ban: "趋势日不要逆势摸顶抄底，±2σ可以继续扩张。",
+  },
+];
+
+const optionContractRules = [
+  ["标的", "优先 SPY / QQQ；个股优先 NVDA / TSLA / AMD 等高流动性标的。"],
+  ["DTE", "日内 0DTE/1DTE/3-5DTE；短线波段 15-30DTE；核心波段 30-45DTE；<15DTE只限强确定性。"],
+  ["Strike", "ATM 平值优先；轻度ITM更稳；强趋势才考虑一档OTM。"],
+  ["Delta", "日内优先 0.45-0.65；0.20以下太彩票。"],
+  ["IVR", "日内作为背景，波段作为核心过滤；IVR > 60时买方要谨慎，IVR > 80默认高危。"],
+  ["Spread", "买卖价差 0.01-0.08 较好；0.20+ 默认不做。"],
+  ["Volume/OI", "成交量至少几百张，1000+更好；盘口厚度要够。"],
+  ["Order", "只用限价单；不要市价追，尤其是开盘第一波。"],
+  ["Exit", "+20%开始盯盘，+30%-50%优先落袋；-20%-30%警惕/止损。"],
+];
+
+const macroMatrix = [
+  ["Risk ON", "VIX < 18 + DXY下行", "偏多正股/QQQ Call/加密；黄金谨慎震荡"],
+  ["Risk OFF", "VIX > 25 + DXY上行", "黄金偏多或避险；加密减仓/做空；期权偏Put或观望"],
+  ["过渡期", "VIX 18-25", "降低仓位，等待方向，不急着扩大交易"],
+];
+
+const cryptoRules = [
+  ["Funding Rate", "持续 >0.1% 多头过热；持续 <-0.1% 空头过热。极端后只找反向确认，不盲逆势。"],
+  ["OI", "OI上升+价格上涨=趋势健康；OI上升+价格下跌=空头堆积，注意清算反弹。"],
+  ["清算", "大额清算后出现Pin Bar/吞没，才考虑反向，不在清算前硬猜底顶。"],
+  ["杠杆", "建议3-5x，最高不超过10x；单笔风险≤账户1-2%。"],
+];
+
+const stockRules = [
+  ["定位", "正股是低频配置/波段系统，不是日内冲动系统。先有基本面锚，再谈技术择时。"],
+  ["候选池", "营收/盈利增速 >15%、行业景气度向上、机构持仓稳定或增加、无重大负面催化。"],
+  ["估值判断", "PE低分位只能用于成熟股。成长股要结合行业增速、利润率和现金流，不能机械要求低PE。"],
+  ["技术择时", "周线趋势不坏，日线回调至MA20/前支撑，60分钟突破用2-3根K线确认。"],
+  ["成交量", "回调时缩量更健康；突破时放量但不能过热，过热容易冲高回落。"],
+  ["入场", "靠近支撑区等待确认，不使用固定2%-3%安全边际；止损放结构失效位。"],
+  ["管理", "短波段3-10个交易日；达到1:2可移动止损；目标看下一个阻力位或趋势破坏。"],
+];
+
+const checklist = [
+  "我知道今天交易的是哪一套系统：黄金、EUR/外汇、日内期权、波段期权、正股或加密，规则没有混用。",
+  "位置明确：不是区间中间，不是在VWAP/均线附近机械开仓，而是在观察区等确认。",
+  "方向完整：大盘、板块、正股/品种结构没有明显冲突。",
+  "期权已检查：DTE、Delta、价差、成交量、IV/IVR、Theta风险都可接受。",
+  "VWAP规则正确：确认失败才反转，确认收回才顺势；反复穿越不做。",
+  "量能和空间够：突破有量，压力/支撑距离足够，不是低胜率磨损区。",
+  "黄金/外汇已确认：黄金看POC集中区+FVG共振，EUR看EMA排列/ADX趋势，不机械套点数。",
+  "正股已确认：有基本面锚定和技术择时，不只是因为K线好看就买。",
+  "风险先定：止损位、最大亏损、止盈区间已经写清楚。",
+  "节奏正确：避开开盘前15分钟乱扫、午盘低流动性、重大数据前30分钟。",
+  "情绪正常：不是回本、证明自己、刚亏完想追回，也没有连续亏损后加仓。",
+];
+
+const trainingQuestions = [
+  {
+    q: "价格从下方反抽到VWAP，没有上影线也没有放量阴线，反而重新站上并横住。你能买Put吗？",
+    options: ["能，到VWAP就是压力", "不能，空头失败没有确认", "能，因为上涨都是诱多", "加倍买Put"],
+    a: 1,
+    exp: "VWAP是观察区，不是开仓点。站不上并跌回下方才是反抽失败。",
+  },
+  {
+    q: "0DTE日内和30-45DTE波段期权最大的区别是什么？",
+    options: ["没有区别", "日内看速度和确认，波段看结构/IVR/催化剂", "波段不用止损", "0DTE可以随便拿"],
+    a: 1,
+    exp: "两套系统不能混用。0DTE更看速度和执行，波段更看IVR、结构和时间。",
+  },
+  {
+    q: "SPY围绕VWAP反复穿越，9EMA/20EMA缠绕，小实体很多。这是什么区？",
+    options: ["最佳Call区", "最佳Put区", "期权买方低胜率区", "必须双向开仓"],
+    a: 2,
+    exp: "方向不清 + 空间不够 + 时间流血，是买方低胜率区。",
+  },
+  {
+    q: "IVR > 60 时买方期权最需要警惕什么？",
+    options: ["买得太便宜", "IV Crush和买贵", "成交太活跃", "Delta太低"],
+    a: 1,
+    exp: "IV高位时，就算方向对，也可能被波动率回落杀掉利润。",
+  },
+  {
+    q: "黄金扫了前低，出现长下影，但没有收回关键区间。正确动作是？",
+    options: ["立刻做多", "立刻做空", "等待收回确认", "加仓搏反转"],
+    a: 2,
+    exp: "扫流动性只是第一步，收回和结构确认才有意义。",
+  },
+  {
+    q: "加密合约Funding极端、OI很高、价格扫关键位后出现大额清算。下一步应该是什么？",
+    options: ["清算前提前满仓", "等Pin Bar/吞没等反向确认", "马上高杠杆追", "忽略资金费率"],
+    a: 1,
+    exp: "加密的高胜率机会是清算后的确认，不是清算前硬猜。",
+  },
+  {
+    q: "你今天已经连续亏损两笔，但看到一个看起来不错的期权ORB突破。你该怎么做？",
+    options: ["继续做", "加仓追回", "强制暂停", "换品种继续"],
+    a: 2,
+    exp: "风控规则优先于任何技术模型，连续亏损后判断会变形。",
+  },
+  {
+    q: "黄金价格来到单一POC附近，你能直接把它当支撑/压力开单吗？",
+    options: ["能，POC就是必反位", "不能，优先看POC集中区和结构确认", "能，越靠近越满仓", "只看均线不用POC"],
+    a: 1,
+    exp: "单一POC不是按钮。更高质量的是POC集中区 + OB/FVG/流动性共振 + 收回/拒绝确认。",
+  },
+  {
+    q: "EUR破位后回踩EMA21附近，但ADX低于20、均线缠绕。你该怎么做？",
+    options: ["立刻进场", "不做，趋势强度不足", "加大仓位", "只看MACD进"],
+    a: 1,
+    exp: "外汇趋势系统需要趋势环境。ADX弱、均线缠绕时，破位更容易是假突破或震荡噪音。",
+  },
+  {
+    q: "一个成长股PE不低，但营收和利润高速增长、行业景气向上。是否必须因为PE不低直接排除？",
+    options: ["必须排除", "不一定，估值要结合成长性和行业", "只看K线", "只看消息"],
+    a: 1,
+    exp: "正股不能机械看PE低分位。成长股要结合增速、利润率、现金流和行业景气。",
+  },
+];
+
+const highWinModels = [
+  {
+    market: "黄金/EUR",
+    title: "扫流动性 + 收回确认",
+    desc: "扫前高/前低后必须收回关键区间，并出现CHoCH或反向动能确认。",
+    doRules: ["等收回", "等反向确认", "止损放影线外/结构外", "目标看对侧流动性"],
+    banRules: ["只扫不收回", "新闻刚公布", "区间中间", "连续止损后硬做"],
+  },
+  {
+    market: "黄金/EUR",
+    title: "POC集中区 + OB + FVG 共振回踩",
+    desc: "强推动后回补FVG，叠加3-5个相邻POC形成的成本区和OB/结构位，等待拒绝确认后顺势。",
+    doRules: ["强推动来源", "FVG未反复穿透", "POC集中区共振", "出现拒绝K和量能确认"],
+    banRules: ["单一POC机械开仓", "FVG反复被穿", "无趋势背景", "追第一根"],
+  },
+  {
+    market: "EUR/外汇",
+    title: "EMA9/21/55 + ADX 趋势回踩",
+    desc: "外汇更适合趋势跟踪。破位后不追，等回踩EMA21或结构位，ADX确认趋势强度。",
+    doRules: ["EMA顺序排列", "ADX > 25更优", "回踩EMA21/结构位", "K线拒绝确认"],
+    banRules: ["ADX低迷", "均线缠绕", "固定10-15点机械入场", "数据前硬做"],
+  },
+  {
+    market: "期权日内",
+    title: "VWAP确认 + 量能 + 合约过滤",
+    desc: "只做确认后的中间段，不在VWAP机械开仓。先筛合约，再谈方向。",
+    doRules: ["Catalyst", "大盘共振", "VWAP确认", "量能放大", "合约价差小"],
+    banRules: ["开盘前15分钟乱追", "反复穿VWAP", "无量横盘", "IV过高"],
+  },
+];
 
 function OptionPriceCalculator() {
   const [mode, setMode] = useState("call");
   const [currentStock, setCurrentStock] = useState("520");
-  const [targetStock, setTargetStock] = useState("521");
+  const [targetStock, setTargetStock] = useState("522");
   const [optionPrice, setOptionPrice] = useState("1.80");
   const [delta, setDelta] = useState("0.55");
   const [contracts, setContracts] = useState("1");
@@ -577,835 +388,271 @@ function OptionPriceCalculator() {
   const option = Number(optionPrice);
   const deltaAbs = Math.abs(Number(delta));
   const contractCount = Math.max(1, Number(contracts) || 1);
-  const isValid = [current, target, option, deltaAbs].every((num) => Number.isFinite(num));
+  const isValid = [current, target, option, deltaAbs].every((n) => Number.isFinite(n));
   const stockMove = isValid ? (mode === "call" ? target - current : current - target) : 0;
-  const optionMove = stockMove * deltaAbs;
-  const projectedOption = Math.max(0, option + optionMove);
-  const pnlPerContract = (projectedOption - option) * 100;
-  const totalPnl = pnlPerContract * contractCount;
+  const projectedOption = Math.max(0, option + stockMove * deltaAbs);
+  const pnl = (projectedOption - option) * 100 * contractCount;
   const pnlPct = option > 0 ? ((projectedOption - option) / option) * 100 : 0;
 
   const inputClass = "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base font-black text-slate-950 shadow-inner outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-100";
-  const labelClass = "mb-2 block text-xs font-black uppercase tracking-[0.13em] text-slate-500";
 
   return (
-    <div className="overflow-hidden rounded-[1.9rem] border-2 border-teal-700 bg-white shadow-xl shadow-teal-100">
-      <div className="border-b border-teal-100 bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-5 py-4 text-white">
-        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">Quick Calculator</div>
+    <Card className="overflow-hidden rounded-[2rem] border-2 border-teal-700 shadow-xl shadow-teal-100">
+      <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-5 py-4 text-white">
+        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Quick Calculator</div>
         <h3 className="mt-1 text-xl font-black">正股目标 → 期权目标价快捷计算</h3>
-        <p className="mt-2 text-sm font-bold leading-6 text-teal-50">
-          用 Delta（德尔塔）做日内粗算：期权价格变化 ≈ 正股价格变化 × |Delta|。
-        </p>
+        <p className="mt-2 text-sm font-semibold leading-6 text-teal-50">用Delta做日内粗算，适合挂单、止盈止损参考，不是精确定价模型。</p>
       </div>
-
-      <div className="grid gap-5 p-5 lg:grid-cols-[1fr_0.9fr]">
-        <div>
-          <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-slate-300 bg-slate-50 p-2">
-            <button
-              onClick={() => setMode("call")}
-              className={cn(
-                "rounded-xl px-4 py-3 text-sm font-black transition",
-                mode === "call" ? "bg-teal-700 text-white shadow-md" : "bg-white text-slate-700 hover:bg-teal-50"
-              )}
-            >
-              Call 看涨
-            </button>
-            <button
-              onClick={() => setMode("put")}
-              className={cn(
-                "rounded-xl px-4 py-3 text-sm font-black transition",
-                mode === "put" ? "bg-red-700 text-white shadow-md" : "bg-white text-slate-700 hover:bg-red-50"
-              )}
-            >
-              Put 看跌
-            </button>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label>
-              <span className={labelClass}>当前正股价格</span>
-              <input className={inputClass} value={currentStock} onChange={(e) => setCurrentStock(e.target.value)} inputMode="decimal" />
-            </label>
-            <label>
-              <span className={labelClass}>目标 / 止损正股价格</span>
-              <input className={inputClass} value={targetStock} onChange={(e) => setTargetStock(e.target.value)} inputMode="decimal" />
-            </label>
-            <label>
-              <span className={labelClass}>当前期权价格</span>
-              <input className={inputClass} value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} inputMode="decimal" />
-            </label>
-            <label>
-              <span className={labelClass}>Delta 绝对值</span>
-              <input className={inputClass} value={delta} onChange={(e) => setDelta(e.target.value)} inputMode="decimal" />
-            </label>
-            <label className="sm:col-span-2">
-              <span className={labelClass}>合约张数</span>
-              <input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" />
-            </label>
-          </div>
+      <div className="grid gap-4 p-5 lg:grid-cols-[1fr_0.9fr]">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">类型</span><select className={inputClass} value={mode} onChange={(e) => setMode(e.target.value)}><option value="call">Call 看涨</option><option value="put">Put 看跌</option></select></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前正股价</span><input className={inputClass} value={currentStock} onChange={(e) => setCurrentStock(e.target.value)} inputMode="decimal" /></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">目标/止损正股价</span><input className={inputClass} value={targetStock} onChange={(e) => setTargetStock(e.target.value)} inputMode="decimal" /></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前期权价</span><input className={inputClass} value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} inputMode="decimal" /></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">Delta</span><input className={inputClass} value={delta} onChange={(e) => setDelta(e.target.value)} inputMode="decimal" /></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">合约张数</span><input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" /></label>
         </div>
-
-        <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-4 shadow-inner">
-          <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">即时结果</div>
-          <div className="grid gap-3">
-            <MetricCard
-              label="正股方向幅度"
-              value={`${stockMove >= 0 ? "+" : ""}${isValid ? stockMove.toFixed(2) : "--"}`}
-              tone={stockMove >= 0 ? "teal" : "red"}
-              note={mode === "call" ? "Call 需要正股上涨才增值" : "Put 需要正股下跌才增值"}
-            />
-            <MetricCard
-              label="估算期权价格"
-              value={isValid ? projectedOption.toFixed(2) : "--"}
-              tone={projectedOption >= option ? "teal" : "red"}
-              note={`当前 ${Number.isFinite(option) ? option.toFixed(2) : "--"} → 估算 ${isValid ? projectedOption.toFixed(2) : "--"}`}
-            />
-            <MetricCard
-              label="估算盈亏"
-              value={`${totalPnl >= 0 ? "+" : ""}${isValid ? totalPnl.toFixed(0) : "--"} 美元`}
-              tone={totalPnl >= 0 ? "teal" : "red"}
-              note={`${contractCount} 张；约 ${pnlPct >= 0 ? "+" : ""}${isValid ? pnlPct.toFixed(1) : "--"}%`}
-            />
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm font-black leading-7 text-amber-950">
-            这是日内近似计算，不包含 IV（隐含波动率）、Theta（时间价值衰减）、Gamma（加速度）和买卖价差。用于挂单参考，不是精确定价。
-          </div>
+        <div className="grid gap-3">
+          <div className="rounded-2xl border border-slate-300 bg-slate-50 p-4"><div className="text-xs font-black text-slate-500">估算期权价</div><div className="mt-1 text-3xl font-black text-teal-800">{isValid ? projectedOption.toFixed(2) : "--"}</div></div>
+          <div className={cn("rounded-2xl border p-4", pnl >= 0 ? "border-teal-300 bg-teal-50" : "border-red-300 bg-red-50")}><div className="text-xs font-black text-slate-500">估算盈亏</div><div className={cn("mt-1 text-2xl font-black", pnl >= 0 ? "text-teal-800" : "text-red-800")}>{isValid ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-600">{isValid ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(1)}%` : "--"}</div></div>
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-bold leading-6 text-amber-950">不包含IV、Theta、Gamma和价差。越接近0DTE，误差越大。</div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
-function OptionScanningModule() {
-  const scanRules = [
-    ["热门标的", "优先 SPY / QQQ；其次 NVDA / AMD / TSLA / META / AAPL / MSFT", "冷门股期权少碰"],
-    ["平值附近", "ATM 平值优先；轻微 ITM 更稳；强趋势才考虑轻微 OTM", "深虚值不碰"],
-    ["买卖价差", "0.01–0.03 极好；0.04–0.08 可用；0.10 附近谨慎", "0.20+ 不做"],
-    ["成交量", "至少几百张；1000+ 较好；5000+ 很活跃", "0–50 直接不做"],
-    ["盘口厚度", "Bid / Ask Size 最好几十张以上", "薄盘口进出都难"],
-    ["Delta", "0.45–0.65 最适合你；0.60–0.75 更稳但成本高", "0.20 以下太彩票"],
-    ["下单方式", "用中间价挂限价单，5–10秒不成交再微调", "不要市价追"],
-    ["止盈止损", "+20% 开始盯盘；+30%–50% 优先落袋；-15%–25% 警惕/离场", "0DTE 更严格"],
-  ];
-
+function TradingMatrix() {
   return (
-    <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.95fr]">
-      <div className="rounded-[1.8rem] border-2 border-slate-300 bg-white p-5 shadow-lg">
-        <h3 className="text-lg font-black text-slate-950">期权一眼扫描规则</h3>
-        <p className="mt-2 text-sm font-bold leading-7 text-slate-700">
-          买之前先筛合约，再谈方向。成交量太低、点差太大、盘口太薄，都是一票否决。
-        </p>
-        <div className="mt-4 grid gap-3">
-          {scanRules.map(([name, standard, reject], index) => (
-            <div key={name} className="overflow-hidden rounded-2xl border border-slate-300 bg-slate-50 shadow-sm">
-              <div className="grid gap-0 md:grid-cols-[130px_1fr_150px]">
-                <div className="flex items-center gap-2 border-b border-slate-200 bg-white p-3 md:border-b-0 md:border-r">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-teal-700 text-xs font-black text-white">{index + 1}</span>
-                  <span className="text-sm font-black text-slate-950">{name}</span>
-                </div>
-                <div className="border-b border-slate-200 p-3 text-sm font-semibold leading-6 text-slate-700 md:border-b-0 md:border-r">{standard}</div>
-                <div className="bg-red-50 p-3 text-sm font-black leading-6 text-red-900">{reject}</div>
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="01" title="多品种交易矩阵" desc="先定主次，再谈策略。不同品种的核心优势和最大风险完全不同，不能互相硬套。" tone="teal" />
+      <div className="grid gap-4 lg:grid-cols-4">
+        {tradeMatrix.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.name} className="rounded-[1.7rem] border-slate-300 p-5 shadow-xl shadow-slate-200/70">
+              <div className="flex items-center justify-between"><Badge tone={item.tone}>{item.role}</Badge><Icon className="h-6 w-6 text-teal-700" /></div>
+              <h3 className="mt-4 text-xl font-black text-slate-950">{item.name}</h3>
+              <div className="mt-3 space-y-3 text-sm font-semibold leading-6 text-slate-700">
+                <p><span className="font-black text-slate-950">核心：</span>{item.core}</p>
+                <p><span className="font-black text-teal-800">优势：</span>{item.edge}</p>
+                <p><span className="font-black text-red-800">风险：</span>{item.risk}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <OptionPriceCalculator />
-    </div>
-  );
-}
-
-
-function SPYAtmRhythmModule() {
-  const rhythm = [
-    ["9:30–9:40 美东 / 21:30–21:40 北京", "只观察，不急着交易", "第一波急拉/急跌常常是诱多、诱空或止损扫荡。"],
-    ["9:40–10:00 美东 / 21:40–22:00 北京", "等第一次 VWAP 确认", "不是到 VWAP 就做，必须等回踩不破、反抽不过、快速收回或放量失败。"],
-    ["10:00 以后美东 / 22:00 以后北京", "只做结构清楚的第二波", "做延续或反转都可以，但必须有 VWAP、量能和结构确认。"],
-  ];
-
-  const entryRules = [
-    ["Call 规则", "不是跌到 VWAP 就多；回踩 VWAP 不破，或跌破后快速收回，下一根重新站上，9EMA 重新上拐，才考虑 ATM Call。"],
-    ["Put 规则", "不是到 VWAP 就空；反抽 VWAP 站不上，出现上影线/放量失败，下一根重新跌回 VWAP 下方，3分钟20EMA继续压制，才考虑 ATM Put。"],
-    ["标准差外侧", "冲到上轨但量能不跟、上影线多，可小仓看回落；砸到下轨但不破且量能衰减，可小仓看反弹。"],
-    ["核心口令", "VWAP不是入场点，是观察点；不追第一波，不赌最后一波，只拿确认后的中间段。"],
-  ];
-
-  const vwapConfirmRules = [
-    ["Put 可以考虑", "从下方反抽 VWAP → 站不上 / 上影线 / 放量失败 → 下一根重新跌回 VWAP 下方 → 3分钟20EMA继续压制 → 跌破回踩低点。"],
-    ["Put 禁止", "反抽 VWAP 后没有被打下来、没有放量阴线、重新站上并横住、9EMA上拐、小碎步往上爬。"],
-    ["Call 可以考虑", "回踩 VWAP 不破，或跌破后快速收回 → 下一根重新站上 → 9EMA重新上拐 → 量能没有衰退。"],
-    ["核心修正", "VWAP不开仓，VWAP只观察；确认失败才反转，确认收回才顺势。"],
-  ];
-  const banRules = [
-    "刚开盘第一波急拉 / 急跌立刻追",
-    "连续三四根大阳 / 大阴之后才进场",
-    "价格到 VWAP 就直接当压力/支撑开仓",
-    "反抽 VWAP 后已经重新站上，还继续硬买 Put",
-    "价格回踩 VWAP 后已经快速收回，还继续硬做空",
-    "价格反复穿 VWAP，多空没有控制权",
-    "没有失败/收回/放量确认，只是看起来要涨 / 跌",
-  ];
-
-  return (
-    <div className="mt-5 overflow-hidden rounded-[1.9rem] border-2 border-violet-300 bg-white shadow-xl shadow-violet-100">
-      <div className="border-b border-violet-200 bg-gradient-to-r from-violet-700 via-sky-700 to-teal-700 px-5 py-4 text-white">
-        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">SPY / QQQ ATM Rhythm</div>
-        <h3 className="mt-1 text-xl font-black">SPY / QQQ 日内 ATM 节奏与 VWAP 确认</h3>
-        <p className="mt-2 text-sm font-bold leading-6 text-violet-50">
-          VWAP 不是支撑/压力按钮，而是观察区。先等测试结果：失败才反转，收回才顺势，只拿结构清楚的一段。
-        </p>
-      </div>
-
-      <div className="grid gap-5 p-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <div>
-          <h4 className="text-base font-black text-slate-950">日内时间节奏</h4>
-          <div className="mt-3 grid gap-3">
-            {rhythm.map(([time, action, desc], index) => (
-              <div key={time} className="grid gap-3 rounded-2xl border border-slate-300 bg-slate-50 p-4 shadow-sm md:grid-cols-[190px_1fr]">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-700 text-xs font-black text-white">{index + 1}</span>
-                  <span className="text-sm font-black leading-6 text-slate-950">{time}</span>
-                </div>
-                <div>
-                  <div className="text-sm font-black text-teal-800">{action}</div>
-                  <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md shadow-teal-100">
-            <h4 className="text-base font-black text-teal-950">最佳入场位置</h4>
-            <div className="mt-3 grid gap-2">
-              {entryRules.map(([name, desc]) => (
-                <div key={name} className="rounded-2xl border border-teal-200 bg-white p-3 text-sm leading-6 shadow-sm">
-                  <span className="font-black text-teal-800">{name}：</span>
-                  <span className="font-semibold text-slate-700">{desc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[1.5rem] border-2 border-sky-300 bg-sky-50 p-4 shadow-md shadow-sky-100">
-            <h4 className="text-base font-black text-sky-950">VWAP 确认协议</h4>
-            <div className="mt-3 grid gap-2">
-              {vwapConfirmRules.map(([name, desc]) => (
-                <div key={name} className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6 shadow-sm">
-                  <span className="font-black text-sky-800">{name}：</span>
-                  <span className="font-semibold text-slate-700">{desc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100">
-            <h4 className="text-base font-black text-red-950">禁止动作</h4>
-            <ul className="mt-3 space-y-2">
-              {banRules.map((rule) => (
-                <li key={rule} className="flex gap-2 rounded-2xl border border-red-200 bg-white p-3 text-sm font-bold leading-6 text-slate-800 shadow-sm">
-                  <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-700" />
-                  <span>{rule}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-function OptionLowWinRateZoneModule() {
-  const lowWinSignals = [
-    "价格围绕 VWAP 反复穿越，没有清晰站上或跌破",
-    "9EMA 和 20EMA 缠在一起，趋势没有展开",
-    "K线小实体多、十字星多，上下影线反复扫",
-    "量能没有连续放大，只是局部脉冲",
-    "上方压力和下方支撑距离很近，没有足够空间",
-    "正股每次突破都很快被拉回，延续性差",
-    "期权价格涨不上去，但跌起来很快",
-  ];
-
-  const lessons = [
-    ["5DTE 抗磨，但也怕磨", "不是当日期权才怕震荡，所有买方期权都怕没速度。5DTE 只是给你更多时间，不是给你免死金牌。"],
-    ["SPY 流动性好，不代表任何行情都好做", "流动性好只是让你容易进出；如果正股不走，期权照样难赚钱。"],
-    ["有支撑，不等于可以买 Call", "支撑只说明暂时跌不下去，但 Call 需要的是能持续涨上去。这个区别非常关键。"],
-  ];
-
-  const framework = [
-    ["方向", "今天为什么会涨/跌？没有原因，不做。"],
-    ["VWAP", "VWAP上方/下方只是观察方向，不是开仓理由；必须等失败、收回或放量确认。"],
-    ["量能", "放量突破才有买方速度；无量横盘是期权买方地狱。"],
-    ["空间", "支撑和压力太近，不做；没有空间，就没有盈亏比。"],
-    ["离场", "+30%–50% 优先落袋；方向失效立刻走。"],
-  ];
-
-  return (
-    <div className="mt-5 overflow-hidden rounded-[1.9rem] border-2 border-amber-300 bg-white shadow-xl shadow-amber-100">
-      <div className="border-b border-amber-200 bg-gradient-to-r from-amber-700 via-orange-700 to-red-700 px-5 py-4 text-white">
-        <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Option Buyer Low-Win Zone</div>
-        <h3 className="mt-1 text-xl font-black">期权买方低胜率区识别</h3>
-        <p className="mt-2 text-sm font-bold leading-6 text-amber-50">
-          看到类似结构，直接标记为：买方低胜率区。不是只判断方向，而是同时判断速度、空间和时间价值。
-        </p>
-      </div>
-
-      <div className="grid gap-5 p-5 xl:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-md shadow-red-100">
-          <h4 className="text-base font-black text-red-950">低胜率区核心特征</h4>
-          <p className="mt-2 rounded-2xl border border-red-200 bg-white p-3 text-sm font-black leading-6 text-red-900">
-            期权买方低胜率区 = 方向不清 + 空间不够 + 量能不足 + 时间价值持续流血。
-          </p>
-          <ul className="mt-3 grid gap-2">
-            {lowWinSignals.map((item, index) => (
-              <li key={item} className="flex gap-3 rounded-2xl border border-red-200 bg-white p-3 text-sm font-bold leading-6 text-slate-800 shadow-sm">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-700 text-xs font-black text-white">{index + 1}</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="grid gap-4">
-          <div className="rounded-[1.5rem] border-2 border-teal-300 bg-teal-50 p-4 shadow-md shadow-teal-100">
-            <h4 className="text-base font-black text-teal-950">低胜率区必须记住的三件事</h4>
-            <div className="mt-3 grid gap-3">
-              {lessons.map(([title, desc], index) => (
-                <div key={title} className="rounded-2xl border border-teal-200 bg-white p-3 shadow-sm">
-                  <div className="text-sm font-black text-teal-800">{index + 1}. {title}</div>
-                  <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[1.5rem] border-2 border-slate-300 bg-slate-50 p-4 shadow-md shadow-slate-200">
-            <h4 className="text-base font-black text-slate-950">最适合你的执行框架</h4>
-            <div className="mt-3 grid gap-2">
-              {framework.map(([name, desc]) => (
-                <div key={name} className="grid gap-2 rounded-2xl border border-slate-300 bg-white p-3 text-sm leading-6 shadow-sm sm:grid-cols-[72px_1fr]">
-                  <span className="font-black text-teal-800">{name}</span>
-                  <span className="font-semibold text-slate-700">{desc}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-black leading-6 text-amber-950">
-              核心口令：不追第一波，不赌最后一波；不在低胜率区证明自己，只拿确认后的中间段。
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function OptionExecutionModule() {
-  return (
-    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
-      <SectionHeader
-        number="03"
-        title="期权执行与合约选择系统"
-        desc="把日内期权统一成一条执行链：合约筛选、事件方向、VWAP确认、量能空间、低胜率过滤、目标价估算。"
-        tone="blue"
-      />
-
-      <div className="mb-5 rounded-[1.6rem] border-2 border-teal-700 bg-gradient-to-br from-white via-teal-50 to-cyan-50 p-5 shadow-xl shadow-teal-100">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="text-xs font-black uppercase tracking-[0.22em] text-teal-700">Options Execution Framework</div>
-            <h3 className="mt-2 text-2xl font-black text-slate-950">五步执行法：Catalyst → Direction → VWAP Confirm → Volume → Exit</h3>
-            <p className="mt-3 max-w-4xl text-sm font-semibold leading-7 text-slate-700">
-              中文就是：事件驱动、方向确认、VWAP观察确认、量能验证、及时离场。期权不是看到股票涨就买 Call，也不是到 VWAP 就做反转；先确认合约好不好进出，再确认正股有没有方向、速度和空间。
-            </p>
-          </div>
-          <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-black leading-7 text-red-900 shadow-md">
-            模块优先级：先修改旧规则，再新增内容。所有期权入场都统一回到五步执行法，不再靠补丁规则临场判断。
-          </div>
-        </div>
-      </div>
-
-      <OptionScanningModule />
-      <SPYAtmRhythmModule />
-      <OptionLowWinRateZoneModule />
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        {optionExecutionSteps.map((step, index) => (
-          <div key={step.key} className="overflow-hidden rounded-[1.7rem] border border-slate-300 bg-white shadow-lg shadow-slate-200/70">
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Step {String(index + 1).padStart(2, "0")}</div>
-                <div className="mt-1 text-lg font-black text-slate-950">{step.key} <span className="text-teal-700">{step.cn}</span></div>
-              </div>
-              <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-black text-white shadow-md", index === 5 ? "bg-red-700" : "bg-teal-700")}> 
-                {index + 1}
-              </div>
-            </div>
-            <div className="p-5">
-              <h4 className="text-base font-black leading-7 text-slate-950">{step.title}</h4>
-              <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">{step.summary}</p>
-              <ul className="mt-4 space-y-2">
-                {step.rules.map((rule) => (
-                  <li key={rule} className="flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />
-                    <span>{rule}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-black leading-6 text-amber-950">
-                {step.example}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-[1.6rem] border-2 border-slate-300 bg-white p-5 shadow-md">
-          <h3 className="text-lg font-black text-slate-950">期权执行纪律</h3>
-          <div className="mt-4 grid gap-2 text-sm font-bold leading-7 text-slate-800 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-3">每天最多 1–3 单</div>
-            <div className="rounded-2xl bg-slate-50 p-3">开盘前10分钟只观察</div>
-            <div className="rounded-2xl bg-slate-50 p-3">单笔只用账户 5%–10% 以内</div>
-            <div className="rounded-2xl bg-slate-50 p-3">优先 ATM 平值 / 轻微 ITM</div>
-            <div className="rounded-2xl bg-slate-50 p-3">Delta 0.45–0.65 优先</div>
-            <div className="rounded-2xl bg-slate-50 p-3">盈利 +30%–50% 优先落袋</div>
-            <div className="rounded-2xl bg-slate-50 p-3">亏损 -15%–25% 警惕离场</div>
-          </div>
-        </div>
-        <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-5 shadow-md shadow-red-100">
-          <h3 className="text-lg font-black text-red-950">期权禁止交易提醒</h3>
-          <p className="mt-3 text-sm font-bold leading-7 text-red-900">
-            成交量太低，不买。点差太大，不买。盘口太薄，不买。正股围绕 VWAP 来回穿，不买。只是想证明自己，更不能买。
-          </p>
-          <div className="mt-4 rounded-2xl border border-red-300 bg-white p-4 text-base font-black leading-8 text-slate-950">
-            股票涨，不代表期权好买；期权要买“会动、有人接、点差小”的那张。
-          </div>
-        </div>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );
 }
 
+function SmcSystem() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="02" title="黄金 / 外汇：结构化执行系统精进" desc="黄金偏流动性扫单，EUR/外汇偏趋势跟踪。POC、FVG、MA、量能都只做过滤和确认，不做机械开仓按钮。" tone="amber" />
+      <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="rounded-[1.8rem] border-2 border-amber-300 bg-amber-50 p-5 shadow-lg shadow-amber-100">
+          <h3 className="text-lg font-black text-amber-950">三层时间框架</h3>
+          <div className="mt-4 space-y-3">
+            {smcLevels.map(([level, tf, desc], index) => (
+              <div key={level} className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-700 text-xs font-black text-white">{index + 1}</span><span className="font-black text-slate-950">{level}</span><Badge tone="amber">{tf}</Badge></div>
+                <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-[1.8rem] border-2 border-slate-300 bg-white p-5 shadow-lg">
+          <h3 className="text-lg font-black text-slate-950">核心概念精确定义</h3>
+          <div className="mt-4 grid gap-3">
+            {smcConcepts.map(([name, def, use]) => (
+              <div key={name} className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[100px_1fr]">
+                <div className="font-black text-teal-800">{name}</div>
+                <div className="text-sm font-semibold leading-6 text-slate-700"><span className="font-black text-slate-950">定义：</span>{def}<br /><span className="font-black text-slate-950">用法：</span>{use}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-[1.8rem] border-amber-300 bg-amber-50 p-5 shadow-lg shadow-amber-100">
+          <h3 className="text-xl font-black text-amber-950">黄金系统精进：POC + FVG + MA9/21 + 量能</h3>
+          <div className="mt-4 space-y-2">{goldRefinements.map(([k, v]) => <RuleLine key={k} tone="amber"><b>{k}：</b>{v}</RuleLine>)}</div>
+          <div className="mt-3 rounded-2xl border border-red-300 bg-white p-3 text-sm font-black leading-6 text-red-900">禁止把MA9/21、POC或FVG当成单独开仓信号；必须等结构位置 + 收回/拒绝 + 量能确认。</div>
+        </Card>
+        <Card className="rounded-[1.8rem] border-sky-300 bg-sky-50 p-5 shadow-lg shadow-sky-100">
+          <h3 className="text-xl font-black text-sky-950">外汇 / EUR 趋势系统</h3>
+          <div className="mt-4 space-y-2">{fxTrendRules.map(([k, v]) => <RuleLine key={k} tone="blue"><b>{k}：</b>{v}</RuleLine>)}</div>
+        </Card>
+      </div>
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        <Card className="rounded-[1.7rem] border-red-300 bg-red-50 p-5 shadow-lg shadow-red-100"><h3 className="font-black text-red-950">黄金专属过滤器</h3><div className="mt-3 space-y-2"><RuleLine tone="red">避开非农/CPI前2小时入场，新闻前后不要用技术模型硬做。</RuleLine><RuleLine tone="red">伦敦开盘前30分钟高低点，是重要BSL/SSL观察区。</RuleLine><RuleLine tone="red">纽约开盘Kill Zone更容易扫流动性，但必须等确认。</RuleLine></div></Card>
+        <Card className="rounded-[1.7rem] border-teal-300 bg-teal-50 p-5 shadow-lg shadow-teal-100 lg:col-span-2"><h3 className="font-black text-teal-950">精确入场三步法</h3><div className="mt-3 grid gap-2 md:grid-cols-3"><RuleLine index="1" tone="teal">日线确认偏向：看HTF结构和关键OB方向。</RuleLine><RuleLine index="2" tone="teal">4H/1H找到待扫流动性池：前高/前低密集止损区。</RuleLine><RuleLine index="3" tone="teal">15M/5M等CHoCH后，回调到OB+FVG重叠区执行；RR至少1:2。</RuleLine></div></Card>
+      </div>
+    </section>
+  );
+}
+
+function OptionSystem() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="03" title="期权买方系统：方向 + 时间 + 波动率" desc="v2.0把日内和波段彻底拆开：日内看速度与确认，波段看IVR、结构和催化剂。" tone="blue" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        {optionCoreSteps.map((step) => {
+          const Icon = step.icon;
+          return (
+            <Card key={step.key} className="overflow-hidden rounded-[1.8rem] border-slate-300 shadow-xl shadow-slate-200/70">
+              <div className="border-b border-slate-200 bg-slate-50 px-5 py-4"><div className="flex items-center gap-3"><Icon className="h-6 w-6 text-teal-700" /><div><div className="text-xs font-black uppercase tracking-widest text-slate-500">{step.key}</div><h3 className="text-lg font-black text-slate-950">{step.cn}</h3></div></div></div>
+              <div className="p-5"><h4 className="font-black leading-7 text-slate-950">{step.title}</h4><div className="mt-4 space-y-2">{step.rules.map((r) => <RuleLine key={r} tone={step.tone}>{r}</RuleLine>)}</div></div>
+            </Card>
+          );
+        })}
+      </div>
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[1.8rem] border-2 border-teal-700 bg-white p-5 shadow-xl shadow-teal-100">
+          <h3 className="text-xl font-black text-slate-950">日内期权四维确认系统</h3>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <RuleLine tone="teal"><b>VWAP：</b>观察区，不是开仓点。失败才反转，收回才顺势。</RuleLine>
+            <RuleLine tone="blue"><b>VWAP ±1σ/±2σ：</b>判断极值和均值回归，但趋势日不可逆势硬做。</RuleLine>
+            <RuleLine tone="violet"><b>9EMA + 20EMA：</b>短线动能确认，缠绕时不做买方。</RuleLine>
+            <RuleLine tone="amber"><b>成交量：</b>突破时需放量；无量横盘是期权买方地狱。</RuleLine>
+            <RuleLine tone="slate"><b>关键位：</b>前日高低、开盘价、整数关口、ORB区间。</RuleLine>
+            <RuleLine tone="red"><b>禁止：</b>开盘前15分钟、午盘低流动性、数据前30分钟乱进。</RuleLine>
+          </div>
+        </div>
+        <div className="rounded-[1.8rem] border-2 border-red-300 bg-red-50 p-5 shadow-xl shadow-red-100">
+          <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
+          <div className="mt-4 space-y-2">
+            <RuleLine tone="red">方向对了，但入场太早，被Theta磨死。</RuleLine>
+            <RuleLine tone="red">方向对了，但IV过高，买贵后被IV Crush杀利润。</RuleLine>
+            <RuleLine tone="red">突破VWAP是假突破，没有等失败/收回确认。</RuleLine>
+            <RuleLine tone="red">亏损单不止损，小亏变大亏。</RuleLine>
+          </div>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        {optionIntradayModels.map((model) => (
+          <Card key={model.name} className="rounded-[1.7rem] border-slate-300 p-5 shadow-lg">
+            <Badge tone="teal">{model.bestFor}</Badge><h3 className="mt-3 text-lg font-black text-slate-950">{model.name}</h3>
+            <div className="mt-4 space-y-2">{model.conditions.map((c) => <RuleLine key={c} tone="teal">{c}</RuleLine>)}</div>
+            <div className="mt-3 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-black leading-6 text-red-900">{model.ban}</div>
+          </Card>
+        ))}
+      </div>
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
+        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl">
+          <h3 className="text-xl font-black text-slate-950">期权合约选择参数</h3>
+          <div className="mt-4 grid gap-2">{optionContractRules.map(([k, v]) => <div key={k} className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 sm:grid-cols-[90px_1fr]"><span className="font-black text-teal-800">{k}</span><span className="font-semibold text-slate-700">{v}</span></div>)}</div>
+        </Card>
+        <OptionPriceCalculator />
+      </div>
+    </section>
+  );
+}
+
+function ExpansionSystem() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="04" title="扩展系统：正股低频配置 + 加密暂缓" desc="正股可以加入低频配置流程；加密合约/期权仍只做观察，不抢主战场。" tone="violet" />
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Card className="rounded-[1.8rem] border-violet-300 bg-violet-50 p-5 shadow-lg shadow-violet-100"><h3 className="text-xl font-black text-violet-950">加密合约 / 加密期权</h3><div className="mt-4 space-y-2">{cryptoRules.map(([k, v]) => <RuleLine key={k} tone="violet"><b>{k}：</b>{v}</RuleLine>)}</div><div className="mt-3 rounded-2xl border border-red-300 bg-white p-3 text-sm font-black leading-6 text-red-900">暂不作为主战场：流动性、点差、插针和杠杆风险太高。</div></Card>
+        <Card className="rounded-[1.8rem] border-sky-300 bg-sky-50 p-5 shadow-lg shadow-sky-100"><h3 className="text-xl font-black text-sky-950">正股低频配置系统</h3><div className="mt-4 space-y-2">{stockRules.map(([k, v]) => <RuleLine key={k} tone="blue"><b>{k}：</b>{v}</RuleLine>)}</div><div className="mt-3 rounded-2xl border border-teal-300 bg-white p-3 text-sm font-black leading-6 text-teal-900">正股不是纯技术，要用基本面锚定，再用技术择时。</div></Card>
+      </div>
+    </section>
+  );
+}
+
+function MacroAndModels() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="每周只需要用宏观矩阵确定环境；每天只需要练少数高胜率形态。" tone="slate" />
+      <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
+        <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl"><h3 className="text-xl font-black text-slate-950">风险偏好矩阵</h3><div className="mt-4 space-y-3">{macroMatrix.map(([state, cond, action]) => <div key={state} className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center gap-2"><Badge tone={state === "Risk OFF" ? "red" : state === "Risk ON" ? "green" : "amber"}>{state}</Badge><span className="text-sm font-black text-slate-800">{cond}</span></div><p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{action}</p></div>)}</div></Card>
+        <div className="grid gap-4 lg:grid-cols-3">{highWinModels.map((m) => <Card key={m.title} className="rounded-[1.8rem] border-slate-300 p-5 shadow-xl"><Badge tone={m.market === "期权日内" ? "teal" : "amber"}>{m.market}</Badge><h3 className="mt-3 text-lg font-black text-slate-950">{m.title}</h3><p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{m.desc}</p><div className="mt-3 space-y-2"><div className="text-xs font-black text-teal-700">必须满足</div>{m.doRules.map((r) => <RuleLine key={r} tone="teal">{r}</RuleLine>)}<div className="pt-2 text-xs font-black text-red-700">禁止</div>{m.banRules.map((r) => <RuleLine key={r} tone="red">{r}</RuleLine>)}</div></Card>)}</div>
+      </div>
+    </section>
+  );
+}
+
+function TrafficLightChecklist() {
+  const [checked, setChecked] = useState([]);
+  const all = checked.length === checklist.length;
+  const toggle = (i) => setChecked((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
+  return (
+    <Card className={cn("rounded-[2rem] border-2 p-5 shadow-xl", all ? "border-teal-700 bg-teal-50" : "border-red-300 bg-red-50")}>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div><h3 className="text-xl font-black text-slate-950">开单前红绿灯检查</h3><p className="mt-1 text-sm font-bold text-slate-600">全部点亮才允许进入下一步。任何红灯，都不是错过机会，而是避免灾难。</p></div>
+        <div className={cn("rounded-2xl px-4 py-3 text-lg font-black", all ? "bg-teal-700 text-white" : "bg-red-700 text-white")}>{checked.length} / {checklist.length}</div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">{checklist.map((_, i) => <span key={i} className={cn("h-4 w-4 rounded-full border-2", checked.includes(i) ? "border-teal-700 bg-teal-600" : "border-red-600 bg-red-500")} />)}</div>
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">{checklist.map((item, i) => {
+        const ok = checked.includes(i);
+        return <button key={item} onClick={() => toggle(i)} className={cn("flex gap-3 rounded-2xl border-2 p-4 text-left text-sm font-bold leading-6 transition", ok ? "border-teal-700 bg-white text-teal-950 shadow-lg shadow-teal-100" : "border-red-300 bg-white text-slate-800 shadow-sm hover:border-red-500")}><span className={cn("mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-white", ok ? "bg-teal-700" : "bg-red-600")}>{ok ? "绿" : "红"}</span><span>{item}</span></button>;
+      })}</div>
+      <div className={cn("mt-5 rounded-2xl border p-4 text-center text-lg font-black", all ? "border-teal-700 bg-white text-teal-900" : "border-red-300 bg-white text-red-900")}>{all ? "绿灯全亮：可以进入执行，但仍然小仓试错。" : "红灯未清：禁止开单。"}</div>
+    </Card>
+  );
+}
+
+function TrainingQuiz() {
+  const [idx, setIdx] = useState(0);
+  const [answer, setAnswer] = useState(null);
+  const q = trainingQuestions[idx];
+  function next() { setAnswer(null); setIdx((idx + 1) % trainingQuestions.length); }
+  return (
+    <Card className="rounded-[2rem] border-slate-300 p-5 shadow-xl">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><h3 className="text-xl font-black text-slate-950">强化答题训练</h3><p className="mt-1 text-sm font-bold text-slate-600">训练的是“能不能做”，不是预测涨跌。</p></div><Button onClick={next} variant="ghost"><RefreshCcw className="mr-2 h-4 w-4" />换一题</Button></div>
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5"><h4 className="text-lg font-black leading-8 text-slate-950">{q.q}</h4><div className="mt-4 grid gap-3 md:grid-cols-2">{q.options.map((op, i) => {
+        const chosen = answer === i; const correct = answer !== null && i === q.a; const wrong = chosen && i !== q.a;
+        return <button key={op} onClick={() => setAnswer(i)} className={cn("rounded-2xl border-2 p-4 text-left text-sm font-black transition", correct ? "border-teal-700 bg-teal-50 text-teal-900" : wrong ? "border-red-700 bg-red-50 text-red-900" : "border-slate-300 bg-white text-slate-700 hover:border-teal-500")}>{op}</button>;
+      })}</div>{answer !== null && <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm font-black leading-7 text-amber-950">{answer === q.a ? "判断正确：" : "判断错误："}{q.exp}</motion.div>}</div>
+    </Card>
+  );
+}
+
+function DisciplineSystem() {
+  return (
+    <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
+      <SectionHeader number="06" title="执行纪律与训练闸门" desc="交易系统不是为了让你每天都开单，而是为了让你只在最有优势的位置开单。" tone="red" />
+      <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]"><TrafficLightChecklist /><TrainingQuiz /></div>
+      <Card className="mt-5 rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-lg shadow-red-100">
+        <h3 className="text-xl font-black text-red-950">账户生存法则</h3>
+        <div className="mt-4 grid gap-3 md:grid-cols-4"><RuleLine tone="red">每日最多3笔，连续亏损2笔停止。</RuleLine><RuleLine tone="red">每日最大亏损≤账户5%，触发立刻停止。</RuleLine><RuleLine tone="red">单笔期权成本不要超过账户10%-15%。</RuleLine><RuleLine tone="red">任何规则误用单，不允许拖成情绪单。</RuleLine></div>
+      </Card>
+    </section>
+  );
+}
+
 export default function TradingModelTrainingSystem() {
-  const [marketFilter, setMarketFilter] = useState("全部");
-  const [selectedId, setSelectedId] = useState(models[0].id);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [checkedItems, setCheckedItems] = useState([]);
-
-  const markets = ["全部", "黄金 XAUUSD", "EURUSD", "美股期权", "全市场"];
-
-  const filteredModels = useMemo(() => {
-    if (marketFilter === "全部") return models;
-    return models.filter((model) => model.market === marketFilter);
-  }, [marketFilter]);
-
-  const selectedModel = models.find((model) => model.id === selectedId) || models[0];
-  const question = trainingQuestions[questionIndex];
-
-  function nextQuestion() {
-    setSelectedAnswer(null);
-    setQuestionIndex((prev) => (prev + 1) % trainingQuestions.length);
-  }
-
-  function toggleCheck(index) {
-    setCheckedItems((prev) =>
-      prev.includes(index) ? prev.filter((item) => item !== index) : [...prev, index]
-    );
-  }
-
-  const allPreTradeChecked = checkedItems.length === preTradeChecks.length;
+  const stats = useMemo(() => [
+    { label: "交易矩阵", value: "4类", icon: Layers, tone: "bg-teal-700" },
+    { label: "期权核心", value: "3维", icon: Zap, tone: "bg-sky-700" },
+    { label: "日内模型", value: "3个", icon: Activity, tone: "bg-violet-700" },
+    { label: "红绿灯", value: `${checklist.length}项`, icon: ShieldAlert, tone: "bg-red-700" },
+  ], []);
 
   return (
-    <div className="min-h-screen bg-[#EAF1F4] text-slate-950">
-      <div className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-b from-cyan-100 via-teal-50 to-transparent" />
-      <div className="pointer-events-none fixed left-6 top-24 h-64 w-64 rounded-full bg-teal-200/35 blur-3xl" />
-      <div className="pointer-events-none fixed right-10 top-44 h-72 w-72 rounded-full bg-sky-200/35 blur-3xl" />
-
-      <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <motion.header
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 overflow-hidden rounded-[2.2rem] border border-slate-300 bg-white/95 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.14)] ring-1 ring-white md:p-8"
-        >
-          <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-teal-700 via-cyan-500 to-sky-600" />
-          <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
-            <div>
-              <div className="mb-3 flex flex-wrap gap-2">
-                <Badge color="cyan">交易模型训练系统 v1.1</Badge>
-                <Badge color="red">先风控，后机会</Badge>
-              </div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
-                黄金 / EUR / 期权高胜率形态强化面板
-              </h1>
-              <p className="mt-4 max-w-4xl text-sm font-semibold leading-7 text-slate-700 md:text-base">
-                每天只训练少数真正值得做的模型：扫流动性、FVG + OB、趋势回踩、区间边界、期权五步执行法、板块龙头、大盘共振、低胜率过滤，以及最重要的禁止交易条件。
-              </p>
-            </div>
-            <div className="rounded-[1.6rem] border-2 border-red-300 bg-gradient-to-br from-red-50 to-white p-5 shadow-xl shadow-red-100">
-              <div className="flex items-center gap-3 text-red-700">
-                <div className="rounded-2xl bg-red-600 p-2 text-white shadow-md">
-                  <ShieldAlert className="h-5 w-5" />
-                </div>
-                <span className="text-lg font-black">今日默认规则</span>
-              </div>
-              <p className="mt-3 text-sm font-semibold leading-7 text-slate-700">
-                没有完整信号，不开单。连续亏损两笔，强制暂停。想回本的时候，所有技术判断自动降级。
-              </p>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dff7f4_0,#f4fbff_32%,#f8fafc_70%)] text-slate-900">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-300 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.14)]">
+          <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
+          <div className="p-6 md:p-8">
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.1</Badge><Badge tone="red">先风控，后机会</Badge><Badge tone="blue">精进优化版</Badge></div>
+            <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
+              <div><h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统 v2.1</h1><p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-700">把黄金/EUR、期权买方、正股、加密的逻辑分层处理：不是增加补丁，而是重构成“品种矩阵 → 单品种执行模型 → 期权三维系统 → 红绿灯检查 → 强化答题”的完整训练闭环。</p></div>
+              <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-lg"><div className="flex items-center gap-2 text-red-900"><AlertTriangle className="h-5 w-5" /><span className="font-black">v2.1总原则</span></div><p className="mt-2 text-sm font-bold leading-7 text-red-900">先优化旧模块，不乱加补丁；日内和波段分开；VWAP只作观察区；任何交易先过红绿灯。</p></div>
             </div>
           </div>
         </motion.header>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">
-          {statCards.map((item) => (
-            <StatCard key={item.label} item={item} />
-          ))}
-        </div>
+        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-300 p-5 shadow-xl"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
 
-        <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/70 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
-          <SectionHeader number="01" title="模型库导航" desc="先选择今天要强化的市场和形态，不要把所有机会都当成机会。" />
-
-          <div className="mb-6 flex flex-wrap gap-2 rounded-3xl border border-slate-300 bg-slate-50/90 p-2 shadow-inner">
-            {markets.map((market) => (
-              <Button
-                key={market}
-                onClick={() => setMarketFilter(market)}
-                variant="ghost"
-                className={`rounded-2xl border px-4 ${
-                  marketFilter === market
-                    ? "border-teal-800 bg-teal-700 text-white shadow-lg shadow-teal-300"
-                    : "border-slate-300 bg-white text-slate-700 shadow-sm hover:border-teal-500 hover:bg-teal-50"
-                }`}
-              >
-                {market}
-              </Button>
-            ))}
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-            <div className="rounded-[1.8rem] border border-slate-300 bg-slate-50 p-3 shadow-inner">
-              <div className="mb-3 px-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Model Index</div>
-              <div className="space-y-3">
-                {filteredModels.map((model, index) => {
-                  const Icon = model.icon;
-                  const active = selectedId === model.id;
-                  return (
-                    <button
-                      key={model.id}
-                      onClick={() => setSelectedId(model.id)}
-                      className={`relative w-full overflow-hidden rounded-3xl border p-4 text-left transition ${
-                        active
-                          ? "border-teal-700 bg-white shadow-xl shadow-teal-200 ring-2 ring-teal-100"
-                          : "border-slate-300 bg-white/80 shadow-sm hover:border-teal-400 hover:bg-white hover:shadow-md"
-                      }`}
-                    >
-                      <div className={`absolute inset-y-0 left-0 w-1.5 ${active ? "bg-teal-700" : "bg-slate-200"}`} />
-                      <div className="flex items-start gap-3 pl-2">
-                        <div className={`rounded-2xl border p-3 shadow-sm ${colorMap[model.color]}`}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 text-xs font-black text-slate-500">
-                            <span>{String(index + 1).padStart(2, "0")}</span>
-                            <span>•</span>
-                            <span>{model.market}</span>
-                          </div>
-                          <h3 className="mt-2 font-black text-slate-950">{model.title}</h3>
-                          <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-600">
-                            {model.summary}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <motion.div
-              key={selectedModel.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden rounded-[2rem] border-2 border-teal-700 bg-white shadow-[0_28px_90px_rgba(13,148,136,0.18)] ring-4 ring-teal-100"
-            >
-              <div className="h-2 bg-gradient-to-r from-teal-700 via-cyan-500 to-sky-600" />
-              <div className="p-5 md:p-6">
-                <SectionHeader number="02" title="当前模型拆解" desc="只看成立条件、禁止条件、入场和出场；不临场发明新逻辑。" />
-
-                <div className="mb-5 grid gap-4 xl:grid-cols-[1fr_300px]">
-                  <div>
-                    <div className="mb-3 flex flex-wrap gap-2">
-                      <Badge color={selectedModel.color}>{selectedModel.market}</Badge>
-                      <Badge color={selectedModel.color}>{selectedModel.level}</Badge>
-                      <Badge color={selectedModel.color}>{selectedModel.direction}</Badge>
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-950 md:text-3xl">{selectedModel.title}</h2>
-                    <p className="mt-3 text-sm font-semibold leading-7 text-slate-700">{selectedModel.summary}</p>
-                  </div>
-                  <div className="rounded-[1.4rem] border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-4 shadow-lg shadow-amber-100">
-                    <div className="text-xs font-black uppercase tracking-[0.2em] text-amber-700">核心口令</div>
-                    <div className="mt-3 text-lg font-black leading-8 text-amber-950">{selectedModel.mantra}</div>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[1.6rem] border-2 border-emerald-300 bg-emerald-50 p-4 shadow-lg shadow-emerald-100/70">
-                    <h3 className="mb-3 flex items-center gap-2 font-black text-emerald-950">
-                      <CheckCircle2 className="h-5 w-5" /> 成立条件
-                    </h3>
-                    <ul className="space-y-2">
-                      {selectedModel.conditions.map((item) => (
-                        <ChecklistItem key={item} text={item} />
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-4 shadow-lg shadow-red-100/70">
-                    <h3 className="mb-3 flex items-center gap-2 font-black text-red-950">
-                      <XCircle className="h-5 w-5" /> 禁止条件
-                    </h3>
-                    <ul className="space-y-2">
-                      {selectedModel.avoid.map((item) => (
-                        <AvoidItem key={item} text={item} />
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-5 shadow-sm">
-                    <div className="mb-3 h-1 w-16 rounded-full bg-teal-700" />
-                    <h3 className="mb-2 font-black text-slate-950">入场参考</h3>
-                    <p className="text-sm font-semibold leading-7 text-slate-700">{selectedModel.entry}</p>
-                  </div>
-                  <div className="rounded-[1.6rem] border border-slate-300 bg-slate-50 p-5 shadow-sm">
-                    <div className="mb-3 h-1 w-16 rounded-full bg-sky-600" />
-                    <h3 className="mb-2 font-black text-slate-950">出场参考</h3>
-                    <p className="text-sm font-semibold leading-7 text-slate-700">{selectedModel.exit}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        <OptionExecutionModule />
-
-        <section className="mb-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-            <CardContent className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-white to-teal-50 p-5 md:p-6">
-              <SectionHeader number="04" title="开单前 10 秒检查" desc="这里不是复盘，是开单前的刹车。全部通过，才进入执行。" />
-              <div className="mb-5 overflow-hidden rounded-[1.7rem] border-2 border-slate-300 bg-white shadow-lg">
-                <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
-                  <div>
-                    <div className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Traffic Light Gate</div>
-                    <div className="mt-1 text-sm font-black text-slate-950">开单通行灯：{checkedItems.length} / {preTradeChecks.length} 已点亮</div>
-                  </div>
-                  <div
-                    className={`rounded-full border-2 px-4 py-2 text-xs font-black shadow-sm ${
-                      allPreTradeChecked
-                        ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
-                        : "border-red-500 bg-red-50 text-red-800 shadow-red-100"
-                    }`}
-                  >
-                    {allPreTradeChecked ? "全部绿灯 · 可以进入执行" : "红灯未清 · 禁止开单"}
-                  </div>
-                </div>
-                <div className="grid grid-cols-6 gap-2 p-4">
-                  {preTradeChecks.map((_, index) => {
-                    const checked = checkedItems.includes(index);
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => toggleCheck(index)}
-                        aria-label={`检查项 ${index + 1}`}
-                        className={`h-5 rounded-full border-2 transition ${
-                          checked
-                            ? "border-emerald-700 bg-emerald-500 shadow-lg shadow-emerald-200"
-                            : "border-red-400 bg-red-100 shadow-inner"
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {preTradeChecks.map((item, index) => {
-                  const checked = checkedItems.includes(index);
-                  return (
-                    <button
-                      key={item}
-                      onClick={() => toggleCheck(index)}
-                      className={`group relative flex w-full items-stretch overflow-hidden rounded-[1.35rem] border-2 text-left transition ${
-                        checked
-                          ? "border-emerald-700 bg-emerald-500 text-white shadow-xl shadow-emerald-200 ring-4 ring-emerald-100"
-                          : "border-red-300 bg-white text-slate-800 shadow-md hover:border-red-500 hover:bg-red-50"
-                      }`}
-                    >
-                      <div
-                        className={`flex w-16 shrink-0 items-center justify-center border-r-2 ${
-                          checked ? "border-emerald-300 bg-emerald-700" : "border-red-200 bg-red-50"
-                        }`}
-                      >
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-md ${
-                            checked
-                              ? "border-white bg-white text-emerald-700"
-                              : "border-red-400 bg-red-100 text-red-600"
-                          }`}
-                        >
-                          {checked ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-                        </div>
-                      </div>
-                      <div className="flex flex-1 items-center justify-between gap-4 p-4">
-                        <span className={`text-sm font-black leading-6 ${checked ? "text-white" : "text-slate-900"}`}>{item}</span>
-                        <span
-                          className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${
-                            checked
-                              ? "border-white/60 bg-white/20 text-white"
-                              : "border-red-300 bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {checked ? "绿灯" : "红灯"}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <div
-                className={`mt-5 rounded-[1.5rem] border-2 p-5 text-sm font-black leading-7 shadow-lg ${
-                  allPreTradeChecked
-                    ? "border-emerald-700 bg-emerald-600 text-white shadow-emerald-200"
-                    : "border-red-500 bg-red-50 text-red-900 shadow-red-100"
-                }`}
-              >
-                {allPreTradeChecked
-                  ? "绿灯全亮：可以进入下一步。只按计划执行，不能临场扩大仓位。"
-                  : "红灯未清：暂不允许交易。必须全部点亮，才允许进入执行。"}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-            <CardContent className="rounded-[2rem] border border-sky-100 bg-gradient-to-br from-white to-sky-50 p-5 md:p-6">
-              <SectionHeader number="05" title="模型优先级顺序" desc="每次判断都按这个顺序来，不能直接从看到信号跳到我要开单。" tone="blue" />
-              <div className="space-y-3">
-                {[
-                  ["01", "市场环境", "趋势、震荡、新闻盘、垃圾盘，先判断能不能做。", "bg-teal-700"],
-                  ["02", "关键位置", "边界、FVG、OB、VWAP、前高前低，中间位置默认不做。", "bg-sky-700"],
-                  ["03", "触发确认", "长影线收回、回踩不破、放量突破、板块共振。", "bg-violet-700"],
-                  ["04", "风险执行", "止损、仓位、最大亏损、连续亏损规则必须先定。", "bg-red-700"],
-                ].map(([num, title, desc, color]) => (
-                  <div key={num} className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white p-4 shadow-md">
-                    <div className={cn("absolute inset-y-0 left-0 w-1.5", color)} />
-                    <div className="flex items-center gap-3 pl-2">
-                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white shadow-md", color)}>
-                        {num}
-                      </div>
-                      <div>
-                        <div className="font-black text-slate-950">{title}</div>
-                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-700">{desc}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="rounded-[2.2rem] border-slate-300 bg-white p-1 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-            <CardContent className="rounded-[2rem] border border-slate-200 bg-white p-5 md:p-6">
-              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <SectionHeader number="06" title="每日形态判断训练" desc="目的不是答题，而是把能不能做练成条件反射。" tone="amber" />
-                <Button
-                  onClick={nextQuestion}
-                  className="w-full shrink-0 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-200 hover:bg-teal-800 sm:w-auto"
-                >
-                  <RefreshCcw className="mr-2 h-4 w-4" /> 换一题
-                </Button>
-              </div>
-
-              <div className="rounded-[1.8rem] border border-slate-300 bg-slate-50 p-5 shadow-inner">
-                <h3 className="text-lg font-black leading-8 text-slate-950">{question.question}</h3>
-                <div className="mt-5 grid gap-3 md:grid-cols-2">
-                  {question.options.map((option, index) => {
-                    const chosen = selectedAnswer === index;
-                    const correct = selectedAnswer !== null && index === question.answer;
-                    const wrong = chosen && index !== question.answer;
-                    return (
-                      <button
-                        key={option}
-                        onClick={() => setSelectedAnswer(index)}
-                        className={`rounded-2xl border p-4 text-left text-sm font-bold transition ${
-                          correct
-                            ? "border-emerald-500 bg-emerald-100 text-emerald-950 shadow-md"
-                            : wrong
-                              ? "border-red-500 bg-red-100 text-red-950 shadow-md"
-                              : "border-slate-300 bg-white text-slate-800 shadow-sm hover:border-teal-500 hover:bg-teal-50"
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {selectedAnswer !== null && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-md"
-                  >
-                    <div className="font-black text-amber-900">
-                      {selectedAnswer === question.answer ? "判断正确" : "判断错误"}
-                    </div>
-                    <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">{question.explain}</p>
-                  </motion.div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[2.2rem] border-2 border-red-300 bg-red-50 p-1 shadow-[0_24px_70px_rgba(220,38,38,0.16)]">
-            <CardContent className="rounded-[2rem] border border-red-200 bg-gradient-to-br from-red-50 to-white p-5 md:p-6">
-              <SectionHeader number="07" title="强制停手系统" desc="触发任意一项，停止交易；这不是错过机会，是避免灾难。" tone="red" />
-              <div className="space-y-3">
-                {[
-                  "连续亏损 2 笔",
-                  "想靠一单回本",
-                  "价格在区间中间",
-                  "黄金上下影线乱扫",
-                  "数据公布前后 15 分钟",
-                  "期权买卖价差过大",
-                  "没有提前确定止损",
-                  "只是因为感觉要涨/跌",
-                ].map((item) => (
-                  <div key={item} className="relative overflow-hidden rounded-2xl border border-red-300 bg-white p-4 shadow-md">
-                    <div className="absolute inset-y-0 left-0 w-1.5 bg-red-600" />
-                    <div className="flex items-center gap-3 pl-2">
-                      <Ban className="h-4 w-4 shrink-0 text-red-600" />
-                      <span className="text-sm font-black text-slate-850">{item}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-5 rounded-2xl border-2 border-red-500 bg-red-100 p-4 text-sm font-black leading-7 text-red-950 shadow-md">
-                触发任意一项，都不是错过机会，而是在避免灾难。交易最强的能力，是知道什么时候不交易。
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+        <TradingMatrix />
+        <SmcSystem />
+        <OptionSystem />
+        <ExpansionSystem />
+        <MacroAndModels />
+        <DisciplineSystem />
       </div>
     </div>
   );
