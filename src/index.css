@@ -3,39 +3,99 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  background: #EEF4F7;
-}
-
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+html { background: #020617; }
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #EEF4F7;
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(148,163,184,0.08), transparent 18%),
+    linear-gradient(160deg, #0f172a 0%, #0b1120 38%, #020617 100%);
+  color: #e2e8f0;
+}
+button { font: inherit; }
+::selection { background: rgba(14, 165, 233, 0.28); }
+
+.intj-theme { position: relative; }
+.intj-theme::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 95%);
+  opacity: 0.22;
 }
 
-button {
-  font: inherit;
+.intj-theme .text-slate-950,
+.intj-theme .text-slate-900,
+.intj-theme .text-slate-800 { color: #f8fafc !important; }
+.intj-theme .text-slate-700,
+.intj-theme .text-slate-600 { color: #cbd5e1 !important; }
+.intj-theme .text-slate-500 { color: #94a3b8 !important; }
+
+.intj-theme .bg-white,
+.intj-theme .bg-white\/95,
+.intj-theme .bg-white\/90,
+.intj-theme .bg-white\/85,
+.intj-theme .bg-white\/80,
+.intj-theme .bg-white\/70,
+.intj-theme .bg-slate-50,
+.intj-theme .bg-slate-50\/80,
+.intj-theme .bg-slate-50\/90,
+.intj-theme .bg-red-50,
+.intj-theme .bg-amber-50,
+.intj-theme .bg-sky-50,
+.intj-theme .bg-teal-50,
+.intj-theme .bg-emerald-50,
+.intj-theme .bg-violet-50,
+.intj-theme .bg-rose-50 {
+  background-color: rgba(15, 23, 42, 0.82) !important;
 }
 
-
-::selection {
-  background: rgba(13, 148, 136, 0.18);
+.intj-theme .border-slate-200,
+.intj-theme .border-slate-300,
+.intj-theme .border-slate-700,
+.intj-theme .border-red-200,
+.intj-theme .border-red-300,
+.intj-theme .border-amber-200,
+.intj-theme .border-amber-300,
+.intj-theme .border-sky-200,
+.intj-theme .border-teal-200,
+.intj-theme .border-teal-700,
+.intj-theme .border-emerald-200,
+.intj-theme .border-violet-200,
+.intj-theme .border-rose-200 {
+  border-color: rgba(71, 85, 105, 0.78) !important;
 }
+
+.intj-theme .hover\:bg-slate-50:hover { background-color: rgba(30,41,59,0.9) !important; }
+.intj-theme .hover\:bg-slate-800:hover { background-color: rgba(51,65,85,0.95) !important; }
+.intj-theme .hover\:border-teal-500:hover { border-color: rgba(34,211,238,0.6) !important; }
+
+.intj-theme input,
+.intj-theme select {
+  background: rgba(15,23,42,0.92) !important;
+  color: #f8fafc !important;
+  border-color: rgba(71,85,105,0.9) !important;
+}
+
+.intj-theme .backdrop-blur-md,
+.intj-theme .backdrop-blur-xl { backdrop-filter: blur(18px); }
 
 @media (prefers-color-scheme: dark) {
-  html, body {
-    background: #EEF4F7;
-  }
+  html, body { background: #020617; }
 }

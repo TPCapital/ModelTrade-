@@ -26,16 +26,16 @@ function cn(...classes) {
 }
 
 function Card({ children, className = "" }) {
-  return <div className={cn("border border-slate-200/90 bg-white/95 backdrop-blur-md shadow-[0_22px_55px_rgba(15,23,42,0.10)]", className)}>{children}</div>;
+  return <div className={cn("border border-slate-700/80 bg-slate-900/88 backdrop-blur-xl shadow-[0_28px_70px_rgba(2,6,23,0.42)]", className)}>{children}</div>;
 }
 
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
   const base =
     "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition focus:outline-none focus:ring-4";
   const variants = {
-    default: "bg-teal-700 text-white hover:bg-teal-800 focus:ring-teal-200",
-    ghost: "bg-white text-slate-700 hover:bg-slate-50 focus:ring-teal-100 border border-slate-300",
-    danger: "bg-red-700 text-white hover:bg-red-800 focus:ring-red-200",
+    default: "bg-cyan-700 text-white hover:bg-cyan-600 focus:ring-cyan-900/30",
+    ghost: "bg-slate-900 text-slate-200 hover:bg-slate-800 focus:ring-cyan-900/30 border border-slate-700",
+    danger: "bg-rose-700 text-white hover:bg-rose-600 focus:ring-rose-900/30",
   };
   return (
     <button type={type} className={cn(base, variants[variant] || variants.default, className)} {...props}>
@@ -46,38 +46,38 @@ function Button({ children, className = "", variant = "default", type = "button"
 
 function Badge({ children, tone = "teal" }) {
   const toneMap = {
-    teal: "border-teal-600 bg-teal-50 text-teal-900",
-    red: "border-red-600 bg-red-50 text-red-900",
-    amber: "border-amber-600 bg-amber-50 text-amber-950",
-    blue: "border-sky-600 bg-sky-50 text-sky-950",
-    violet: "border-violet-600 bg-violet-50 text-violet-950",
-    slate: "border-slate-500 bg-slate-50 text-slate-800",
-    green: "border-emerald-600 bg-emerald-50 text-emerald-950",
+    teal: "border-cyan-700/60 bg-cyan-950/70 text-cyan-100",
+    red: "border-rose-700/60 bg-rose-950/60 text-rose-100",
+    amber: "border-amber-700/60 bg-amber-950/50 text-amber-100",
+    blue: "border-sky-700/60 bg-sky-950/60 text-sky-100",
+    violet: "border-violet-700/60 bg-violet-950/60 text-violet-100",
+    slate: "border-slate-600 bg-slate-900 text-slate-100",
+    green: "border-emerald-700/60 bg-emerald-950/60 text-emerald-100",
   };
   return <span className={cn("rounded-full border px-3 py-1 text-xs font-black", toneMap[tone])}>{children}</span>;
 }
 
 function KeyWord({ children, tone = "teal" }) {
   const toneMap = {
-    teal: "bg-teal-700 text-white",
-    red: "bg-red-700 text-white",
-    amber: "bg-amber-600 text-white",
-    blue: "bg-sky-700 text-white",
-    violet: "bg-violet-700 text-white",
-    slate: "bg-slate-800 text-white",
-    green: "bg-emerald-700 text-white",
+    teal: "bg-cyan-800 text-cyan-50",
+    red: "bg-rose-800 text-rose-50",
+    amber: "bg-amber-700 text-amber-50",
+    blue: "bg-sky-800 text-sky-50",
+    violet: "bg-violet-800 text-violet-50",
+    slate: "bg-slate-700 text-slate-50",
+    green: "bg-emerald-800 text-emerald-50",
   };
   return <span className={cn("inline-flex rounded-lg px-2 py-0.5 text-xs font-black", toneMap[tone])}>{children}</span>;
 }
 
 function SectionHeader({ number, title, desc, tone = "teal" }) {
   const toneMap = {
-    teal: "from-teal-700 to-cyan-600",
-    blue: "from-sky-700 to-blue-600",
-    red: "from-red-700 to-rose-600",
-    amber: "from-amber-700 to-orange-600",
-    violet: "from-violet-700 to-fuchsia-600",
-    slate: "from-slate-800 to-slate-600",
+    teal: "from-slate-900 to-cyan-800",
+    blue: "from-slate-900 to-sky-800",
+    red: "from-slate-900 to-rose-800",
+    amber: "from-slate-900 to-amber-800",
+    violet: "from-slate-900 to-violet-800",
+    slate: "from-slate-900 to-slate-700",
   };
   return (
     <div className="mb-5 flex items-start gap-4">
@@ -126,15 +126,15 @@ function FlowCard({ title, badge, tone = "teal", items = [] }) {
         className={cn(
           "h-2",
           tone === "teal"
-            ? "bg-teal-700"
+            ? "bg-cyan-800"
             : tone === "blue"
-              ? "bg-sky-700"
+              ? "bg-slate-700"
               : tone === "amber"
                 ? "bg-amber-600"
                 : tone === "red"
-                  ? "bg-red-700"
+                  ? "bg-rose-800"
                   : tone === "violet"
-                    ? "bg-violet-700"
+                    ? "bg-violet-800"
                     : tone === "green"
                       ? "bg-emerald-700"
                       : "bg-slate-700"
@@ -389,6 +389,152 @@ function DecisionSignalBoard({ title, items, tone = "teal" }) {
   );
 }
 
+function FlagBubble({ emoji, label }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-1.5 shadow-sm">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-base">{emoji}</span>
+      <span className="text-xs font-black text-slate-700">{label}</span>
+    </div>
+  );
+}
+
+function TrafficLightIcon({ active = "green" }) {
+  const [hovered, setHovered] = useState(false);
+  const on = hovered ? active : null;
+  const lampClass = (color) => {
+    const isOn = on === color;
+    const map = {
+      red: isOn ? "bg-red-500 shadow-[0_0_18px_rgba(239,68,68,0.75)]" : "bg-red-200",
+      yellow: isOn ? "bg-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.75)]" : "bg-amber-200",
+      green: isOn ? "bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.75)]" : "bg-emerald-200",
+    };
+    return map[color];
+  };
+  return (
+    <motion.div
+      whileHover={{ scale: 1.04 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex w-14 flex-col items-center gap-2 rounded-[1.2rem] border border-slate-300 bg-slate-950 px-3 py-3 shadow-[0_16px_30px_rgba(15,23,42,0.22)]"
+    >
+      {['red', 'yellow', 'green'].map((color) => (
+        <motion.div
+          key={color}
+          className={cn('h-7 w-7 rounded-full border border-white/20 transition-all duration-300', lampClass(color))}
+          animate={{ scale: hovered && active === color ? [1, 1.08, 1] : 1 }}
+          transition={{ duration: 0.55 }}
+        />
+      ))}
+    </motion.div>
+  );
+}
+
+function OptionSignalLightBoard() {
+  const items = [
+    {
+      title: '允许出手',
+      label: '绿灯',
+      active: 'green',
+      tone: 'teal',
+      text: '大盘/板块同向，VWAP确认，量能启动，价差小。',
+      card: 'border-emerald-200 bg-emerald-50',
+      chip: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+    },
+    {
+      title: '谨慎处理',
+      label: '黄灯',
+      active: 'yellow',
+      tone: 'amber',
+      text: 'IV偏高、时间一般、方向虽对但空间有限。',
+      card: 'border-amber-200 bg-amber-50',
+      chip: 'border-amber-200 bg-amber-50 text-amber-800',
+    },
+    {
+      title: '直接放弃',
+      label: '红灯',
+      active: 'red',
+      tone: 'red',
+      text: '开盘乱流、午盘横磨、反复穿VWAP、无量。',
+      card: 'border-red-200 bg-red-50',
+      chip: 'border-red-200 bg-red-50 text-red-800',
+    },
+  ];
+  return (
+    <Card className="rounded-[1.7rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-lg font-black text-slate-950">期权执行信号灯</h3>
+        <Badge tone="teal">悬停点亮</Badge>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        {items.map((item) => (
+          <motion.div key={item.label} whileHover={{ y: -3 }} className={cn('rounded-[1.5rem] border p-4 shadow-sm transition', item.card)}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className={cn('inline-flex rounded-full border px-2.5 py-1 text-[11px] font-black', item.chip)}>{item.label}</div>
+                <div className="mt-4 text-sm font-black text-slate-950">{item.title}</div>
+              </div>
+              <TrafficLightIcon active={item.active} />
+            </div>
+            <div className="mt-4 text-sm font-bold leading-6 text-slate-600">{item.text}</div>
+          </motion.div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function KillZoneBoard() {
+  const items = [
+    {
+      title: '伦敦',
+      emoji: '🇬🇧',
+      flag: '英国',
+      text: '15:00-17:00 北京：扫亚洲盘高低点',
+      cls: 'border-amber-200 bg-amber-50',
+      icon: CheckCircle2,
+      iconCls: 'text-amber-900',
+    },
+    {
+      title: '纽约',
+      emoji: '🇺🇸',
+      flag: '美国',
+      text: '21:30-23:30 北京：扫伦敦高低点后定方向',
+      cls: 'border-sky-200 bg-sky-50',
+      icon: CheckCircle2,
+      iconCls: 'text-sky-900',
+    },
+    {
+      title: '禁区',
+      text: '亚洲盘中间位默认不追，数据前后不做',
+      cls: 'border-red-200 bg-red-50',
+      icon: Ban,
+      iconCls: 'text-red-900',
+    },
+  ];
+  return (
+    <div className="rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-4 shadow-md">
+      <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="red">Kill Zone</KeyWord><span className="text-sm font-black text-red-950">时间过滤优先于普通信号</span></div>
+      <div className="grid gap-3 md:grid-cols-3">
+        {items.map((item) => {
+          const Icon = item.icon;
+          return (
+            <motion.div key={item.title} whileHover={{ y: -3 }} className={cn('rounded-[1.5rem] border p-4 shadow-sm', item.cls)}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Icon className={cn('h-5 w-5 shrink-0', item.iconCls)} />
+                  <div className="text-lg font-black text-slate-950">{item.title}</div>
+                </div>
+                {item.emoji ? <FlagBubble emoji={item.emoji} label={item.flag} /> : null}
+              </div>
+              <div className="mt-4 text-lg font-black leading-8 text-slate-950">{item.text}</div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MacroRadarBoard() {
   const [active, setActive] = useState(0);
   const current = macroCards[active];
@@ -448,7 +594,7 @@ function MacroRadarBoard() {
         </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-4">
         <Card className="rounded-[1.5rem] border-slate-300 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between gap-3">
             <h4 className="text-base font-black text-slate-950">宏观决策流程</h4>
@@ -458,10 +604,10 @@ function MacroRadarBoard() {
         </Card>
         <Card className="rounded-[1.5rem] border-slate-300 bg-slate-50/80 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
           <h4 className="text-base font-black text-slate-950">重点提醒</h4>
-          <div className="mt-3 space-y-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">不是只看 <KeyWord tone="slate">VIX绝对值</KeyWord>，还要看 <KeyWord tone="amber">当日方向</KeyWord>。</div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">VIX 从 <KeyWord tone="red">15 → 17</KeyWord>，通常比 <KeyWord tone="green">22 → 20</KeyWord> 更值得警惕。</div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">宏观只做 <KeyWord tone="blue">环境过滤</KeyWord>，不能代替具体入场触发。</div>
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm font-black leading-7 text-slate-800">不是只看 <KeyWord tone="slate">VIX绝对值</KeyWord>，还要看 <KeyWord tone="amber">当日方向</KeyWord>。</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm font-black leading-7 text-slate-800">VIX 从 <KeyWord tone="red">15 → 17</KeyWord>，通常比 <KeyWord tone="green">22 → 20</KeyWord> 更值得警惕。</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm font-black leading-7 text-slate-800">宏观只做 <KeyWord tone="blue">环境过滤</KeyWord>，不能代替具体入场触发。</div>
           </div>
         </Card>
       </div>
@@ -471,11 +617,11 @@ function MacroRadarBoard() {
 
 function VisualDecision({ title, tone = "teal", items }) {
   const headClass = {
-    teal: "bg-teal-700 text-white",
-    amber: "bg-amber-600 text-white",
-    blue: "bg-sky-700 text-white",
-    violet: "bg-violet-700 text-white",
-    red: "bg-red-700 text-white",
+    teal: "bg-cyan-800 text-cyan-50",
+    amber: "bg-amber-700 text-amber-50",
+    blue: "bg-sky-800 text-sky-50",
+    violet: "bg-violet-800 text-violet-50",
+    red: "bg-rose-800 text-rose-50",
   }[tone];
   return (
     <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
@@ -663,13 +809,13 @@ function OptionPriceCalculator() {
     "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base font-black text-slate-950 shadow-inner outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-100";
 
   return (
-    <Card className="overflow-hidden rounded-[2rem] border-2 border-teal-700 shadow-xl shadow-teal-100">
+    <Card className="flex h-full flex-col overflow-hidden rounded-[2rem] border-2 border-teal-700 shadow-xl shadow-teal-100">
       <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-5 py-4 text-white">
         <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Quick Calculator</div>
         <h3 className="mt-1 text-xl font-black">正股目标 → 期权估算</h3>
         <p className="mt-2 text-sm font-semibold leading-6 text-teal-50">用 Delta 快速估算，适合止盈/止损参考。</p>
       </div>
-      <div className="grid gap-4 p-5 lg:grid-cols-[1fr_0.9fr]">
+      <div className="grid flex-1 gap-4 p-5 lg:grid-cols-[1fr_0.9fr]">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">类型</span><select className={inputClass} value={mode} onChange={(e) => setMode(e.target.value)}><option value="call">Call</option><option value="put">Put</option></select></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前正股</span><input className={inputClass} value={currentStock} onChange={(e) => setCurrentStock(e.target.value)} inputMode="decimal" /></label>
@@ -729,13 +875,8 @@ function GoldEurSystem() {
           { title: "只拿中间段", text: "止损放结构外；信号不完整，不做。" },
         ]}
       />
-      <div className="mt-5 mb-5 rounded-[1.6rem] border-2 border-red-300 bg-red-50 p-4 shadow-md">
-        <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="red">Kill Zone</KeyWord><span className="text-sm font-black text-red-950">时间过滤优先于普通信号</span></div>
-        <div className="grid gap-3 md:grid-cols-3">
-          <RuleCard label="伦敦" text="15:00-17:00 北京：扫亚洲盘高低点" tone="amber" />
-          <RuleCard label="纽约" text="21:30-23:30 北京：扫伦敦高低点后定方向" tone="blue" />
-          <RuleCard label="禁区" text="亚洲盘中间位默认不追，数据前后不做" tone="red" icon={Ban} />
-        </div>
+      <div className="mt-5 mb-5">
+        <KillZoneBoard />
       </div>
       <div className="grid gap-4 lg:grid-cols-3">{goldModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
       <div className="mt-4">
@@ -768,40 +909,32 @@ function OptionSystem() {
         ]}
       />
       <div className="mt-5">
-        <DecisionSignalBoard
-          title="期权执行信号灯"
-          tone="teal"
-          items={[
-            { kicker: "绿灯", title: "允许出手", text: "大盘/板块同向，VWAP确认，量能启动，价差小。", tone: "teal" },
-            { kicker: "黄灯", title: "谨慎处理", text: "IV偏高、时间一般、方向虽对但空间有限。", tone: "amber" },
-            { kicker: "红灯", title: "直接放弃", text: "开盘乱流、午盘横磨、反复穿VWAP、无量。", tone: "red" },
-          ]}
-        />
+        <OptionSignalLightBoard />
       </div>
-      <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
         <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-black text-slate-950">VWAP 状态机</h3>
             <Zap className="h-5 w-5 text-slate-500" />
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-black uppercase tracking-wider text-slate-500">Step 1</div>
               <div className="mt-2 text-sm font-black text-slate-950">接近 VWAP</div>
-              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">这里只观察，不抢跑，不直接开仓。</div>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-teal-50 p-4">
+              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">只观察，不抢跑，不直接开仓。</div>
+            </motion.div>
+            <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
               <div className="text-xs font-black uppercase tracking-wider text-teal-700">Step 2</div>
-              <div className="mt-2 text-sm font-black text-slate-950">等确认</div>
-              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">Call 看收回，Put 看失败；同时看 9EMA 和量能。</div>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-red-50 p-4">
+              <div className="mt-2 text-sm font-black text-slate-950">等待确认</div>
+              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">Call 看收回，Put 看失败；再看 9EMA 与量能。</div>
+            </motion.div>
+            <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-red-200 bg-red-50 p-4">
               <div className="text-xs font-black uppercase tracking-wider text-red-700">Step 3</div>
               <div className="mt-2 text-sm font-black text-slate-950">执行 / 放弃</div>
-              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">确认成立再进；反复穿越 VWAP、无量横盘直接放弃。</div>
-            </div>
+              <div className="mt-2 text-sm font-bold leading-6 text-slate-600">确认成立再进；反复穿越、无量横盘直接放弃。</div>
+            </motion.div>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">{optionModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
+          <div className="mt-4 grid gap-3 xl:grid-cols-3">{optionModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
         </Card>
         <div className="grid gap-4">
           <HeatWindow
@@ -828,14 +961,17 @@ function OptionSystem() {
           </Card>
         </div>
       </div>
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <Card className="rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-[0_20px_55px_rgba(239,68,68,0.16)]">
-          <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <RuleCard label="Theta" text="入场太早，被时间磨死" tone="red" icon={AlertTriangle} />
-            <RuleCard label="IV" text="IV过高，方向对也不赚钱" tone="red" icon={AlertTriangle} />
-            <RuleCard label="VWAP" text="把观察区误当开仓点" tone="red" icon={AlertTriangle} />
-            <RuleCard label="止损" text="小亏不走，变成大亏" tone="red" icon={AlertTriangle} />
+      <div className="mt-5 grid items-stretch gap-5 xl:grid-cols-[1fr_1fr]">
+        <Card className="flex h-full flex-col rounded-[1.8rem] border-red-300 bg-red-50 p-5 shadow-[0_20px_55px_rgba(239,68,68,0.16)]">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-xl font-black text-red-950">期权买方四大杀手</h3>
+            <AlertTriangle className="h-5 w-5 text-red-700" />
+          </div>
+          <div className="mt-4 grid flex-1 gap-3 sm:grid-cols-2">
+            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">Theta</span></div><div className="text-lg font-black leading-8 text-red-950">入场太早，被时间磨死</div></motion.div>
+            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">IV</span></div><div className="text-lg font-black leading-8 text-red-950">IV过高，方向对也不赚钱</div></motion.div>
+            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">VWAP</span></div><div className="text-lg font-black leading-8 text-red-950">把观察区误当开仓点</div></motion.div>
+            <motion.div whileHover={{ y: -2 }} className="rounded-[1.4rem] border border-red-200 bg-white p-4"><div className="mb-2 flex items-center gap-2 text-red-800"><AlertTriangle className="h-5 w-5" /><span className="text-sm font-black uppercase tracking-wider">止损</span></div><div className="text-lg font-black leading-8 text-red-950">小亏不走，变成大亏</div></motion.div>
           </div>
         </Card>
         <OptionPriceCalculator />
@@ -984,28 +1120,28 @@ export default function TradingModelTrainingSystem() {
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d7f3e8_0,#edf5ff_20%,#f3f7fb_52%,#e8eef7_100%)] text-slate-900">
+    <div className="intj-theme min-h-screen bg-[radial-gradient(circle_at_top_left,#0f172a_0,#0b1120_28%,#111827_68%,#020617_100%)] text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
-          <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
+        <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-700/80 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(2,6,23,0.94))] shadow-[0_40px_120px_rgba(2,6,23,0.52)] ring-1 ring-white/5">
+          <div className="h-1.5 bg-gradient-to-r from-cyan-700 via-slate-500 to-violet-800" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.8</Badge><Badge tone="red">终端强化版</Badge><Badge tone="blue">图形可视化</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="slate">交易模型训练系统 v3.0</Badge><Badge tone="blue">极简冷感 INTJ 版</Badge><Badge tone="teal">终端化重构</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
-                <p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-700">
+                <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统 · INTJ</h1>
+                <p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-300">
                   把复杂内容压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。
                 </p>
               </div>
-              <div className="rounded-[1.5rem] border-2 border-red-300 bg-red-50 p-4 shadow-lg">
-                <div className="flex items-center gap-2 text-red-900"><AlertTriangle className="h-5 w-5" /><span className="font-black">总原则</span></div>
-                <p className="mt-2 text-sm font-bold leading-7 text-red-900">信号不完整，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p>
+              <div className="rounded-[1.5rem] border border-slate-700 bg-slate-900/80 p-4 shadow-[0_20px_50px_rgba(2,6,23,0.35)]">
+                <div className="flex items-center gap-2 text-cyan-100"><AlertTriangle className="h-5 w-5" /><span className="font-black">总原则</span></div>
+                <p className="mt-2 text-sm font-bold leading-7 text-slate-300">信号不完整，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p>
               </div>
             </div>
           </div>
         </motion.header>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] p-5 shadow-[0_20px_50px_rgba(15,23,42,0.12)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
+        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-slate-200 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.88))] p-5 shadow-[0_24px_60px_rgba(2,6,23,0.36)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-950">{s.value}</div><div className="mt-1 text-sm font-black text-slate-600">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
 
         <TradingMatrix />
         <GoldEurSystem />
