@@ -266,32 +266,126 @@ function HeatWindow({ title, rows }) {
 
 function RiskBiasMeter({ label, value, tone = "teal" }) {
   const [hovered, setHovered] = useState(false);
-  const toneMap = {
-    teal: "bg-teal-600",
-    amber: "bg-amber-500",
-    red: "bg-red-600",
-    blue: "bg-sky-600",
-    green: "bg-emerald-600",
+  const levels = [
+    { max: 25, text: "低", count: 1 },
+    { max: 50, text: "中", count: 2 },
+    { max: 75, text: "高", count: 3 },
+    { max: 100, text: "极高", count: 4 },
+  ];
+  const current = levels.find((l) => value <= l.max) || levels[levels.length - 1];
+  const theme = {
+    teal: {
+      chip: "border-teal-200 bg-teal-50 text-teal-900",
+      bar: "bg-teal-600",
+      soft: "bg-teal-100",
+    },
+    amber: {
+      chip: "border-amber-200 bg-amber-50 text-amber-950",
+      bar: "bg-amber-500",
+      soft: "bg-amber-100",
+    },
+    red: {
+      chip: "border-red-200 bg-red-50 text-red-900",
+      bar: "bg-red-600",
+      soft: "bg-red-100",
+    },
+    blue: {
+      chip: "border-sky-200 bg-sky-50 text-sky-900",
+      bar: "bg-sky-600",
+      soft: "bg-sky-100",
+    },
+    green: {
+      chip: "border-emerald-200 bg-emerald-50 text-emerald-900",
+      bar: "bg-emerald-600",
+      soft: "bg-emerald-100",
+    },
+  }[tone] || {
+    chip: "border-slate-200 bg-slate-50 text-slate-900",
+    bar: "bg-slate-700",
+    soft: "bg-slate-100",
   };
+
   return (
     <div
       className="rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-slate-300"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-center justify-between text-xs font-black text-slate-500">
-        <span>{label}</span>
-        <span>{value}%</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-black text-slate-500">{label}</div>
+        <div className={cn("rounded-full border px-2.5 py-1 text-xs font-black", theme.chip)}>{current.text}</div>
       </div>
-      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
-        <motion.div
-          className={cn("h-full rounded-full", toneMap[tone] || toneMap.teal)}
-          initial={false}
-          animate={{ width: hovered ? `${value}%` : `${Math.max(value * 0.35, 10)}%` }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-        />
+      <div className="mt-3 grid grid-cols-4 gap-2">
+        {[0, 1, 2, 3].map((i) => {
+          const active = i < current.count;
+          return (
+            <motion.div
+              key={i}
+              className={cn("h-2.5 rounded-full", active ? theme.bar : "bg-slate-200")}
+              initial={false}
+              animate={{ opacity: hovered ? 1 : active ? 0.92 : 0.5, scaleX: hovered && active ? 1 : 0.96 }}
+              transition={{ duration: 0.45, delay: i * 0.04 }}
+            />
+          );
+        })}
+      </div>
+      <div className="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-500">
+        <span>优先级</span>
+        <span>{value >= 70 ? "可优先考虑" : value >= 40 ? "有条件参与" : "仅辅助判断"}</span>
       </div>
     </div>
+  );
+}
+
+function VerticalMacroFlow() {
+  const steps = [
+    { title: "先看绝对值", text: "VIX 区间先定环境：低波、中性、高压。" },
+    { title: "再看当日方向", text: "上行偏防守；下行偏进攻。" },
+    { title: "映射风险状态", text: "Risk ON / 过渡 / Risk OFF。" },
+    { title: "落实到动作", text: "Call 优先 / 降仓等待 / Put 或观望。" },
+  ];
+  return (
+    <div className="space-y-3">
+      {steps.map((step, i) => (
+        <div key={step.title} className="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white">{i + 1}</div>
+            <div>
+              <div className="text-sm font-black text-slate-950">{step.title}</div>
+              <div className="mt-1 text-xs font-bold leading-5 text-slate-600">{step.text}</div>
+            </div>
+          </div>
+          {i !== steps.length - 1 && <div className="ml-4 mt-3 h-5 w-px bg-slate-300" />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DecisionSignalBoard({ title, items, tone = "teal" }) {
+  const toneMap = {
+    teal: "border-teal-200 bg-teal-50 text-teal-900",
+    amber: "border-amber-200 bg-amber-50 text-amber-950",
+    blue: "border-sky-200 bg-sky-50 text-sky-900",
+    red: "border-red-200 bg-red-50 text-red-900",
+    violet: "border-violet-200 bg-violet-50 text-violet-900",
+  };
+  return (
+    <Card className="rounded-[1.7rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-lg font-black text-slate-950">{title}</h3>
+        <Badge tone={tone}>图形规则</Badge>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className={cn("inline-flex rounded-full border px-2.5 py-1 text-[11px] font-black", toneMap[item.tone] || toneMap.teal)}>{item.kicker}</div>
+            <div className="mt-3 text-sm font-black text-slate-950">{item.title}</div>
+            <div className="mt-2 text-sm font-bold leading-6 text-slate-600">{item.text}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -335,7 +429,7 @@ function MacroRadarBoard() {
         })}
       </div>
 
-      <Card className="rounded-[1.5rem] border-slate-300 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(241,245,249,0.96))] p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+      <Card className="rounded-[1.5rem] border-slate-300 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96))] p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-xs font-black uppercase tracking-wider text-slate-500">当前聚焦</div>
@@ -349,28 +443,18 @@ function MacroRadarBoard() {
           <RiskBiasMeter label="等待 / 降仓" value={current.bias.wait} tone="amber" />
           <RiskBiasMeter label="Put / 防守" value={current.bias.defend} tone="red" />
         </div>
+        <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold leading-6 text-slate-600">
+          这里不再强调晦涩百分比，而用 <span className="font-black text-slate-900">低 / 中 / 高 / 极高</span> 表达动作优先级：更接近真实执行，而不是精确预测。
+        </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="rounded-[1.5rem] border-slate-300 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between gap-3">
             <h4 className="text-base font-black text-slate-950">宏观决策流程</h4>
             <LineChart className="h-4 w-4 text-slate-500" />
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-4">
-            {[
-              ["看绝对值", "VIX区间先定环境"],
-              ["看当日方向", "上行偏防守，下行偏进攻"],
-              ["映射风险偏好", "Risk ON / 过渡 / Risk OFF"],
-              ["落实到品种", "Call / 降仓 / Put 或观望"],
-            ].map(([t, d], i) => (
-              <div key={t} className="relative rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-black text-white">{i + 1}</div>
-                <div className="text-sm font-black text-slate-950">{t}</div>
-                <div className="mt-1 text-xs font-bold leading-5 text-slate-600">{d}</div>
-              </div>
-            ))}
-          </div>
+          <div className="mt-4"><VerticalMacroFlow /></div>
         </Card>
         <Card className="rounded-[1.5rem] border-slate-300 bg-slate-50/80 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
           <h4 className="text-base font-black text-slate-950">重点提醒</h4>
@@ -654,6 +738,17 @@ function GoldEurSystem() {
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">{goldModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
+      <div className="mt-4">
+        <DecisionSignalBoard
+          title="黄金 / EUR 执行图"
+          tone="amber"
+          items={[
+            { kicker: "先看", title: "环境", text: "Kill Zone + 主结构 + 关键流动性位。", tone: "amber" },
+            { kicker: "再等", title: "确认", text: "收回 / 拒绝 / CHoCH，不在测试区抢跑。", tone: "teal" },
+            { kicker: "不做", title: "禁区", text: "亚洲盘中间位、新闻前后、只到位不确认。", tone: "red" },
+          ]}
+        />
+      </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">{eurModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
     </section>
   );
@@ -672,6 +767,17 @@ function OptionSystem() {
           { label: "波动率", text: "波段优先 IVR < 40；IVR > 60 降仓或放弃" },
         ]}
       />
+      <div className="mt-5">
+        <DecisionSignalBoard
+          title="期权执行信号灯"
+          tone="teal"
+          items={[
+            { kicker: "绿灯", title: "允许出手", text: "大盘/板块同向，VWAP确认，量能启动，价差小。", tone: "teal" },
+            { kicker: "黄灯", title: "谨慎处理", text: "IV偏高、时间一般、方向虽对但空间有限。", tone: "amber" },
+            { kicker: "红灯", title: "直接放弃", text: "开盘乱流、午盘横磨、反复穿VWAP、无量。", tone: "red" },
+          ]}
+        />
+      </div>
       <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
           <div className="flex items-center justify-between gap-3">
@@ -754,6 +860,17 @@ function ExpansionSystem() {
           </div>
         </Card>
       </div>
+      <div className="mt-4">
+        <DecisionSignalBoard
+          title="正股 / 加密 低频动作面板"
+          tone="violet"
+          items={[
+            { kicker: "正股", title: "先筛后做", text: "先有公司质量，再等周线趋势和日线位置。", tone: "blue" },
+            { kicker: "加密", title: "先清算后确认", text: "先看极端，再等 5M / 15M K线确认。", tone: "violet" },
+            { kicker: "共通", title: "统一风控", text: "没有结构优势，不因热度和情绪出手。", tone: "red" },
+          ]}
+        />
+      </div>
     </section>
   );
 }
@@ -761,7 +878,7 @@ function ExpansionSystem() {
 function MacroAndModels() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
-      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤做成可扫视的图形版面，同时强化模型卡片的交互反馈。" tone="slate" />
+      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤、模型卡和执行逻辑进一步做成终端化界面：更少文字，更强层次，更快扫视。" tone="slate" />
       <div className="grid gap-4 xl:grid-cols-[1.02fr_0.98fr]">
         <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
           <div className="mb-4 flex items-center justify-between gap-3">
@@ -867,12 +984,12 @@ export default function TradingModelTrainingSystem() {
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d1fae5_0,#ebf8ff_22%,#f8fafc_55%,#eef4fb_100%)] text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d7f3e8_0,#edf5ff_20%,#f3f7fb_52%,#e8eef7_100%)] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.7</Badge><Badge tone="red">图形精简版</Badge><Badge tone="blue">低阅读压力</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.8</Badge><Badge tone="red">终端强化版</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
