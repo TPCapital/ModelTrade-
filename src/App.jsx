@@ -120,7 +120,8 @@ function RuleCard({ label, text, tone = "teal", icon: Icon = CheckCircle2 }) {
 
 function FlowCard({ title, badge, tone = "teal", items = [] }) {
   return (
-    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
+    <motion.div whileHover={{ y: -4, scale: 1.01 }} transition={{ duration: 0.2 }}>
+    <Card className="overflow-hidden rounded-[1.7rem] border-slate-300 shadow-[0_20px_55px_rgba(15,23,42,0.10)] transition hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)]">
       <div
         className={cn(
           "h-2",
@@ -152,6 +153,7 @@ function FlowCard({ title, badge, tone = "teal", items = [] }) {
         </div>
       </div>
     </Card>
+    </motion.div>
   );
 }
 
@@ -396,10 +398,10 @@ const stockModels = [
 ];
 
 const macroCards = [
-  { state: "强Risk ON", cond: "VIX<18 且下行", action: "Call环境更友好", tone: "green" },
-  { state: "低位转弱", cond: "VIX<18 但上行", action: "缩仓，防转向", tone: "amber" },
-  { state: "过渡期", cond: "VIX 18-25", action: "降仓，等方向", tone: "amber" },
-  { state: "Risk OFF", cond: "VIX>25 且上行", action: "Put/观望优先", tone: "red" },
+  { state: "强Risk ON", cond: "VIX<18 且下行", action: "Call环境更友好", tone: "green", icon: TrendingUp, short: "偏进攻", bias: { attack: 88, wait: 20, defend: 8 } },
+  { state: "低位转弱", cond: "VIX<18 但上行", action: "缩仓，防转向", tone: "amber", icon: AlertTriangle, short: "先收缩", bias: { attack: 40, wait: 72, defend: 28 } },
+  { state: "过渡期", cond: "VIX 18-25", action: "降仓，等方向", tone: "amber", icon: Activity, short: "不扩张", bias: { attack: 28, wait: 80, defend: 35 } },
+  { state: "Risk OFF", cond: "VIX>25 且上行", action: "Put/观望优先", tone: "red", icon: ShieldAlert, short: "偏防守", bias: { attack: 12, wait: 36, defend: 90 } },
 ];
 
 const highWinModels = [
@@ -637,21 +639,17 @@ function ExpansionSystem() {
 function MacroAndModels() {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-slate-300 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-white md:p-6">
-      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤做成一眼可看懂的风险地图，让阅读变成扫视。" tone="slate" />
-      <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+      <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤做成可扫视的图形版面，同时强化模型卡片的交互反馈。" tone="slate" />
+      <div className="grid gap-4 xl:grid-cols-[1.02fr_0.98fr]">
         <Card className="rounded-[1.8rem] border-slate-300 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-lg font-black text-slate-950">VIX 风险地图</h3>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-black text-slate-950">VIX 风险地图</h3>
+              <p className="mt-1 text-sm font-bold text-slate-600">用象限 + 偏向条 + 决策流，减少阅读压力。</p>
+            </div>
             <Gauge className="h-5 w-5 text-slate-500" />
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {macroCards.map((m) => (
-              <RuleCard key={m.state} label={`${m.state}｜${m.cond}`} text={m.action} tone={m.tone} icon={Gauge} />
-            ))}
-          </div>
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-bold leading-6 text-slate-700">
-            重点不是只看 <KeyWord tone="slate">VIX 绝对值</KeyWord>，还要看 <KeyWord tone="amber">当日方向</KeyWord>。
-          </div>
+          <MacroRadarBoard />
         </Card>
         <Card className="rounded-[1.8rem] border-teal-700 bg-white p-5 shadow-[0_22px_60px_rgba(13,148,136,0.15)]">
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
@@ -660,6 +658,11 @@ function MacroAndModels() {
               <p className="mt-1 text-sm font-bold text-slate-600">每张卡只回答：场景、触发、放弃。</p>
             </div>
             <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-black text-red-900">没有触发 = 不交易</div>
+          </div>
+          <div className="mb-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3"><div className="text-xs font-black text-slate-500">读卡顺序</div><div className="mt-2 text-sm font-black text-slate-950">先看场景，再看触发，最后看放弃。</div></div>
+            <div className="rounded-2xl border border-teal-200 bg-teal-50 p-3"><div className="text-xs font-black text-teal-700">触发标准</div><div className="mt-2 text-sm font-black text-slate-950">出现确认才做，不做预判单。</div></div>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-3"><div className="text-xs font-black text-red-700">执行底线</div><div className="mt-2 text-sm font-black text-slate-950">没有空间 / 无量 / 新闻刚出，一律放弃。</div></div>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">{highWinModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
         </Card>
@@ -747,7 +750,7 @@ export default function TradingModelTrainingSystem() {
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(241,245,249,0.94))] shadow-[0_35px_100px_rgba(15,23,42,0.18)] ring-1 ring-white">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.5</Badge><Badge tone="red">图形精简版</Badge><Badge tone="blue">低阅读压力</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v2.7</Badge><Badge tone="red">图形精简版</Badge><Badge tone="blue">低阅读压力</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">多品种交易执行训练系统</h1>
