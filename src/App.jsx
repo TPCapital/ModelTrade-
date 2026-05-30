@@ -393,20 +393,13 @@ function FlagBackdrop({ type = "uk" }) {
   const src = type === "us" ? "/flag-us.png" : "/flag-gb.png";
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.5rem]">
-      <motion.img
+      <img
         src={src}
         alt=""
         aria-hidden="true"
-        initial={{ opacity: 0.18, x: 12 }}
-        whileHover={{ opacity: 0.32, x: 0 }}
-        transition={{ duration: 0.45 }}
-        className="absolute bottom-0 right-0 h-full w-[68%] object-cover object-center"
-        style={{
-          WebkitMaskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 32%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.68) 100%)",
-          maskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 32%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.68) 100%)",
-        }}
+        className="flag-backdrop-img absolute bottom-0 right-[-8%] h-full w-[72%] object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-white/72 via-white/55 to-white/10" />
+      <div className="flag-backdrop-wash absolute inset-0 bg-gradient-to-r from-white/74 via-white/56 to-white/12" />
     </div>
   );
 }

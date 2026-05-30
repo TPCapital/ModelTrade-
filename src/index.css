@@ -39,3 +39,26 @@ button {
     background: #EEF4F7;
   }
 }
+
+.flag-backdrop-img {
+  opacity: 0.20;
+  transform: translateX(18px) scale(1.02);
+  filter: saturate(0.88) contrast(0.96);
+  transition: opacity 520ms ease, transform 520ms ease, filter 520ms ease;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.035) 28%, rgba(0,0,0,0.34) 68%, rgba(0,0,0,0.70) 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.035) 28%, rgba(0,0,0,0.34) 68%, rgba(0,0,0,0.70) 100%);
+}
+
+.group:hover .flag-backdrop-img {
+  opacity: 0.38;
+  transform: translateX(4px) scale(1.055);
+  filter: saturate(1.10) contrast(1.03);
+}
+
+.flag-backdrop-wash {
+  transition: opacity 520ms ease;
+}
+
+.group:hover .flag-backdrop-wash {
+  opacity: 0.82;
+}
