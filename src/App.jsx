@@ -263,6 +263,128 @@ function HeatWindow({ title, rows }) {
   );
 }
 
+
+function RiskBiasMeter({ label, value, tone = "teal" }) {
+  const [hovered, setHovered] = useState(false);
+  const toneMap = {
+    teal: "bg-teal-600",
+    amber: "bg-amber-500",
+    red: "bg-red-600",
+    blue: "bg-sky-600",
+    green: "bg-emerald-600",
+  };
+  return (
+    <div
+      className="rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-slate-300"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="flex items-center justify-between text-xs font-black text-slate-500">
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
+        <motion.div
+          className={cn("h-full rounded-full", toneMap[tone] || toneMap.teal)}
+          initial={false}
+          animate={{ width: hovered ? `${value}%` : `${Math.max(value * 0.35, 10)}%` }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function MacroRadarBoard() {
+  const [active, setActive] = useState(0);
+  const current = macroCards[active];
+  const Icon = current.icon || Gauge;
+  return (
+    <div className="grid gap-4 xl:grid-rows-[auto_auto_1fr]">
+      <div className="grid gap-3 md:grid-cols-2">
+        {macroCards.map((m, idx) => {
+          const IconComp = m.icon || Gauge;
+          const toneClass = {
+            green: "border-emerald-200 bg-emerald-50 hover:border-emerald-300",
+            amber: "border-amber-200 bg-amber-50 hover:border-amber-300",
+            red: "border-rose-200 bg-rose-50 hover:border-rose-300",
+          }[m.tone] || "border-slate-200 bg-slate-50 hover:border-slate-300";
+          return (
+            <motion.button
+              key={m.state}
+              type="button"
+              onMouseEnter={() => setActive(idx)}
+              onFocus={() => setActive(idx)}
+              whileHover={{ y: -3, scale: 1.01 }}
+              className={cn(
+                "rounded-[1.4rem] border p-4 text-left transition shadow-sm",
+                toneClass,
+                active === idx ? "ring-2 ring-slate-300 shadow-[0_16px_38px_rgba(15,23,42,0.10)]" : ""
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider text-slate-500">{m.state}</div>
+                  <div className="mt-1 text-sm font-black text-slate-950">{m.cond}</div>
+                </div>
+                <div className="rounded-xl border border-white/60 bg-white/80 p-2 shadow-sm"><IconComp className="h-4 w-4 text-slate-700" /></div>
+              </div>
+              <div className="mt-3 text-base font-black text-slate-900">{m.action}</div>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <Card className="rounded-[1.5rem] border-slate-300 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(241,245,249,0.96))] p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs font-black uppercase tracking-wider text-slate-500">当前聚焦</div>
+            <div className="mt-1 flex items-center gap-2 text-lg font-black text-slate-950"><Icon className="h-5 w-5" />{current.state}</div>
+            <div className="mt-1 text-sm font-bold text-slate-600">{current.cond}</div>
+          </div>
+          <Badge tone={current.tone === "green" ? "green" : current.tone === "red" ? "red" : "amber"}>{current.short}</Badge>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <RiskBiasMeter label="Call / 进攻" value={current.bias.attack} tone="teal" />
+          <RiskBiasMeter label="等待 / 降仓" value={current.bias.wait} tone="amber" />
+          <RiskBiasMeter label="Put / 防守" value={current.bias.defend} tone="red" />
+        </div>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <Card className="rounded-[1.5rem] border-slate-300 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center justify-between gap-3">
+            <h4 className="text-base font-black text-slate-950">宏观决策流程</h4>
+            <LineChart className="h-4 w-4 text-slate-500" />
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-4">
+            {[
+              ["看绝对值", "VIX区间先定环境"],
+              ["看当日方向", "上行偏防守，下行偏进攻"],
+              ["映射风险偏好", "Risk ON / 过渡 / Risk OFF"],
+              ["落实到品种", "Call / 降仓 / Put 或观望"],
+            ].map(([t, d], i) => (
+              <div key={t} className="relative rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-black text-white">{i + 1}</div>
+                <div className="text-sm font-black text-slate-950">{t}</div>
+                <div className="mt-1 text-xs font-bold leading-5 text-slate-600">{d}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card className="rounded-[1.5rem] border-slate-300 bg-slate-50/80 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+          <h4 className="text-base font-black text-slate-950">重点提醒</h4>
+          <div className="mt-3 space-y-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">不是只看 <KeyWord tone="slate">VIX绝对值</KeyWord>，还要看 <KeyWord tone="amber">当日方向</KeyWord>。</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">VIX 从 <KeyWord tone="red">15 → 17</KeyWord>，通常比 <KeyWord tone="green">22 → 20</KeyWord> 更值得警惕。</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-black leading-6 text-slate-800">宏观只做 <KeyWord tone="blue">环境过滤</KeyWord>，不能代替具体入场触发。</div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function VisualDecision({ title, tone = "teal", items }) {
   const headClass = {
     teal: "bg-teal-700 text-white",
