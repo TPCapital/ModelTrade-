@@ -730,6 +730,7 @@ const optionModels = [
       { label: "Delta", text: "日内0.45-0.55；波段0.40-0.50", tone: "teal" },
       { label: "价差", text: "0.01-0.08较好；0.20+放弃", tone: "amber" },
       { label: "止损", text: "-20%警戒；-25%硬止损", tone: "red", icon: ShieldAlert },
+      { label: "DTE", text: "日内选1-5DTE；0DTE仅限高波动数据日快进快出", tone: "blue" },
     ],
   },
   {
@@ -776,7 +777,7 @@ const checklist = [
   "位置不在中间位，也不是机械到线开仓。",
   "方向完整：大盘、板块、品种结构不冲突。",
   "期权已检查：DTE、Delta、价差、成交量、IV风险。",
-  "期权处于高概率时间窗口，避开开盘乱流/午盘/尾盘。",
+  "时间窗口已确认：9:45-11:30 或 13:30-15:00 ET（避开09:30-09:45/午盘/15:45后）。",
   "VWAP只作观察区，已出现失败/收回确认。",
   "量能和空间足够，不是低胜率磨损区。",
   "黄金/EUR已确认Kill Zone、结构、流动性、趋势强度。",
@@ -784,6 +785,7 @@ const checklist = [
   "VIX方向支持或已降仓处理。",
   "没有触发连续亏损熔断：2笔连亏/日损5%/3日连亏。",
   "情绪正常：不是回本、证明自己、连续亏损后追单。",
+  "正股今日无财报/重大数据：不在催化剂未知的前夜持有买方期权过夜。",
 ];
 
 const questions = [
@@ -798,26 +800,35 @@ const questions = [
   { category: "纪律", q: "今天没有A+机会，最正确的动作是？", options: ["找B级机会", "降低标准做一笔", "不交易", "看1分钟图找机会"], a: 2, exp: "没有机会也是机会。弱水三千，只取一瓢。" },
   { category: "VIX", q: "VIX=15但正在快速上行，大盘冲高回落。期权买方应该？", options: ["无脑Call", "缩仓或等待，防止低位转弱", "满仓Put", "忽略VIX"], a: 1, exp: "VIX绝对值低不等于安全，低位上行反而要警惕风险切换。" },
   { category: "Kill Zone", q: "亚洲盘中间位，没有扫高低点，黄金出现一根小阳线。是否做多？", options: ["可以", "禁止，中间位低质量", "追多", "开双向对冲"], a: 1, exp: "时间、位置、触发都不完整。亚洲盘中间位默认不追。" },
-  { category: "期权估算", q: "SPX预计上涨10点，ATM Call Delta≈0.55，1张合约理论增值大约？", options: ["约55美元", "约550美元", "约5.5美元", "无法估算方向"], a: 1, exp: "10点 × 0.55 × 100 = 约550美元。实际还会受IV、Gamma、Theta和价差影响。" },
+  { category: "期权估算", q: "NVDA 预计上涨 $10，ATM Call Delta≈0.55，持有 1 张合约理论增值约多少？", options: ["约 $55", "约 $550", "约 $5,500", "无法估算"], a: 1, exp: "$10 × 0.55 × 100股 = 约 $550。实际还受 Theta、IV 和价差影响，0DTE 误差更大。" },
+  { category: "纪律", q: "今日已连续亏损2笔，第三个机会出现且信号很好，应该？", options: ["立即出手，信号好就做", "暂停1小时，复盘后再决定", "加仓弥补亏损", "换品种继续"], a: 1, exp: "连续2笔亏损触发熔断规则，暂停1小时是系统规定，不因信号质量破例。" },
+  { category: "期权", q: "你准备做1-2天的日内/短线期权，最合适的DTE是？", options: ["0DTE（当天到期）", "1-5 DTE", "30-45 DTE", "越长越好"], a: 1, exp: "1-5 DTE有足够时间缓冲，Theta不会瞬间归零，适合短线期权买方的主战区间。" },
+  { category: "期权", q: "你看多NVDA，但QQQ当日跌破VWAP，XLK科技ETF也在走弱，应该？", options: ["正常买Call", "降级为小仓或放弃", "加仓NVDA Call对抗大盘", "改买QQQ Put对冲"], a: 1, exp: "板块和大盘冲突时，个股期权信号降级处理。大盘/板块是环境，不是辅助，要优先。" },
 ];
 function OptionPriceCalculator() {
   const [mode, setMode] = useState("call");
   const [currentStock, setCurrentStock] = useState("520");
   const [targetStock, setTargetStock] = useState("522");
+  const [stopLossStock, setStopLossStock] = useState("518");
   const [optionPrice, setOptionPrice] = useState("1.80");
   const [delta, setDelta] = useState("0.55");
   const [contracts, setContracts] = useState("1");
 
   const current = Number(currentStock);
   const target = Number(targetStock);
+  const stopLoss = Number(stopLossStock);
   const option = Number(optionPrice);
   const deltaAbs = Math.abs(Number(delta));
   const contractCount = Math.max(1, Number(contracts) || 1);
-  const isValid = [current, target, option, deltaAbs].every((n) => Number.isFinite(n));
+  const isValid = [current, target, stopLoss, option, deltaAbs].every((n) => Number.isFinite(n)) && option >= 0 && deltaAbs >= 0;
   const stockMove = isValid ? (mode === "call" ? target - current : current - target) : 0;
-  const projectedOption = Math.max(0, option + stockMove * deltaAbs);
+  const stopLossMove = isValid ? (mode === "call" ? stopLoss - current : current - stopLoss) : 0;
+  const projectedOption = isValid ? Math.max(0, option + stockMove * deltaAbs) : 0;
+  const stopLossOption = isValid ? Math.max(0, option + stopLossMove * deltaAbs) : 0;
   const pnl = (projectedOption - option) * 100 * contractCount;
+  const stopLossPnl = (stopLossOption - option) * 100 * contractCount;
   const pnlPct = option > 0 ? ((projectedOption - option) / option) * 100 : 0;
+  const stopLossPct = option > 0 ? ((stopLossOption - option) / option) * 100 : 0;
   const inputClass =
     "terminal-input w-full rounded-2xl border border-white/15 bg-slate-950/90 px-4 py-3 text-base font-black text-slate-50 shadow-inner outline-none transition focus:border-teal-300/45 focus:ring-4 focus:ring-teal-400/20";
 
@@ -838,8 +849,9 @@ function OptionPriceCalculator() {
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">张数</span><input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" /></label>
         </div>
         <div className="grid gap-3">
-          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">估算期权价</div><div className="mt-1 text-3xl font-black text-teal-100">{isValid ? projectedOption.toFixed(2) : "--"}</div></div>
-          <div className={cn("rounded-2xl border p-4", pnl >= 0 ? "border-teal-300 bg-teal-500/10" : "border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">估算盈亏</div><div className={cn("mt-1 text-2xl font-black", pnl >= 0 ? "text-teal-100" : "text-red-100")}>{isValid ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-400">{isValid ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(1)}%` : "--"}</div></div>
+          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">目标估算期权价</div><div className="mt-1 text-3xl font-black text-teal-100">{isValid ? projectedOption.toFixed(2) : "--"}</div>{!isValid && <div className="mt-1 text-xs font-black text-amber-400">请检查输入值是否为有效数字</div>}{projectedOption === 0 && isValid && <div className="mt-2 text-xs font-black text-red-400">⚠️ 期权可能归零，触发止损规则</div>}</div>
+          <div className={cn("rounded-2xl border p-4", pnl >= 0 ? "border-teal-300 bg-teal-500/10" : "border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">目标估算盈亏</div><div className={cn("mt-1 text-2xl font-black", pnl >= 0 ? "text-teal-100" : "text-red-100")}>{isValid ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-400">{isValid ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(1)}%` : "--"}</div></div>
+          <div className={cn("rounded-2xl border p-4", stopLossPnl >= 0 ? "border-amber-300/50 bg-amber-500/10" : "border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">止损估算</div><div className={cn("mt-1 text-2xl font-black", stopLossPnl >= 0 ? "text-amber-100" : "text-red-100")}>{isValid ? `${stopLossPnl >= 0 ? "+" : ""}${stopLossPnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-400">{isValid ? `止损价约 ${stopLossOption.toFixed(2)} ｜ ${stopLossPct >= 0 ? "+" : ""}${stopLossPct.toFixed(1)}%` : "--"}</div>{stopLossOption === 0 && isValid && <div className="mt-2 text-xs font-black text-red-400">⚠️ 止损估算已接近归零，不适合继续扛单</div>}</div>
           <div className="rounded-2xl border border-amber-300 bg-amber-500/10 p-3 text-sm font-bold leading-6 text-amber-100">不包含 IV、Theta、Gamma 和价差。0DTE 误差更大。</div>
         </div>
       </div>
@@ -1085,7 +1097,7 @@ function TrafficLightChecklist() {
           <h3 className="text-xl font-black text-slate-50">开单前红绿灯</h3>
           <p className="mt-1 text-sm font-bold text-slate-400">全部点亮才允许进入下一步。</p>
         </div>
-        <div className={cn("rounded-2xl px-4 py-3 text-lg font-black", all ? "bg-teal-700 text-white" : "bg-red-700 text-white")}>{checked.length} / {checklist.length}</div>
+        <div className="flex items-center gap-2"><div className={cn("rounded-2xl px-4 py-3 text-lg font-black", all ? "bg-teal-700 text-white" : "bg-red-700 text-white")}>{checked.length} / {checklist.length}</div><Button variant="ghost" onClick={() => setChecked([])} className="text-xs"><RefreshCcw className="mr-1 h-3 w-3" />重置</Button></div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">{checklist.map((_, i) => <span key={i} className={cn("h-4 w-4 rounded-full border-2", checked.includes(i) ? "border-teal-300/45 bg-teal-600" : "border-red-600 bg-red-500/100")} />)}</div>
       <div className="mt-5 grid gap-3 lg:grid-cols-2">{checklist.map((item, i) => {
@@ -1103,7 +1115,14 @@ function TrainingQuiz() {
   const q = questions[idx];
   function next() {
     setAnswer(null);
-    setIdx((idx + 1) % questions.length);
+    setIdx((prevIdx) => {
+      if (questions.length <= 1) return prevIdx;
+      let newIdx;
+      do {
+        newIdx = Math.floor(Math.random() * questions.length);
+      } while (newIdx === prevIdx);
+      return newIdx;
+    });
   }
   return (
     <Card className="rounded-[2rem] border-white/15 p-5 shadow-xl">
