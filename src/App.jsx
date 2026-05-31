@@ -100,10 +100,10 @@ function SectionHeader({ number, title, desc, tone = "teal" }) {
 function RuleCard({ label, text, tone = "teal", icon: Icon = CheckCircle2 }) {
   const toneMap = {
     teal: "border-teal-300/25 bg-teal-500/10 text-teal-100",
-    red: "border-red-300/35/25 bg-red-500/10 text-red-100",
+    red: "border-red-300/35 bg-red-950/45 text-red-100",
     amber: "border-amber-300/25 bg-amber-500/10 text-amber-100",
     blue: "border-sky-300/25 bg-sky-500/10 text-sky-100",
-    violet: "border-violet-300/35/25 bg-violet-500/10 text-violet-100",
+    violet: "border-violet-300/35 bg-violet-500/10 text-violet-100",
     slate: "border-white/10 bg-slate-900/58 text-slate-100",
     green: "border-emerald-300/25 bg-emerald-500/10 text-emerald-100",
   };
@@ -161,7 +161,7 @@ function VisualMeter({ label, left, right, fill = 50, tone = "teal", note }) {
   const [hovered, setHovered] = useState(false);
   const theme = {
     teal: { base: "bg-teal-500/100", soft: "bg-teal-400/30", dot: "border-teal-300/25 bg-teal-500/100 shadow-[0_0_18px_rgba(13,148,136,0.65)]", glow: "shadow-[0_0_18px_rgba(13,148,136,0.55)]" },
-    red: { base: "bg-red-500/100", soft: "bg-red-400/25", dot: "border-red-300/35/25 bg-red-500/100 shadow-[0_0_18px_rgba(239,68,68,0.65)]", glow: "shadow-[0_0_18px_rgba(239,68,68,0.55)]" },
+    red: { base: "bg-red-500/100", soft: "bg-red-400/25", dot: "border-red-300/35 bg-red-950/450 shadow-[0_0_18px_rgba(239,68,68,0.65)]", glow: "shadow-[0_0_18px_rgba(239,68,68,0.55)]" },
     amber: { base: "bg-amber-500/100", soft: "bg-amber-300/30", dot: "border-amber-100 bg-amber-500/100 shadow-[0_0_18px_rgba(245,158,11,0.65)]", glow: "shadow-[0_0_18px_rgba(245,158,11,0.55)]" },
     blue: { base: "bg-sky-500/100", soft: "bg-sky-300/30", dot: "border-sky-100 bg-sky-500/100 shadow-[0_0_18px_rgba(14,165,233,0.65)]", glow: "shadow-[0_0_18px_rgba(14,165,233,0.55)]" },
     violet: { base: "bg-violet-500/100", soft: "bg-violet-300/30", dot: "border-violet-100 bg-violet-500/100 shadow-[0_0_18px_rgba(139,92,246,0.65)]", glow: "shadow-[0_0_18px_rgba(139,92,246,0.55)]" },
@@ -285,7 +285,7 @@ function RiskBiasMeter({ label, value, tone = "teal" }) {
       soft: "bg-amber-100",
     },
     red: {
-      chip: "border-red-300/35/25 bg-red-500/10 text-red-100",
+      chip: "border-red-300/35 bg-red-950/45 text-red-100",
       bar: "bg-red-600",
       soft: "bg-red-100",
     },
@@ -367,8 +367,8 @@ function DecisionSignalBoard({ title, items, tone = "teal" }) {
     teal: "border-teal-300/25 bg-teal-500/10 text-teal-100",
     amber: "border-amber-300/25 bg-amber-500/10 text-amber-100",
     blue: "border-sky-300/25 bg-sky-500/10 text-sky-100",
-    red: "border-red-300/35/25 bg-red-500/10 text-red-100",
-    violet: "border-violet-300/35/25 bg-violet-500/10 text-violet-100",
+    red: "border-red-300/35 bg-red-950/45 text-red-100",
+    violet: "border-violet-300/35 bg-violet-500/10 text-violet-100",
   };
   return (
     <Card className="rounded-[1.7rem] border-white/15 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
@@ -399,7 +399,7 @@ function FlagBackdrop({ type = "uk" }) {
         aria-hidden="true"
         className="flag-backdrop-img absolute bottom-0 right-[-8%] h-full w-[72%] object-cover object-center"
       />
-      <div className="flag-backdrop-wash absolute inset-0 bg-gradient-to-r from-white/74 via-white/56 to-white/12" />
+      <div className="flag-backdrop-wash absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/58 to-slate-950/12" />
     </div>
   );
 }
@@ -455,7 +455,7 @@ function OptionSignalLightBoard() {
       tone: 'amber',
       text: 'IV偏高、时间一般、方向虽对但空间有限。',
       card: 'border-amber-300/25 bg-amber-500/10',
-      chip: 'border-amber-300/25 bg-amber-500/10 text-amber-800',
+      chip: 'border-amber-300/25 bg-amber-500/10 text-amber-100',
     },
     {
       title: '直接放弃',
@@ -463,8 +463,8 @@ function OptionSignalLightBoard() {
       active: 'red',
       tone: 'red',
       text: '开盘乱流、午盘横磨、反复穿VWAP、无量。',
-      card: 'border-red-300/35/25 bg-red-500/10',
-      chip: 'border-red-300/35/25 bg-red-500/10 text-red-800',
+      card: 'border-red-300/35 bg-red-950/45',
+      chip: 'border-red-300/35 bg-red-950/45 text-red-100',
     },
   ];
   return (
@@ -514,13 +514,13 @@ function KillZoneBoard() {
     {
       title: '禁区',
       text: '亚洲盘中间位默认不追，数据前后不做',
-      cls: 'border-red-300/35/25 bg-red-500/10',
+      cls: 'border-red-300/35 bg-red-950/45',
       icon: Ban,
       iconCls: 'text-red-100',
     },
   ];
   return (
-    <div className="rounded-[1.6rem] border-2 border-red-300/35 bg-red-500/10 p-4 shadow-md">
+    <div className="rounded-[1.6rem] border-2 border-red-300/35 bg-red-950/45 p-4 shadow-md">
       <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="red">Kill Zone</KeyWord><span className="text-sm font-black text-red-100">时间过滤优先于普通信号</span></div>
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((item) => {
@@ -556,7 +556,7 @@ function MacroRadarBoard() {
           const toneClass = {
             green: "border-emerald-300/25 bg-emerald-500/10 hover:border-emerald-300",
             amber: "border-amber-300/25 bg-amber-500/10 hover:border-amber-300",
-            red: "border-rose-200 bg-rose-50 hover:border-rose-300",
+            red: "border-red-300/35 bg-red-950/55 hover:border-red-300/60",
           }[m.tone] || "border-white/10 bg-slate-900/58 hover:border-white/15";
           return (
             <motion.button
@@ -788,14 +788,19 @@ const checklist = [
 ];
 
 const questions = [
-  { q: "价格到VWAP就买Put，对吗？", options: ["对，VWAP就是压力", "不对，VWAP是观察区", "只要跌过就买", "加仓更稳"], a: 1, exp: "VWAP不是开仓点。必须等反抽失败或收回确认。" },
-  { q: "黄金来到单一POC，可以直接开仓吗？", options: ["可以", "不可以，等POC集中区+结构确认", "满仓", "只看均线"], a: 1, exp: "单一POC不是按钮。要看集中区、共振和确认。" },
-  { q: "EUR均线缠绕、ADX低，还能做趋势回踩吗？", options: ["能", "不能，趋势强度不足", "只看MACD", "追突破"], a: 1, exp: "趋势系统必须先有趋势环境。" },
-  { q: "IVR > 60 时，买方期权最怕什么？", options: ["买太便宜", "IV Crush和买贵", "成交太多", "Delta太高"], a: 1, exp: "IV高位时，方向对也可能被波动率回落杀掉利润。" },
-  { q: "正股是否只靠K线入场？", options: ["是", "不是，先有基本面锚定", "只看PE", "只看消息"], a: 1, exp: "正股是低频配置系统，基本面锚定优先。" },
-  { q: "日内期权亏损到-25%，正确动作是什么？", options: ["再等到-30%", "硬止损离场", "加仓摊平", "换合约继续赌"], a: 1, exp: "-20%是警戒，-25%是硬止损，不给情绪留空间。" },
+  { category: "期权", q: "价格到VWAP就买Put，对吗？", options: ["对，VWAP就是压力", "不对，VWAP是观察区", "只要跌过就买", "加仓更稳"], a: 1, exp: "VWAP不是开仓点。必须等反抽失败或收回确认。" },
+  { category: "黄金", q: "黄金来到单一POC，可以直接开仓吗？", options: ["可以", "不可以，等POC集中区+结构确认", "满仓", "只看均线"], a: 1, exp: "单一POC不是按钮。要看集中区、共振和确认。" },
+  { category: "EUR", q: "EUR均线缠绕、ADX低，还能做趋势回踩吗？", options: ["能", "不能，趋势强度不足", "只看MACD", "追突破"], a: 1, exp: "趋势系统必须先有趋势环境。" },
+  { category: "期权", q: "IVR > 60 时，买方期权最怕什么？", options: ["买太便宜", "IV Crush和买贵", "成交太多", "Delta太高"], a: 1, exp: "IV高位时，方向对也可能被波动率回落杀掉利润。" },
+  { category: "正股", q: "正股是否只靠K线入场？", options: ["是", "不是，先有基本面锚定", "只看PE", "只看消息"], a: 1, exp: "正股是低频配置系统，基本面锚定优先。" },
+  { category: "风控", q: "日内期权亏损到-25%，正确动作是什么？", options: ["再等到-30%", "硬止损离场", "加仓摊平", "换合约继续赌"], a: 1, exp: "-20%是警戒，-25%是硬止损，不给情绪留空间。" },
+  { category: "A+模型", q: "价格扫前低，长下影收回，回到FVG，下一根阳线确认。是否允许进场？", options: ["允许，属于A1模型", "不允许，因为扫了前低", "必须反手做空", "只看MACD决定"], a: 0, exp: "这是扫流动性 → 收回 → 确认的A1模型，但仍要小仓和结构止损。" },
+  { category: "垃圾单", q: "价格位于POC中间，没有Sweep，没有FVG，没有确认K线，但你想做多。应该？", options: ["轻仓试一下", "禁止，属于垃圾单", "加仓降低成本", "等亏损后对冲"], a: 1, exp: "中间位 + 无触发 = 低质量交易。系统的价值在于过滤掉这种单子。" },
+  { category: "纪律", q: "今天没有A+机会，最正确的动作是？", options: ["找B级机会", "降低标准做一笔", "不交易", "看1分钟图找机会"], a: 2, exp: "没有机会也是机会。弱水三千，只取一瓢。" },
+  { category: "VIX", q: "VIX=15但正在快速上行，大盘冲高回落。期权买方应该？", options: ["无脑Call", "缩仓或等待，防止低位转弱", "满仓Put", "忽略VIX"], a: 1, exp: "VIX绝对值低不等于安全，低位上行反而要警惕风险切换。" },
+  { category: "Kill Zone", q: "亚洲盘中间位，没有扫高低点，黄金出现一根小阳线。是否做多？", options: ["可以", "禁止，中间位低质量", "追多", "开双向对冲"], a: 1, exp: "时间、位置、触发都不完整。亚洲盘中间位默认不追。" },
+  { category: "期权估算", q: "SPX预计上涨10点，ATM Call Delta≈0.55，1张合约理论增值大约？", options: ["约55美元", "约550美元", "约5.5美元", "无法估算方向"], a: 1, exp: "10点 × 0.55 × 100 = 约550美元。实际还会受IV、Gamma、Theta和价差影响。" },
 ];
-
 function OptionPriceCalculator() {
   const [mode, setMode] = useState("call");
   const [currentStock, setCurrentStock] = useState("520");
@@ -815,7 +820,7 @@ function OptionPriceCalculator() {
   const pnl = (projectedOption - option) * 100 * contractCount;
   const pnlPct = option > 0 ? ((projectedOption - option) / option) * 100 : 0;
   const inputClass =
-    "w-full rounded-2xl border border-white/15 bg-slate-950/74 px-4 py-3 text-base font-black text-slate-50 shadow-inner outline-none transition focus:border-teal-300/45 focus:ring-4 focus:ring-teal-400/20";
+    "terminal-input w-full rounded-2xl border border-white/15 bg-slate-950/90 px-4 py-3 text-base font-black text-slate-50 shadow-inner outline-none transition focus:border-teal-300/45 focus:ring-4 focus:ring-teal-400/20";
 
   return (
     <Card className="flex h-full flex-col overflow-hidden rounded-[2rem] border-2 border-teal-300/45 shadow-xl shadow-teal-950/20">
@@ -834,8 +839,8 @@ function OptionPriceCalculator() {
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">张数</span><input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" /></label>
         </div>
         <div className="grid gap-3">
-          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">估算期权价</div><div className="mt-1 text-3xl font-black text-teal-800">{isValid ? projectedOption.toFixed(2) : "--"}</div></div>
-          <div className={cn("rounded-2xl border p-4", pnl >= 0 ? "border-teal-300 bg-teal-500/10" : "border-red-300/35 bg-red-500/10")}><div className="text-xs font-black text-slate-500">估算盈亏</div><div className={cn("mt-1 text-2xl font-black", pnl >= 0 ? "text-teal-800" : "text-red-800")}>{isValid ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-400">{isValid ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(1)}%` : "--"}</div></div>
+          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">估算期权价</div><div className="mt-1 text-3xl font-black text-teal-100">{isValid ? projectedOption.toFixed(2) : "--"}</div></div>
+          <div className={cn("rounded-2xl border p-4", pnl >= 0 ? "border-teal-300 bg-teal-500/10" : "border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">估算盈亏</div><div className={cn("mt-1 text-2xl font-black", pnl >= 0 ? "text-teal-100" : "text-red-100")}>{isValid ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(0)} 美元` : "--"}</div><div className="text-sm font-bold text-slate-400">{isValid ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(1)}%` : "--"}</div></div>
           <div className="rounded-2xl border border-amber-300 bg-amber-500/10 p-3 text-sm font-bold leading-6 text-amber-100">不包含 IV、Theta、Gamma 和价差。0DTE 误差更大。</div>
         </div>
       </div>
@@ -937,7 +942,7 @@ function OptionSystem() {
               <div className="mt-2 text-sm font-black text-slate-50">等待确认</div>
               <div className="mt-2 text-sm font-bold leading-6 text-slate-400">Call 看收回，Put 看失败；再看 9EMA 与量能。</div>
             </motion.div>
-            <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-red-300/35/25 bg-red-500/10 p-4">
+            <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-red-300/35 bg-red-950/45 p-4">
               <div className="text-xs font-black uppercase tracking-wider text-red-700">Step 3</div>
               <div className="mt-2 text-sm font-black text-slate-50">执行 / 放弃</div>
               <div className="mt-2 text-sm font-bold leading-6 text-slate-400">确认成立再进；反复穿越、无量横盘直接放弃。</div>
@@ -971,7 +976,7 @@ function OptionSystem() {
         </div>
       </div>
       <div className="mt-5 grid items-stretch gap-5 xl:grid-cols-[1fr_1fr]">
-        <Card className="flex h-full flex-col rounded-[1.8rem] border-red-300/35 bg-red-500/10 p-5 shadow-[0_20px_55px_rgba(239,68,68,0.16)]">
+        <Card className="flex h-full flex-col rounded-[1.8rem] border-red-300/35 bg-red-950/45 p-5 shadow-[0_20px_55px_rgba(239,68,68,0.16)]">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-xl font-black text-red-100">期权买方四大杀手</h3>
             <AlertTriangle className="h-5 w-5 text-red-700" />
@@ -986,14 +991,14 @@ function OptionSystem() {
               <motion.div
                 key={tag}
                 whileHover={{ y: -6, scale: 1.015 }}
-                className="group rounded-[1.5rem] border border-red-300/35/25 bg-slate-950/74 p-5 transition-all duration-300 hover:border-red-300/35 hover:shadow-[0_24px_60px_rgba(127,29,29,0.18)]"
+                className="group rounded-[1.5rem] border border-red-300/35 bg-slate-950/74 p-5 transition-all duration-300 hover:border-red-300/35 hover:shadow-[0_24px_60px_rgba(127,29,29,0.18)]"
               >
-                <div className="mb-3 flex items-center justify-between gap-3 text-red-800">
+                <div className="mb-3 flex items-center justify-between gap-3 text-red-100">
                   <div className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" /><span className="text-sm font-black uppercase tracking-[0.16em]">{tag}</span></div>
                   <div className="h-2 w-14 rounded-full bg-red-100"><div className="h-2 w-8 rounded-full bg-red-700 transition-all duration-300 group-hover:w-14" /></div>
                 </div>
                 <div className="text-2xl font-black leading-10 text-red-100">{a}</div>
-                <div className="mt-1 text-lg font-black leading-8 text-red-800/90">{b}</div>
+                <div className="mt-1 text-lg font-black leading-8 text-red-100/90">{b}</div>
               </motion.div>
             ))}
           </div>
@@ -1014,9 +1019,9 @@ function ExpansionSystem() {
           <Badge tone="violet">加密暂缓</Badge>
           <h3 className="mt-3 text-lg font-black text-slate-50">加密合约 / 期权</h3>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-violet-300/35/25 bg-slate-950/74 p-4"><div className="text-xs font-black text-violet-700">看</div><div className="mt-2 text-sm font-black text-slate-50">OI / Funding / 清算</div></div>
+            <div className="rounded-2xl border border-violet-300/35 bg-slate-950/74 p-4"><div className="text-xs font-black text-violet-700">看</div><div className="mt-2 text-sm font-black text-slate-50">OI / Funding / 清算</div></div>
             <div className="rounded-2xl border border-teal-300/25 bg-slate-950/74 p-4"><div className="text-xs font-black text-teal-700">等</div><div className="mt-2 text-sm font-black text-slate-50">15-45 分钟，5M/15M 确认</div></div>
-            <div className="rounded-2xl border border-red-300/35/25 bg-slate-950/74 p-4"><div className="text-xs font-black text-red-700">禁</div><div className="mt-2 text-sm font-black text-slate-50">1M 追反转 / 高杠杆</div></div>
+            <div className="rounded-2xl border border-red-300/35 bg-slate-950/74 p-4"><div className="text-xs font-black text-red-700">禁</div><div className="mt-2 text-sm font-black text-slate-50">1M 追反转 / 高杠杆</div></div>
           </div>
         </Card>
       </div>
@@ -1056,12 +1061,12 @@ function MacroAndModels() {
               <h3 className="text-xl font-black text-slate-50">高胜率模型库</h3>
               <p className="mt-1 text-sm font-bold text-slate-400">每张卡只回答：场景、触发、放弃。</p>
             </div>
-            <div className="rounded-2xl border border-red-300/35 bg-red-500/10 px-4 py-2 text-sm font-black text-red-100">没有触发 = 不交易</div>
+            <div className="rounded-2xl border border-red-300/35 bg-red-950/45 px-4 py-2 text-sm font-black text-red-100">没有触发 = 不交易</div>
           </div>
           <div className="mb-4 grid gap-3 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-slate-900/58 p-3"><div className="text-xs font-black text-slate-500">读卡顺序</div><div className="mt-2 text-sm font-black text-slate-50">先看场景，再看触发，最后看放弃。</div></div>
             <div className="rounded-2xl border border-teal-300/25 bg-teal-500/10 p-3"><div className="text-xs font-black text-teal-700">触发标准</div><div className="mt-2 text-sm font-black text-slate-50">出现确认才做，不做预判单。</div></div>
-            <div className="rounded-2xl border border-red-300/35/25 bg-red-500/10 p-3"><div className="text-xs font-black text-red-700">执行底线</div><div className="mt-2 text-sm font-black text-slate-50">没有空间 / 无量 / 新闻刚出，一律放弃。</div></div>
+            <div className="rounded-2xl border border-red-300/35 bg-red-950/45 p-3"><div className="text-xs font-black text-red-700">执行底线</div><div className="mt-2 text-sm font-black text-slate-50">没有空间 / 无量 / 新闻刚出，一律放弃。</div></div>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">{highWinModels.map((m) => <FlowCard key={m.title} {...m} />)}</div>
         </Card>
@@ -1075,7 +1080,7 @@ function TrafficLightChecklist() {
   const all = checked.length === checklist.length;
   const toggle = (i) => setChecked((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
   return (
-    <Card className={cn("rounded-[2rem] border-2 p-5 shadow-xl", all ? "border-teal-300/45 bg-teal-500/10" : "border-red-300/35 bg-red-500/10")}>
+    <Card className={cn("rounded-[2rem] border-2 p-5 shadow-xl", all ? "border-teal-300/45 bg-teal-500/10" : "border-red-300/35 bg-red-950/45")}>
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="text-xl font-black text-slate-50">开单前红绿灯</h3>
@@ -1103,8 +1108,8 @@ function TrainingQuiz() {
   }
   return (
     <Card className="rounded-[2rem] border-white/15 p-5 shadow-xl">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><h3 className="text-xl font-black text-slate-50">强化答题</h3><p className="mt-1 text-sm font-bold text-slate-400">训练“能不能做”，不是预测涨跌。</p></div><Button onClick={next} variant="ghost"><RefreshCcw className="mr-2 h-4 w-4" />换一题</Button></div>
-      <div className="mt-5 rounded-2xl border border-white/10 bg-slate-900/58 p-5"><h4 className="text-lg font-black leading-8 text-slate-50">{q.q}</h4><div className="mt-4 grid gap-3 md:grid-cols-2">{q.options.map((op, i) => {
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><h3 className="text-xl font-black text-slate-50">每日交易判断题</h3><p className="mt-1 text-sm font-bold text-slate-400">训练“能不能做”，不是预测涨跌。</p></div><div className="flex items-center gap-2"><Badge tone="violet">{idx + 1}/{questions.length}</Badge><Button onClick={next} variant="ghost"><RefreshCcw className="mr-2 h-4 w-4" />换一题</Button></div></div>
+      <div className="mt-5 rounded-2xl border border-white/10 bg-slate-900/58 p-5"><div className="mb-3"><Badge tone="blue">{q.category}</Badge></div><h4 className="text-lg font-black leading-8 text-slate-50">{q.q}</h4><div className="mt-4 grid gap-3 md:grid-cols-2">{q.options.map((op, i) => {
         const chosen = answer === i;
         const correct = answer !== null && i === q.a;
         const wrong = chosen && i !== q.a;
@@ -1119,7 +1124,7 @@ function DisciplineSystem() {
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
       <SectionHeader number="06" title="执行纪律与训练闸门" desc="把复杂判断前置成图形化自检：红绿灯、熔断和训练题。" tone="red" />
       <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]"><TrafficLightChecklist /><TrainingQuiz /></div>
-      <Card className="mt-5 rounded-[1.8rem] border-red-300/35 bg-red-500/10 p-5 shadow-lg shadow-red-950/20">
+      <Card className="mt-5 rounded-[1.8rem] border-red-300/35 bg-red-950/45 p-5 shadow-lg shadow-red-950/20">
         <h3 className="text-xl font-black text-red-100">账户生存法则</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-4">
           <RuleCard label="次数" text="每日最多3笔" tone="red" />
@@ -1149,7 +1154,7 @@ export default function TradingModelTrainingSystem() {
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v3.3</Badge><Badge tone="red">高级金融终端版</Badge><Badge tone="blue">图形可视化</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v4.0</Badge><Badge tone="red">Professional Training Terminal</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-50 md:text-5xl">多品种交易执行训练系统</h1>
@@ -1157,7 +1162,7 @@ export default function TradingModelTrainingSystem() {
                   把复杂内容压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。
                 </p>
               </div>
-              <div className="rounded-[1.5rem] border-2 border-red-300/35 bg-red-500/10 p-4 shadow-lg">
+              <div className="rounded-[1.5rem] border-2 border-red-300/35 bg-red-950/45 p-4 shadow-lg">
                 <div className="flex items-center gap-2 text-red-100"><AlertTriangle className="h-5 w-5" /><span className="font-black">总原则</span></div>
                 <p className="mt-2 text-sm font-bold leading-7 text-red-100">信号不完整，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p>
               </div>

@@ -118,3 +118,26 @@ section:hover, header:hover {
   background: linear-gradient(90deg, rgba(15,23,42,0.84), rgba(15,23,42,0.52), rgba(15,23,42,0.08)) !important;
 }
 ::selection { background: rgba(20, 184, 166, 0.32); color: #ecfeff; }
+
+/* v4.0 readability and terminal input hardening */
+.terminal-input,
+.terminal-input:focus {
+  color: #f8fafc !important;
+  background: rgba(2, 6, 23, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  caret-color: #67e8f9;
+}
+.terminal-input::placeholder { color: rgba(226, 232, 240, 0.48) !important; }
+.terminal-input option {
+  color: #f8fafc;
+  background: #020617;
+}
+.premium-card .text-slate-500 { color: #94a3b8; }
+.premium-card .text-slate-400 { color: #cbd5e1; }
+.premium-card .text-slate-300 { color: #e2e8f0; }
+.premium-card .text-teal-700,
+.premium-card .text-red-700,
+.premium-card .text-amber-700,
+.premium-card .text-sky-700,
+.premium-card .text-violet-700 { color: #f8fafc; }
+button .text-slate-500 { color: #94a3b8; }
