@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -83,7 +83,7 @@ function SectionHeader({ number, title, desc, tone = "teal" }) {
     <div className="mb-5 flex items-start gap-4">
       <div
         className={cn(
-          "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-black text-white shadow-lg",
+          "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-base font-black text-white shadow-lg",
           toneMap[tone]
         )}
       >
@@ -124,7 +124,7 @@ function FlowCard({ title, badge, tone = "teal", items = [] }) {
     <Card className="overflow-hidden rounded-[1.7rem] border-white/15 shadow-[0_24px_70px_rgba(0,0,0,0.35)] transition hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)]">
       <div
         className={cn(
-          "h-2",
+          "section-accent-bar h-2",
           tone === "teal"
             ? "bg-teal-700"
             : tone === "blue"
@@ -222,7 +222,7 @@ function ProcessRail({ steps, tone = "teal" }) {
           </div>
           <div className="text-sm font-bold leading-6 text-slate-400">{step.text}</div>
           {i !== steps.length - 1 && (
-            <ArrowRight className="absolute -right-2 top-8 hidden h-4 w-4 text-slate-400 xl:block" />
+            <ArrowRight className="absolute -right-2 top-8 hidden h-4 w-4 text-slate-400 lg:block" />
           )}
         </div>
       ))}
@@ -230,38 +230,62 @@ function ProcessRail({ steps, tone = "teal" }) {
   );
 }
 
+function getCurrentETSession() {
+  const now = new Date();
+  const etHour = (now.getUTCHours() - 4 + 24) % 24;
+  const etMin = now.getUTCMinutes();
+  const etTime = etHour + etMin / 60;
+  if (etTime >= 9.5 && etTime < 9.75) return 0;
+  if (etTime >= 9.75 && etTime < 11.5) return 1;
+  if (etTime >= 11.5 && etTime < 13.5) return 2;
+  if (etTime >= 13.5 && etTime < 15) return 3;
+  if (etTime >= 15.75 && etTime < 16) return 4;
+  return -1;
+}
+
 function HeatWindow({ title, rows }) {
   const [active, setActive] = useState(null);
+  const [currentSession, setCurrentSession] = useState(getCurrentETSession);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentSession(getCurrentETSession()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Card className="rounded-[1.7rem] border-white/15 bg-slate-950/80 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-lg font-black text-slate-50">{title}</h3>
+        <div>
+          <h3 className="text-lg font-black text-slate-50">{title}</h3>
+          <div className="mt-1 text-xs font-bold text-slate-500">当前美东时段自动高亮，仅作日内窗口提醒。</div>
+        </div>
         <Clock className="h-5 w-5 text-slate-500" />
       </div>
       <div className="mt-4 space-y-3">
-        {rows.map((row, idx) => (
-          <div key={row.label} onMouseEnter={() => setActive(idx)} onMouseLeave={() => setActive(null)} className="rounded-2xl border border-white/10 bg-slate-900/56 p-3 transition hover:border-white/15 hover:bg-slate-950/74">
+        {rows.map((row, idx) => {
+          const isCurrent = currentSession === idx;
+          return (
+          <div key={row.label} onMouseEnter={() => setActive(idx)} onMouseLeave={() => setActive(null)} className={cn("rounded-2xl border border-white/10 bg-slate-900/56 p-3 transition hover:border-white/15 hover:bg-slate-950/74", isCurrent ? "ring-2 ring-white/40 border-cyan-200/35 bg-slate-950/86" : "")}>
             <div className="mb-2 flex items-center justify-between text-xs font-black text-slate-500">
               <span>{row.label}</span>
-              <span>{row.status}</span>
+              <span className={cn(isCurrent ? "text-cyan-200" : "")}>{isCurrent ? "当前 · " : ""}{row.status}</span>
             </div>
             <div className="relative h-4 overflow-hidden rounded-full bg-slate-800/70 ring-1 ring-white/10">
               <div className={cn("h-full rounded-full opacity-20", row.className)} style={{ width: `${row.fill}%` }} />
               <motion.div
                 className={cn("-mt-4 h-4 rounded-full", row.className, "shadow-[0_0_18px_rgba(15,23,42,0.20)]")}
                 initial={false}
-                animate={{ width: active === idx ? `${row.fill}%` : "0%" }}
+                animate={{ width: active === idx || isCurrent ? `${row.fill}%` : "0%" }}
                 transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
             <div className="mt-2 text-xs font-bold text-slate-400">{row.note}</div>
           </div>
-        ))}
+        );})}
       </div>
     </Card>
   );
 }
-
 
 function RiskBiasMeter({ label, value, tone = "teal" }) {
   const [hovered, setHovered] = useState(false);
@@ -770,6 +794,7 @@ const highWinModels = [
   { title: "POC/FVG共振", badge: "黄金", tone: "amber", items: [{ label: "场景", text: "成本区 + OB/FVG + 流动性位", tone: "amber" }, { label: "触发", text: "回踩拒绝 + 量能启动", tone: "teal" }, { label: "放弃", text: "共振区被直接穿透", tone: "red" }] },
   { title: "EMA趋势回踩", badge: "EUR", tone: "blue", items: [{ label: "场景", text: "EMA顺排 + ADX确认趋势", tone: "blue" }, { label: "触发", text: "回踩EMA21/结构位不破", tone: "teal" }, { label: "放弃", text: "均线缠绕、ADX弱", tone: "red" }] },
   { title: "VWAP确认期权", badge: "期权", tone: "teal", items: [{ label: "场景", text: "催化剂 + 大盘共振 + 合约流动性好", tone: "teal" }, { label: "触发", text: "VWAP收回/失败 + 量能确认", tone: "green" }, { label: "放弃", text: "反复穿VWAP、无量横盘、价差大", tone: "red" }] },
+  { title: "ORB 开盘区间突破", badge: "期权", tone: "teal", items: [{ label: "场景", text: "开盘15分钟形成高低区间，大盘方向一致", tone: "teal" }, { label: "触发", text: "突破ORB高/低点 + 量能放大 + VWAP同侧", tone: "green" }, { label: "放弃", text: "回撤进入ORB区间内 / 大盘反向 / 无量突破", tone: "red" }] },
 ];
 
 const checklist = [
@@ -844,6 +869,7 @@ function OptionPriceCalculator() {
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">类型</span><select className={inputClass} value={mode} onChange={(e) => setMode(e.target.value)}><option value="call">Call</option><option value="put">Put</option></select></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前正股</span><input className={inputClass} value={currentStock} onChange={(e) => setCurrentStock(e.target.value)} inputMode="decimal" /></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">目标正股</span><input className={inputClass} value={targetStock} onChange={(e) => setTargetStock(e.target.value)} inputMode="decimal" /></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">止损正股价</span><input className={inputClass} value={stopLossStock} onChange={(e) => setStopLossStock(e.target.value)} inputMode="decimal" /></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前期权</span><input className={inputClass} value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} inputMode="decimal" /></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">Delta</span><input className={inputClass} value={delta} onChange={(e) => setDelta(e.target.value)} inputMode="decimal" /></label>
           <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">张数</span><input className={inputClass} value={contracts} onChange={(e) => setContracts(e.target.value)} inputMode="numeric" /></label>
@@ -978,6 +1004,7 @@ function OptionSystem() {
               <Gauge className="h-5 w-5 text-slate-500" />
             </div>
             <div className="mt-4 grid gap-3">
+              <VisualMeter label="DTE" left="0DTE" right="45DTE" fill={18} tone="blue" note="日内优先 1-5DTE；0DTE只做高波动快进快出" />
               <VisualMeter label="Delta" left="激进 0.35" right="深 ITM 0.65" fill={55} tone="teal" note="日内优先 0.45-0.55" />
               <VisualMeter label="价差" left="0.01" right="0.20+" fill={30} tone="amber" note="越窄越好" />
               <VisualMeter label="止损线" left="-20% 警戒" right="-25% 离场" fill={100} tone="red" note="不保留 -30% 档位" />
@@ -1099,7 +1126,7 @@ function TrafficLightChecklist() {
         </div>
         <div className="flex items-center gap-2"><div className={cn("rounded-2xl px-4 py-3 text-lg font-black", all ? "bg-teal-700 text-white" : "bg-red-700 text-white")}>{checked.length} / {checklist.length}</div><Button variant="ghost" onClick={() => setChecked([])} className="text-xs"><RefreshCcw className="mr-1 h-3 w-3" />重置</Button></div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">{checklist.map((_, i) => <span key={i} className={cn("h-4 w-4 rounded-full border-2", checked.includes(i) ? "border-teal-300/45 bg-teal-600" : "border-red-600 bg-red-500/100")} />)}</div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800/70"><motion.div className={cn("h-full rounded-full", all ? "bg-teal-600" : "bg-red-600")} animate={{ width: `${(checked.length / checklist.length) * 100}%` }} transition={{ duration: 0.4 }} /></div><div className="mt-1 text-right text-xs font-bold text-slate-500">{Math.round((checked.length / checklist.length) * 100)}% 完成</div><div className="mt-3 flex flex-wrap gap-1.5">{checklist.map((_, i) => <span key={i} className={cn("h-2.5 w-2.5 rounded-full border", checked.includes(i) ? "border-teal-300/45 bg-teal-600" : "border-slate-700 bg-slate-900")} />)}</div>
       <div className="mt-5 grid gap-3 lg:grid-cols-2">{checklist.map((item, i) => {
         const ok = checked.includes(i);
         return <button key={item} onClick={() => toggle(i)} className={cn("flex gap-3 rounded-2xl border-2 p-4 text-left text-sm font-black leading-6 transition", ok ? "border-teal-300/45 bg-slate-950/74 text-teal-100 shadow-lg shadow-teal-950/20" : "border-red-300/35 bg-slate-950/74 text-slate-200 shadow-sm hover:border-red-500")}><span className={cn("mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-white", ok ? "bg-teal-700" : "bg-red-600")}>{ok ? "绿" : "红"}</span><span>{item}</span></button>;
@@ -1170,7 +1197,7 @@ export default function TradingModelTrainingSystem() {
     <div className="min-h-screen premium-terminal-bg text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
-          <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
+          <div className="section-accent-bar h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
             <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v4.1</Badge><Badge tone="red">Premium Professional Terminal</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">

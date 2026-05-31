@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -102,9 +102,9 @@ body { background: #050816; }
 button, .premium-card, section, header {
   transition: border-color 260ms ease, box-shadow 260ms ease, transform 260ms ease, background-color 260ms ease;
 }
-section:hover, header:hover {
-  border-color: rgba(103, 232, 249, 0.28) !important;
-  box-shadow: 0 34px 110px rgba(0,0,0,0.50), 0 0 40px rgba(20,184,166,0.08) !important;
+.premium-card:hover, header:hover {
+  border-color: rgba(103, 232, 249, 0.28);
+  box-shadow: 0 34px 110px rgba(0,0,0,0.50), 0 0 40px rgba(20,184,166,0.08);
 }
 .flag-backdrop-img {
   opacity: 0.44;
@@ -342,8 +342,7 @@ button:hover { transform: translateY(-1px); }
   50% { opacity: 1; transform: scaleX(1); }
 }
 
-section .h-2,
-header .h-3 {
+.section-accent-bar {
   animation: terminalPulse 3.8s ease-in-out infinite;
 }
 
