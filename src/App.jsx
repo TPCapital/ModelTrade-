@@ -26,7 +26,7 @@ function cn(...classes) {
 }
 
 function Card({ children, className = "" }) {
-  return <div className={cn("premium-card border border-cyan-300/10 bg-slate-950/78 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.42)] ring-1 ring-white/10/5", className)}>{children}</div>;
+  return <div className={cn("premium-card border border-cyan-300/10 bg-slate-950/78 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.42)] ring-1 ring-white/10", className)}>{children}</div>;
 }
 
 function Button({ children, className = "", variant = "default", type = "button", ...props }) {
@@ -161,7 +161,7 @@ function VisualMeter({ label, left, right, fill = 50, tone = "teal", note }) {
   const [hovered, setHovered] = useState(false);
   const theme = {
     teal: { base: "bg-teal-500/100", soft: "bg-teal-400/30", dot: "border-teal-300/25 bg-teal-500/100 shadow-[0_0_18px_rgba(13,148,136,0.65)]", glow: "shadow-[0_0_18px_rgba(13,148,136,0.55)]" },
-    red: { base: "bg-red-500/100", soft: "bg-red-400/25", dot: "border-red-300/35 bg-red-950/450 shadow-[0_0_18px_rgba(239,68,68,0.65)]", glow: "shadow-[0_0_18px_rgba(239,68,68,0.55)]" },
+    red: { base: "bg-red-500/100", soft: "bg-red-400/25", dot: "border-red-300/35 bg-red-500 shadow-[0_0_18px_rgba(239,68,68,0.65)]", glow: "shadow-[0_0_18px_rgba(239,68,68,0.55)]" },
     amber: { base: "bg-amber-500/100", soft: "bg-amber-300/30", dot: "border-amber-100 bg-amber-500/100 shadow-[0_0_18px_rgba(245,158,11,0.65)]", glow: "shadow-[0_0_18px_rgba(245,158,11,0.55)]" },
     blue: { base: "bg-sky-500/100", soft: "bg-sky-300/30", dot: "border-sky-100 bg-sky-500/100 shadow-[0_0_18px_rgba(14,165,233,0.65)]", glow: "shadow-[0_0_18px_rgba(14,165,233,0.55)]" },
     violet: { base: "bg-violet-500/100", soft: "bg-violet-300/30", dot: "border-violet-100 bg-violet-500/100 shadow-[0_0_18px_rgba(139,92,246,0.65)]", glow: "shadow-[0_0_18px_rgba(139,92,246,0.55)]" },
@@ -178,7 +178,6 @@ function VisualMeter({ label, left, right, fill = 50, tone = "teal", note }) {
         <span>{note}</span>
       </div>
       <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-800/80 ring-1 ring-white/10">
-        <div className={cn("absolute hidden", theme.base)} />
         <div className={cn("h-full rounded-full", theme.soft)} style={{ width: `${fill}%` }} />
         <motion.div
           className={cn("-mt-3 h-3 rounded-full", theme.base, theme.glow)}
@@ -446,7 +445,7 @@ function OptionSignalLightBoard() {
       tone: 'teal',
       text: '大盘/板块同向，VWAP确认，量能启动，价差小。',
       card: 'border-emerald-300/25 bg-emerald-500/10',
-      chip: 'border-emerald-300/25 bg-emerald-500/10 text-emerald-800',
+      chip: 'border-emerald-300/25 bg-emerald-500/10 text-emerald-100',
     },
     {
       title: '谨慎处理',
@@ -500,7 +499,7 @@ function KillZoneBoard() {
       text: '15:00-17:00 北京：扫亚洲盘高低点',
       cls: 'border-amber-300/25 bg-amber-500/10',
       icon: CheckCircle2,
-      iconCls: 'text-amber-900',
+      iconCls: 'text-amber-100',
     },
     {
       title: '纽约',
@@ -851,7 +850,7 @@ function OptionPriceCalculator() {
 function TradingMatrix() {
   const iconMap = { "黄金 / EUR": BarChart3, "期权买方": Gauge, 正股: LineChart, 加密: Activity };
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="01" title="多品种交易矩阵" desc="用一屏先看清主次关系：做什么、为什么做、什么情况不做。" tone="teal" />
       <div className="grid gap-4 lg:grid-cols-4">
         {matrix.map((item) => {
@@ -878,7 +877,7 @@ function TradingMatrix() {
 
 function GoldEurSystem() {
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="02" title="黄金 / EUR 执行系统" desc="把 SMC 和趋势跟踪压缩成一条操作链：先定向，再找位，最后等确认。" tone="amber" />
       <ProcessRail
         tone="amber"
@@ -911,7 +910,7 @@ function GoldEurSystem() {
 
 function OptionSystem() {
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="03" title="期权买方系统" desc="用图形替代大段说明：先看三维判断，再看时间、合约和开仓确认。" tone="blue" />
       <VisualDecision
         title="三维判断"
@@ -1011,7 +1010,7 @@ function OptionSystem() {
 
 function ExpansionSystem() {
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="04" title="正股配置系统" desc="保留必要内容，但图形化展示，避免和日内模块抢注意力。" tone="violet" />
       <div className="grid gap-4 lg:grid-cols-2">
         {stockModels.map((m) => <FlowCard key={m.title} {...m} />)}
@@ -1042,7 +1041,7 @@ function ExpansionSystem() {
 
 function MacroAndModels() {
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/74 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/74 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="05" title="宏观过滤 + 高胜率模型库" desc="把宏观过滤、模型卡和执行逻辑进一步做成终端化界面：更少文字，更强层次，更快扫视。" tone="slate" />
       <div className="grid gap-4 xl:grid-cols-[1.02fr_0.98fr]">
         <Card className="rounded-[1.8rem] border-white/15 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
@@ -1121,7 +1120,7 @@ function TrainingQuiz() {
 
 function DisciplineSystem() {
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-6">
+    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 shadow-[0_28px_85px_rgba(0,0,0,0.42)] ring-1 ring-white/10 md:p-7">
       <SectionHeader number="06" title="执行纪律与训练闸门" desc="把复杂判断前置成图形化自检：红绿灯、熔断和训练题。" tone="red" />
       <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]"><TrafficLightChecklist /><TrainingQuiz /></div>
       <Card className="mt-5 rounded-[1.8rem] border-red-300/35 bg-red-950/45 p-5 shadow-lg shadow-red-950/20">
@@ -1150,16 +1149,16 @@ export default function TradingModelTrainingSystem() {
 
   return (
     <div className="min-h-screen premium-terminal-bg text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <motion.header initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
           <div className="h-3 bg-gradient-to-r from-teal-700 via-sky-600 to-violet-700" />
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v4.0</Badge><Badge tone="red">Professional Training Terminal</Badge><Badge tone="blue">图形可视化</Badge></div>
+            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="teal">交易模型训练系统 v4.1</Badge><Badge tone="red">Premium Professional Terminal</Badge><Badge tone="blue">图形可视化</Badge></div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
               <div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-50 md:text-5xl">多品种交易执行训练系统</h1>
+                <h1 className="text-4xl font-black tracking-tight text-slate-50 md:text-6xl">黄金期权交易训练终端</h1>
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-8 text-slate-300">
-                  把复杂内容压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。
+                  把交易决策压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。
                 </p>
               </div>
               <div className="rounded-[1.5rem] border-2 border-red-300/35 bg-red-950/45 p-4 shadow-lg">
@@ -1170,7 +1169,7 @@ export default function TradingModelTrainingSystem() {
           </div>
         </motion.header>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.86),rgba(15,23,42,0.62))] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.40)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-50">{s.value}</div><div className="mt-1 text-sm font-black text-slate-400">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
+        <div className="mb-8 grid gap-4 md:grid-cols-4 xl:gap-5">{stats.map((s) => { const Icon = s.icon; return <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.86),rgba(15,23,42,0.62))] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.40)]"><div className="flex items-start justify-between"><div><div className="text-2xl font-black text-slate-50">{s.value}</div><div className="mt-1 text-sm font-black text-slate-400">{s.label}</div></div><div className={cn("rounded-2xl p-3 text-white", s.tone)}><Icon className="h-5 w-5" /></div></div><div className={cn("absolute bottom-0 left-0 h-2 w-full", s.tone)} /></Card>; })}</div>
 
         <TradingMatrix />
         <GoldEurSystem />
