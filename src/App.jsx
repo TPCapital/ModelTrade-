@@ -10,6 +10,40 @@ import { I } from './i18n.js';
 
 function cn(...c) { return c.filter(Boolean).join(" "); }
 
+const safeLang = () => { try { return localStorage.getItem("sea-lang") || "zh"; } catch { return "zh"; } };
+const TX = {
+  "日内时间热力 (ET)":"Intraday Time Heatmap (ET)", "优先":"Active", "禁做":"Banned", "时间过滤优先于普通信号":"Time filter overrides ordinary signals",
+  "正GEX":"Positive GEX", "负GEX":"Negative GEX", "震荡·压制波动·均值回归":"Range · Vol Suppression · Mean Reversion", "趋势·放大波动·单边延伸":"Trend · Vol Expansion · One-Way Extension",
+  "做市商 Long Gamma → 价格涨时卖出 / 价格跌时买入":"Dealers long gamma → sell when price rises / buy when price falls", "做市商 Short Gamma → 价格涨时追买 / 价格跌时追卖":"Dealers short gamma → chase-buy when price rises / chase-sell when price falls",
+  "涨了有压，跌了有托":"Upside gets capped; dips get supported", "涨会更涨，跌会更跌":"Up moves extend; down moves extend",
+  "VWAP附近反复拉扯，假突破多":"Choppy around VWAP; many fake breakouts", "追单容易被反杀":"Chasing is easily faded", "高低点不容易突破杀穿":"Highs/lows less likely to break cleanly", "更适合等回踩、做区间":"Better to wait for pullbacks / trade range",
+  "突破后容易加速":"Breakouts can accelerate", "跌破后容易瀑布":"Breakdowns can cascade", "VWAP失守/站回是节奏切换":"VWAP loss/reclaim marks regime shift", "容易出现单边行情":"One-way sessions become more likely",
+  "少追突破，多等VWAP回踩/EMA确认，偏区间均值回归":"Avoid chasing; wait for VWAP pullback / EMA confirmation; range mean-reversion bias", "少逆势抄底摸顶，等破位确认顺势，VWAP得失是第一参考线":"Avoid countertrend bottoms/tops; wait for confirmed break and follow trend; VWAP is the first regime line",
+  "上方压力":"Overhead Resistance", "下方支撑":"Downside Support", "节奏切换":"Regime Switch", "波动启动":"Vol Trigger",
+  "上方最大Call Gamma集中区":"Largest overhead Call Gamma concentration", "下方最大Put Gamma集中区":"Largest downside Put Gamma concentration", "正负GEX切换核心区域":"Core area where Positive/Negative GEX flips", "盘面从震荡切趋势的价格位":"Price level where market shifts from range to trend",
+  "容易出现钉盘、受压或挤空":"May pin, reject, or squeeze", "守住时容易形成托底；跌破后空间打开":"If holds, it supports; if breaks, downside opens", "站上偏稳定；跌破偏放大":"Above = stable; below = amplified", "站不上→震荡区间；跌破→波动放大":"Unable to reclaim = range; break = volatility expands",
+  "靠近时不追Call，等突破确认或冲高衰竭":"Do not chase Calls near it; wait for confirmed break or upside exhaustion", "靠近时不追Put，等跌破确认或承接信号":"Do not chase Puts near it; wait for confirmed break or support signal", "跌破→负GEX节奏激活；站回→正GEX修复":"Break below → Negative GEX activated; reclaim → Positive GEX repaired", "跌破后是顺势信号而非抄底信号":"After break, it is a trend-follow signal, not dip-buy signal", "操作思路":"Playbook",
+  "今日: 正GEX":"Today: Positive GEX", "今日: 负GEX":"Today: Negative GEX", "GEX 机制说明 · 两种市场节奏":"GEX Mechanics · Two Market Regimes", "GEX是波动节奏地图，不是方向预测器。先判断今日是哪种环境，再选对应的执行模式。两种环境用同一套操作方法会亏钱。":"GEX is a volatility-regime map, not a direction predictor. Identify today's environment first, then choose the matching playbook. Using one method for both regimes loses money.",
+  "今日已设置":"Set Today", "今日尚未设置 · 开盘前必填":"Not Set Today · Required Before Open", "GEX 每日设置":"GEX Daily Setup", "编辑":"Edit", "正GEX · 震荡压制":"Positive GEX · Range Suppression", "负GEX · 趋势放大":"Negative GEX · Trend Expansion", "仅储存在本设备浏览器，不上传，不共享":"Stored only in this browser. Not uploaded or shared.", "今日GEX环境":"Today's GEX Environment", "震荡 · 压制波动":"Range · Vol Suppression", "趋势 · 放大波动":"Trend · Vol Expansion", "关键价位":"Key Levels", "价格":"Price", "保存今日设置":"Save Today's Setup", "取消":"Cancel", "* 必填 · 仅储存在本设备，不上传，不共享":"* Required · Stored locally only. Not uploaded or shared.",
+  "今日偏区间 · 少追突破，等VWAP回踩/EMA确认后再入场":"Range bias today · avoid chasing; wait for VWAP pullback / EMA confirmation", "今日偏趋势 · 等破位确认顺势，VWAP得失是第一节奏信号":"Trend bias today · wait for confirmed break and follow trend; VWAP is the first regime signal",
+  "仓位计算器 · 开仓前必过此关":"Position Sizer · Must Pass Before Entry", "账户总额 ($)":"Account Size ($)", "单笔风险":"Per-Trade Risk", "期权价格 ($)":"Option Price ($)", "单笔最多权利金":"Max Premium / Trade", "最多合约数":"Max Contracts", "同时持仓上限":"Open Position Cap", "日亏熔断线":"Daily Loss Limit", "账户":"Account", "按":"At", "张":"ct", "账户×6%":"Account × 6%", "账户×5%→当日停":"Account × 5% → stop for day", "公式：张数=":"Formula: contracts=", "向下取整。结果为0→该期权对账户过贵，换便宜合约。":"round down. If result is 0 → contract too expensive for account; choose cheaper contract.", "熔断阈值（自动计算）":"Circuit Breakers (Auto-Calculated)", "日内连亏2笔":"2 consecutive intraday losses", "日内连亏3笔":"3 consecutive intraday losses", "停30分钟+复盘":"Stop 30 min + review", "当日停止":"Stop for the day", "本周停，周末复盘":"Stop this week; weekend review",
+  "仓位增长路径":"Position Scaling Path", "起步阶段":"Starting Phase", "1张":"1 contract", "2张":"2 contracts", "3张":"3 contracts", "无条件。账户重建阶段，不谈加张。":"Unconditional. Rebuilding phase: no scaling discussion.", "连续20笔稳定执行+零次熔断触发+EV>0":"20 clean executions + zero circuit breakers + EV>0", "再累积20笔满足上述条件":"Another 20 trades meeting the same conditions", "任何熔断触发→立即降回1张":"Any circuit breaker → immediately drop back to 1 contract", "重置计数器，从20笔重新开始":"Reset counter; restart from 20 trades", "你的数据已经给出答案":"Your data already gave the answer", "1张→每天稳定盈 · 多张→两天−50%":"1 contract → stable daily gains · multiple contracts → −50% in two days", "边不是加仓加出来的，是纪律守出来的。":"Edge is not created by sizing up; it is protected by discipline.",
+  "正股目标→期权估算":"Stock Target → Option Estimate", "类型":"Type", "当前正股":"Current Stock", "目标价":"Target Price", "止损价":"Stop Price", "当前期权价":"Current Option Price", "张数":"Contracts", "目标期权估算价":"Estimated Option at Target", "目标盈亏":"Target P&L", "止损估算":"Stop Estimate", "不含IV、Theta、Gamma和价差。结合$20止损规则使用。":"Excludes IV, Theta, Gamma, and spread. Use with the $20 stop rule.", "刀":" USD",
+  "当前聚焦":"Current Focus", "Call/进攻":"Call / Attack", "等待/降仓":"Wait / Reduce", "Put/防守":"Put / Defense", "极高":"Very High", "高":"High", "中":"Medium", "低":"Low", "强 Risk ON":"Strong Risk ON", "正常区间":"Normal Range", "期权变贵":"Options Expensive", "VIX突然暴涨":"VIX Spike", "VIX<15，市场平静":"VIX < 15, calm market", "VIX 15–25，正常执行":"VIX 15–25, normal execution", "VIX>25，溢价高":"VIX > 25, high premium", "VIX急速上行，方向混沌":"VIX surging, direction chaotic", "期权买方环境最友好，成本低，可正常执行":"Best environment for option buyers; lower cost, normal execution", "按常规系统执行，无需特别调整":"Execute normally; no special adjustment", "降低预期或缩小仓位，买方需更大方向移动才盈利":"Lower expectations or reduce size; buyers need larger move to profit", "跳过当天，不参与，等市场稳定":"Skip the day; wait for stability", "进攻":"Attack", "常规":"Normal", "缩仓":"Reduce", "跳过":"Skip",
+  "实际利率（TIPS/10Y）":"Real Rates (TIPS/10Y)", "强负相关":"Strong Negative Corr.", "第一驱动。实际利率↑→金价受压":"Primary driver. Real rates ↑ → gold pressured", "美元指数 DXY":"Dollar Index DXY", "负相关":"Negative Corr.", "美元走强，金价通常承压":"Stronger dollar usually pressures gold", "Fed 政策路径 / FOMC":"Fed Policy Path / FOMC", "鸽派利多":"Dovish Bullish", "鸽派→利率预期下行→金价受支撑":"Dovish → rate expectations down → gold supported", "CPI / PCE / NFP 数据":"CPI / PCE / NFP Data", "事件触发":"Event Trigger", "偏离预期→剧烈波动，是方向触发器":"Surprise vs expectation → sharp move; direction trigger", "央行购金 / 实物需求":"Central Bank Buying / Physical Demand", "结构性底部":"Structural Floor", "长期慢变量，提供下方支撑":"Long-term slow variable; provides downside support", "避险 / 地缘冲突":"Safe Haven / Geopolitics", "短期脉冲":"Short-Term Impulse", "突发事件→IV瞬间拉高→谨慎追顶":"Sudden events spike IV; be careful chasing highs",
+  "流动性扫单收回":"Liquidity Sweep Recovery", "黄金 A1":"Gold A1", "场景":"Setup", "扫前高/前低后，价格重新收回结构区":"Sweep prior high/low then reclaim structure", "触发":"Trigger", "长影线+CHoCH确认+量能启动":"Long wick + CHoCH confirmation + momentum starts", "放弃":"Abandon", "只扫不收 / DXY与实际利率双向反转":"Sweep without reclaim / DXY and real rates both against you", "POC / FVG / OB 共振":"POC / FVG / OB Confluence", "黄金 A2":"Gold A2", "成本集中区+OB/FVG+流动性位重叠":"Cost cluster + OB/FVG + liquidity overlap", "回踩拒绝+量能启动+宏观未反向":"Pullback rejection + momentum + macro not reversed", "共振区被直接穿透/实际利率+DXY双向反转":"Confluence zone breached / real rates + DXY both against you", "MA9 / MA21 动能过滤":"MA9 / MA21 Momentum Filter", "辅助":"Auxiliary", "强":"Strong", "价格>MA9>MA21（只过滤，不开仓）":"Price > MA9 > MA21 (filter only, not trigger)", "弱":"Weak", "价格<MA9<MA21":"Price < MA9 < MA21", "提醒":"Reminder", "均线是过滤器，不是触发器":"MA is a filter, not a trigger",
+  "EMA趋势回踩":"EMA Trend Pullback", "EUR 主力":"EUR Main", "环境":"Environment", "EMA9/21/55顺排+ADX>25，趋势已确立":"EMA 9/21/55 aligned + ADX>25; trend confirmed", "入场":"Entry", "回踩EMA21/结构位，等拒绝K线确认":"Pullback to EMA21 / structure, wait for rejection candle", "ADX低/均线缠绕/数据发布前后":"Low ADX / tangled MAs / around data release", "破位不追":"Do Not Chase Breakout", "执行规则":"Execution Rule", "先等":"Wait First", "突破后不追第一根，等回踩":"Do not chase first breakout candle; wait for pullback", "再看":"Then Check", "回踩不破原突破位+重新放量":"Pullback holds breakout level + volume returns", "管理":"Manage", "RR≥1:2；到1:1.5先锁一半利润":"RR ≥ 1:2; lock half at 1:1.5",
+  "黄金/EUR":"Gold/EUR", "扫前高/前低+重新收回结构":"Sweep prior high/low + reclaim structure", "长影线+CHoCH确认":"Long wick + CHoCH confirmation", "EV特征":"EV Profile", "中等胜率+高赔率。切忌只扫不收入场":"Moderate win rate + high payoff. Never enter sweep without reclaim", "POC/FVG/OB共振":"POC/FVG/OB Confluence", "成本区+OB/FVG+流动性位重叠":"Cost zone + OB/FVG + liquidity overlap", "共振点越多胜率越高，穿透则放弃":"More confluence = higher probability; breach = abandon", "EMA顺排+ADX>25确认趋势":"EMA alignment + ADX>25 confirms trend", "回踩EMA21/结构位不破":"Pullback to EMA21 / structure holds", "趋势日胜率高，均线缠绕时期望值极差":"High win rate on trend days; terrible EV when MAs are tangled", "负GEX+VWAP破位顺势":"Neg-GEX + VWAP Break Trend", "QQQ期权":"QQQ Options", "负GEX环境+VWAP失守/站不回+量能放大":"Negative GEX + VWAP lost / unable to reclaim + expanding volume", "VWAP破位确认+9EMA顺势+量能1.5x":"VWAP break confirmed + 9EMA directional + volume 1.5×", "负GEX日趋势延伸概率更高，是买方最好的环境":"Negative GEX days favor trend extension — best buyer environment", "正GEX VWAP回踩确认":"Pos-GEX VWAP Pullback Confirm", "正GEX环境+价格回踩VWAP不破+量能确认":"Positive GEX + price pulls back to VWAP and holds + volume confirmation", "VWAP收回+9EMA支撑+量能1.5x":"VWAP reclaim + 9EMA support + volume 1.5×", "正GEX压波动，回归成功率高于追突破":"Positive GEX suppresses vol; pullback success beats chasing breakouts", "事件后IV回落":"Post-Event IV Crush", "期权特有":"Options Specific", "FOMC/CPI发布后，方向定盘，IV开始回落":"After FOMC/CPI: direction set, IV starts to fall", "等二次确认，不追公布瞬间":"Wait for second confirmation; don't chase the release candle", "此时做debit/credit价差都有edge；IV降后买方才合理":"Debit/credit spreads both have edge; raw buyers wait for IV to cool",
+  "日期时间":"Date/Time", "标的":"Instrument", "方向":"Direction", "进场理由":"Entry Rationale", "GEX环境":"GEX Environment", "情绪状态":"Emotional State", "满足全部铁律？":"All Iron Rules Met?", "结果盈亏":"Result P&L", "一句话总结":"One-Line Summary", "负GEX日+VWAP破位+9EMA顺势+放量":"Negative GEX + VWAP break + 9EMA aligned + volume", "负GEX · Flip $520.50 · Call Wall $525":"Negative GEX · Flip $520.50 · Call Wall $525", "平静 / 焦虑 / 冲动 / 报复":"Calm / anxious / impulsive / revenge", "是 / 否（写出哪条未满足）":"Yes / No (write which rule failed)", "负GEX顺势，执行到位":"Negative GEX trend-following, executed properly", "TradingView Bar Replay + Excel / Notion":"TradingView Bar Replay + Excel / Notion"
+};
+function tx(value, lang = safeLang()) {
+  if (typeof value !== "string") return value;
+  if (lang !== "en") return value;
+  if (TX[value]) return TX[value];
+  return value.replace(/(日损≥\$\d+)/g, (m)=>m.replace("日损≥", "Daily loss ≥")).replace(/(周损≥\$\d+)/g, (m)=>m.replace("周损≥", "Weekly loss ≥")).replace(/账户×/g, "Account × ").replace(/按\$(.*?)\/张/g, "At $$$1/contract");
+}
+
+
 /* ─── persistence helpers ─── */
 function ls(key, fallback) { try { const v = localStorage.getItem(key); return v !== null ? v : fallback; } catch { return fallback; } }
 function lsSet(key, val) { try { localStorage.setItem(key, val); } catch {} }
@@ -79,16 +113,16 @@ function RuleCard({ label, text, tone = "teal", icon: Icon = CheckCircle2 }) {
     </div>
   );
 }
-function FlowCard({ title, badge, tone = "teal", items = [] }) {
+function FlowCard({ title, badge, tone = "teal", items = [], lang = safeLang() }) {
   const barColor = { teal:"bg-teal-700", blue:"bg-sky-700", amber:"bg-amber-600", red:"bg-red-700", violet:"bg-violet-700", green:"bg-emerald-700", slate:"bg-slate-700" };
   return (
     <motion.div whileHover={{ y: -4, scale: 1.01 }} transition={{ duration: 0.2 }}>
       <Card className="overflow-hidden rounded-[1.7rem] border-white/15">
         <div className={cn("section-accent-bar h-2", barColor[tone] || "bg-slate-700")} />
         <div className="p-5">
-          <div className="mb-3 flex items-center justify-between gap-2"><Badge tone={tone}>{badge}</Badge><Target className="h-5 w-5 text-slate-500" /></div>
-          <h3 className="text-lg font-black leading-7 text-slate-50">{title}</h3>
-          <div className="mt-4 grid gap-2">{items.map((item) => <RuleCard key={item.label} {...item} />)}</div>
+          <div className="mb-3 flex items-center justify-between gap-2"><Badge tone={tone}>{tx(badge, lang)}</Badge><Target className="h-5 w-5 text-slate-500" /></div>
+          <h3 className="text-lg font-black leading-7 text-slate-50">{tx(title, lang)}</h3>
+          <div className="mt-4 grid gap-2">{items.map((item) => <RuleCard key={item.label} {...item} label={tx(item.label, lang)} text={tx(item.text, lang)} />)}</div>
         </div>
       </Card>
     </motion.div>
@@ -121,31 +155,31 @@ function ProcessRail({ steps, tone = "amber" }) {
     </div>
   );
 }
-function HeatBar({ rows }) {
+function HeatBar({ rows, lang = safeLang() }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-      <div className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">日内时间热力 (ET)</div>
+      <div className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">{tx("日内时间热力 (ET)", lang)}</div>
       <div className="space-y-2.5">
         {rows.map((r) => (
           <div key={r.label} className="rounded-xl bg-slate-800/50 border border-slate-700/40 px-3 py-2">
-            <div className="flex items-center justify-between mb-1.5"><span className="text-xs font-black text-slate-200">{r.label}</span><span className={cn("text-[10px] font-black rounded-full px-2 py-0.5", r.status==="优先"?"bg-emerald-900/60 text-emerald-300":r.status==="禁做"?"bg-red-900/60 text-red-300":"bg-amber-900/50 text-amber-300")}>{r.status}</span></div>
+            <div className="flex items-center justify-between mb-1.5"><span className="text-xs font-black text-slate-200">{r.label}</span><span className={cn("text-[10px] font-black rounded-full px-2 py-0.5", r.status==="优先"?"bg-emerald-900/60 text-emerald-300":r.status==="禁做"?"bg-red-900/60 text-red-300":"bg-amber-900/50 text-amber-300")}>{tx(r.status, lang)}</span></div>
             <div className="h-1.5 rounded-full bg-slate-700 overflow-hidden mb-1"><div className={cn("h-full rounded-full", r.barColor)} style={{ width:`${r.fill}%` }} /></div>
-            <div className="text-[10px] text-slate-500 font-bold">{r.note}</div>
+            <div className="text-[10px] text-slate-500 font-bold">{tx(r.note, lang)}</div>
           </div>
         ))}
       </div>
     </div>
   );
 }
-function KillZoneBoard({ items }) {
+function KillZoneBoard({ items, lang = safeLang() }) {
   return (
     <div className="rounded-[1.6rem] border-2 border-amber-300/35 bg-amber-950/20 p-4 shadow-md">
-      <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="amber">Kill Zone</KeyWord><span className="text-sm font-black text-amber-100">时间过滤优先于普通信号</span></div>
+      <div className="mb-3 flex flex-wrap items-center gap-2"><KeyWord tone="amber">Kill Zone</KeyWord><span className="text-sm font-black text-amber-100">{tx("时间过滤优先于普通信号", lang)}</span></div>
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((item) => { const Icon=item.icon||CheckCircle2; return (
           <motion.div key={item.title} whileHover={{y:-4,scale:1.01}} className={cn("rounded-[1.5rem] border p-4 shadow-sm", item.cls)}>
-            <div className="flex items-center gap-2 mb-2"><Icon className={cn("h-5 w-5", item.iconCls)}/><div className="text-base font-black text-slate-50">{item.title}</div></div>
-            <div className="text-sm font-black leading-6 text-slate-200">{item.text}</div>
+            <div className="flex items-center gap-2 mb-2"><Icon className={cn("h-5 w-5", item.iconCls)}/><div className="text-base font-black text-slate-50">{tx(item.title, lang)}</div></div>
+            <div className="text-sm font-black leading-6 text-slate-200">{tx(item.text, lang)}</div>
           </motion.div>
         ); })}
       </div>
@@ -282,7 +316,7 @@ const macroCards = [
 ];
 
 /* ─── GEX DAILY SETUP CARD ─── */
-function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
+function GEXDailySetupCard({ setup, onSave, isToday, t: tProp, lang = safeLang() }) {
   const t = tProp || ((zh) => zh);
   const [editing, setEditing] = useState(!isToday);
   const [state, setState] = useState(setup.state || null);
@@ -298,24 +332,24 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
     setEditing(false);
   };
   const playbook = {
-    positive: "今日偏区间 · 少追突破，等VWAP回踩/EMA确认后再入场",
-    negative: "今日偏趋势 · 等破位确认顺势，VWAP得失是第一节奏信号",
+    positive: t("今日偏区间 · 少追突破，等VWAP回踩/EMA确认后再入场", "Range bias today · avoid chasing; wait for VWAP pullback / EMA confirmation"),
+    negative: t("今日偏趋势 · 等破位确认顺势，VWAP得失是第一节奏信号", "Trend bias today · wait for confirmed break and follow trend; VWAP is the first regime signal"),
   };
   const statusBar = isToday && !editing
-    ? { bg:"border-emerald-400/35 bg-emerald-950/15", dot:"bg-emerald-400", text:"text-emerald-300", label:`今日已设置 · ${setup.time}`, badge:"bg-emerald-900/60 text-emerald-300" }
-    : { bg:"border-amber-400/40 bg-amber-950/18", dot:"bg-amber-400 animate-pulse", text:"text-amber-300", label:"今日尚未设置 · 开盘前必填", badge:"bg-amber-900/60 text-amber-300" };
+    ? { bg:"border-emerald-400/35 bg-emerald-950/15", dot:"bg-emerald-400", text:"text-emerald-300", label:`${t("今日已设置", "Set Today")} · ${setup.time}`, badge:"bg-emerald-900/60 text-emerald-300" }
+    : { bg:"border-amber-400/40 bg-amber-950/18", dot:"bg-amber-400 animate-pulse", text:"text-amber-300", label:t("今日尚未设置 · 开盘前必填", "Not Set Today · Required Before Open"), badge:"bg-amber-900/60 text-amber-300" };
   return (
     <div className={cn("mb-5 rounded-[1.8rem] border-2 p-5 transition", statusBar.bg)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", statusBar.dot)} />
-          <span className={cn("text-xs font-black uppercase tracking-[0.18em]", statusBar.text)}>GEX 每日设置</span>
+          <span className={cn("text-xs font-black uppercase tracking-[0.18em]", statusBar.text)}>{t("GEX 每日设置", "GEX Daily Setup")}</span>
           <span className={cn("text-[11px] font-black rounded-full px-2.5 py-0.5", statusBar.badge)}>{statusBar.label}</span>
         </div>
         <div className="flex items-center gap-2">
           {isToday && !editing && (
             <button type="button" onClick={() => setEditing(true)} className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-slate-800/60 px-3 py-1.5 text-xs font-black text-slate-400 hover:text-slate-200 hover:border-white/30 transition">
-              <Edit3 className="h-3 w-3" />编辑
+              <Edit3 className="h-3 w-3" />{t("编辑", "Edit")}
             </button>
           )}
           <div className="flex gap-2">
@@ -334,7 +368,7 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
             setup.state==="positive"?"border-sky-500/35 bg-sky-950/20":"border-amber-500/35 bg-amber-950/20")}>
             <div className={cn("w-3 h-3 rounded-full flex-shrink-0", setup.state==="positive"?"bg-sky-400":"bg-amber-400")} />
             <span className={cn("text-base font-black", setup.state==="positive"?"text-sky-200":"text-amber-200")}>
-              {setup.state==="positive"?"正GEX · 震荡压制":"负GEX · 趋势放大"}
+              {setup.state==="positive"?t("正GEX · 震荡压制", "Positive GEX · Range Suppression"):t("负GEX · 趋势放大", "Negative GEX · Trend Expansion")}
             </span>
             <span className={cn("text-xs font-bold ml-2", setup.state==="positive"?"text-sky-400":"text-amber-400")}>
               {playbook[setup.state]}
@@ -353,16 +387,16 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
               </div>
             ))}
           </div>
-          <div className="mt-3 text-[10px] font-bold text-slate-600 text-center">仅储存在本设备浏览器，不上传，不共享</div>
+          <div className="mt-3 text-[10px] font-bold text-slate-600 text-center">{t("仅储存在本设备浏览器，不上传，不共享", "Stored only in this browser. Not uploaded or shared.")}</div>
         </div>
       ) : (
         /* ── EDIT / INPUT VIEW ── */
         <div>
-          <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-3">今日GEX环境</div>
+          <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-3">{t("今日GEX环境", "Today's GEX Environment")}</div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {[
-              { key:"positive", label:"正GEX", sub:"震荡 · 压制波动", border:"border-sky-500/50", bg:"bg-sky-950/30", active:"ring-2 ring-sky-400/50", textActive:"text-sky-100", subColor:"text-sky-400" },
-              { key:"negative", label:"负GEX", sub:"趋势 · 放大波动", border:"border-amber-500/50", bg:"bg-amber-950/30", active:"ring-2 ring-amber-400/50", textActive:"text-amber-100", subColor:"text-amber-400" },
+              { key:"positive", label:t("正GEX", "Positive GEX"), sub:t("震荡 · 压制波动", "Range · Vol Suppression"), border:"border-sky-500/50", bg:"bg-sky-950/30", active:"ring-2 ring-sky-400/50", textActive:"text-sky-100", subColor:"text-sky-400" },
+              { key:"negative", label:t("负GEX", "Negative GEX"), sub:t("趋势 · 放大波动", "Trend · Vol Expansion"), border:"border-amber-500/50", bg:"bg-amber-950/30", active:"ring-2 ring-amber-400/50", textActive:"text-amber-100", subColor:"text-amber-400" },
             ].map(opt=>(
               <button key={opt.key} type="button" onClick={()=>setState(opt.key)}
                 className={cn("rounded-2xl border-2 p-4 text-left transition",
@@ -377,7 +411,7 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
               {playbook[state]}
             </div>
           )}
-          <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">关键价位</div>
+          <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">{t("关键价位", "Key Levels")}</div>
           <div className="grid grid-cols-2 gap-2.5 mb-4">
             {[
               { label:"Gamma Flip *", val:gammaFlip, set:setGammaFlip, color:"text-violet-400" },
@@ -389,7 +423,7 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
                 <span className={cn("text-[10px] font-black uppercase tracking-wider", f.color)}>{f.label}</span>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-black">$</span>
-                  <input className={cn(ic, "pl-6")} type="number" step="0.5" placeholder="价格" value={f.val} onChange={e=>f.set(e.target.value)} inputMode="decimal"/>
+                  <input className={cn(ic, "pl-6")} type="number" step="0.5" placeholder={t("价格", "Price")} value={f.val} onChange={e=>f.set(e.target.value)} inputMode="decimal"/>
                 </div>
               </label>
             ))}
@@ -397,12 +431,12 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
           <div className="flex items-center gap-3">
             <button type="button" disabled={!canSave} onClick={handleSave}
               className={cn("flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition", canSave?"bg-teal-700 text-white hover:bg-teal-600":"bg-slate-800 text-slate-600 cursor-not-allowed")}>
-              <Save className="h-4 w-4" />保存今日设置
+              <Save className="h-4 w-4" />{t("保存今日设置", "Save Today's Setup")}
             </button>
             {isToday && editing && (
-              <button type="button" onClick={()=>setEditing(false)} className="rounded-2xl border border-white/15 bg-slate-800/60 px-4 py-3 text-sm font-black text-slate-400 hover:text-slate-200 transition">取消</button>
+              <button type="button" onClick={()=>setEditing(false)} className="rounded-2xl border border-white/15 bg-slate-800/60 px-4 py-3 text-sm font-black text-slate-400 hover:text-slate-200 transition">{t("取消", "Cancel")}</button>
             )}
-            <span className="text-[10px] font-bold text-slate-600">* 必填 · 仅储存在本设备，不上传，不共享</span>
+            <span className="text-[10px] font-bold text-slate-600">{t("* 必填 · 仅储存在本设备，不上传，不共享", "* Required · Stored locally only. Not uploaded or shared.")}</span>
           </div>
         </div>
       )}
@@ -418,10 +452,10 @@ function GEXPanel({ setup, isToday, t: tProp, lang }) {
     <div className="mb-5 rounded-[1.8rem] border border-violet-300/20 bg-violet-950/8 p-5">
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <BarChart3 className="h-4 w-4 text-violet-400" />
-        <span className="text-sm font-black text-violet-300 uppercase tracking-wider">GEX 机制说明 · 两种市场节奏</span>
-        {activeState && <Badge tone={activeState==="positive"?"blue":"amber"}>{activeState==="positive"?"今日: 正GEX":"今日: 负GEX"}</Badge>}
+        <span className="text-sm font-black text-violet-300 uppercase tracking-wider">{t("GEX 机制说明 · 两种市场节奏", "GEX Mechanics · Two Market Regimes")}</span>
+        {activeState && <Badge tone={activeState==="positive"?"blue":"amber"}>{activeState==="positive"?t("今日: 正GEX", "Today: Positive GEX"):t("今日: 负GEX", "Today: Negative GEX")}</Badge>}
       </div>
-      <div className="text-xs font-bold text-slate-400 mb-4 leading-6">GEX是波动节奏地图，不是方向预测器。先判断今日是哪种环境，再选对应的执行模式。两种环境用同一套操作方法会亏钱。</div>
+      <div className="text-xs font-bold text-slate-400 mb-4 leading-6">{t("GEX是波动节奏地图，不是方向预测器。先判断今日是哪种环境，再选对应的执行模式。两种环境用同一套操作方法会亏钱。", "GEX is a volatility-regime map, not a direction predictor. Identify today's environment first, then choose the matching playbook. Using one method for both regimes loses money.")}</div>
       <div className="grid gap-3 md:grid-cols-2 mb-4">
         {gexEnvironments.map((env,i)=>{
           const isActive = activeState === (i===0?"positive":"negative");
@@ -430,22 +464,22 @@ function GEXPanel({ setup, isToday, t: tProp, lang }) {
               isActive?(i===0?"border-sky-500/55 bg-sky-950/25 ring-1 ring-sky-400/20":"border-amber-500/55 bg-amber-950/25 ring-1 ring-amber-400/20"):
               "border-white/8 bg-slate-900/30 opacity-60")}>
               <div className="flex items-center justify-between mb-2">
-                <div><span className="text-base font-black text-slate-50">{env.type}</span><span className="text-xs font-bold text-slate-500 ml-2">{env.eng}</span></div>
-                <Badge tone={env.tone}>{env.char}</Badge>
+                <div><span className="text-base font-black text-slate-50">{tx(env.type, lang)}</span><span className="text-xs font-bold text-slate-500 ml-2">{env.eng}</span></div>
+                <Badge tone={env.tone}>{tx(env.char, lang)}</Badge>
               </div>
-              <div className="text-xs font-bold text-slate-500 mb-1.5 italic">{env.mechanism}</div>
-              <div className={cn("text-sm font-black mb-3",i===0?"text-sky-200":"text-amber-200")}>{env.result}</div>
+              <div className="text-xs font-bold text-slate-500 mb-1.5 italic">{tx(env.mechanism, lang)}</div>
+              <div className={cn("text-sm font-black mb-3",i===0?"text-sky-200":"text-amber-200")}>{tx(env.result, lang)}</div>
               <div className="space-y-1 mb-3">
                 {env.traits.map((t,j)=>(
                   <div key={j} className="flex items-start gap-1.5">
                     <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0",i===0?"bg-sky-500":"bg-amber-500")} />
-                    <span className="text-xs font-bold text-slate-400 leading-5">{t}</span>
+                    <span className="text-xs font-bold text-slate-400 leading-5">{tx(t, lang)}</span>
                   </div>
                 ))}
               </div>
               <div className={cn("rounded-xl border px-3 py-2",i===0?"border-sky-500/25 bg-sky-950/20":"border-amber-500/25 bg-amber-950/20")}>
-                <div className="text-[10px] font-black text-slate-500 uppercase mb-0.5">操作思路</div>
-                <div className="text-xs font-black text-slate-200">{env.playbook}</div>
+                <div className="text-[10px] font-black text-slate-500 uppercase mb-0.5">{t("操作思路", "Playbook")}</div>
+                <div className="text-xs font-black text-slate-200">{tx(env.playbook, lang)}</div>
               </div>
             </div>
           );
@@ -463,11 +497,11 @@ function GEXPanel({ setup, isToday, t: tProp, lang }) {
             <div key={level.name} className="rounded-2xl border border-white/10 bg-slate-900/50 p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-black text-slate-50">{level.name}</span>
-                {priceVal ? <span className="text-sm font-black text-teal-300">${priceVal}</span> : <Badge tone="slate">{level.role}</Badge>}
+                {priceVal ? <span className="text-sm font-black text-teal-300">${priceVal}</span> : <Badge tone="slate">{tx(level.role, lang)}</Badge>}
               </div>
-              <div className="text-[10px] font-bold text-slate-500 mb-1">{level.desc}</div>
-              <div className="text-xs font-bold text-slate-400 mb-2">{level.behavior}</div>
-              <div className="text-xs font-black text-teal-300 border-t border-white/8 pt-2">{level.rule}</div>
+              <div className="text-[10px] font-bold text-slate-500 mb-1">{tx(level.desc, lang)}</div>
+              <div className="text-xs font-bold text-slate-400 mb-2">{tx(level.behavior, lang)}</div>
+              <div className="text-xs font-black text-teal-300 border-t border-white/8 pt-2">{tx(level.rule, lang)}</div>
             </div>
           );
         })}
@@ -514,7 +548,8 @@ function ZeroDTEMistakesCard({ lang }) {
 }
 
 /* ─── RISK CALCULATOR ─── */
-function RiskCalculator() {
+function RiskCalculator({ lang = safeLang() }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   const [account,setAccount]=useState(1000);const [riskPct,setRiskPct]=useState(2);const [optionPrice,setOptionPrice]=useState(1.0);
   const maxPremium=useMemo(()=>Math.round(account*riskPct/100),[account,riskPct]);
   const maxContracts=useMemo(()=>Math.max(1,Math.floor(account*riskPct/100/(optionPrice*100))),[account,riskPct,optionPrice]);
@@ -526,16 +561,16 @@ function RiskCalculator() {
     <Card className="overflow-hidden rounded-[2rem] border-2 border-teal-300/45">
       <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-5 py-4 text-white">
         <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Position Sizer</div>
-        <h3 className="mt-1 text-xl font-black">仓位计算器 · 开仓前必过此关</h3>
+        <h3 className="mt-1 text-xl font-black">{t("仓位计算器 · 开仓前必过此关", "Position Sizer · Must Pass Before Entry")}</h3>
       </div>
       <div className="p-5">
         <div className="grid gap-4 sm:grid-cols-3 mb-4">
-          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">账户总额 ($)</span><input className={ic} type="number" value={account} min={100} onChange={e=>setAccount(Math.max(100,Number(e.target.value)||100))}/></label>
-          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">单笔风险</span><div className="grid grid-cols-3 gap-1.5">{[1,2,3].map(p=><button key={p} type="button" onClick={()=>setRiskPct(p)} className={cn("rounded-xl py-3 text-sm font-black transition",riskPct===p?"bg-teal-600 text-white":"bg-slate-800 text-slate-400 hover:bg-slate-700")}>{p}%</button>)}</div></label>
-          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">期权价格 ($)</span><input className={ic} type="number" step="0.05" min="0.05" value={optionPrice} onChange={e=>setOptionPrice(Math.max(0.05,Number(e.target.value)||0.05))}/></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("账户总额 ($)", "Account Size ($)")}</span><input className={ic} type="number" value={account} min={100} onChange={e=>setAccount(Math.max(100,Number(e.target.value)||100))}/></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("单笔风险", "Per-Trade Risk")}</span><div className="grid grid-cols-3 gap-1.5">{[1,2,3].map(p=><button key={p} type="button" onClick={()=>setRiskPct(p)} className={cn("rounded-xl py-3 text-sm font-black transition",riskPct===p?"bg-teal-600 text-white":"bg-slate-800 text-slate-400 hover:bg-slate-700")}>{p}%</button>)}</div></label>
+          <label className="space-y-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("期权价格 ($)", "Option Price ($)")}</span><input className={ic} type="number" step="0.05" min="0.05" value={optionPrice} onChange={e=>setOptionPrice(Math.max(0.05,Number(e.target.value)||0.05))}/></label>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-4">
-          {[{label:"单笔最多权利金",value:`$${maxPremium}`,sub:`账户×${riskPct}%`,border:"border-teal-300/45",bg:"bg-teal-500/10",val:"text-teal-100"},{label:"最多合约数",value:`${maxContracts}张`,sub:`按$${optionPrice}/张`,border:"border-teal-300/45",bg:"bg-teal-500/10",val:"text-teal-100"},{label:"同时持仓上限",value:`$${totalCap}`,sub:"账户×6%",border:"border-amber-300/45",bg:"bg-amber-500/10",val:"text-amber-100"},{label:"日亏熔断线",value:`$${dailyLimit}`,sub:"账户×5%→当日停",border:"border-red-300/45",bg:"bg-red-500/10",val:"text-red-100"}].map(item=>(
+          {[{label:t("单笔最多权利金","Max Premium / Trade"),value:`$${maxPremium}`,sub:`${t("账户","Account")}×${riskPct}%`,border:"border-teal-300/45",bg:"bg-teal-500/10",val:"text-teal-100"},{label:t("最多合约数","Max Contracts"),value:`${maxContracts}${t("张"," ct")}`,sub:`${t("按","At ")}$${optionPrice}/${t("张","contract")}`,border:"border-teal-300/45",bg:"bg-teal-500/10",val:"text-teal-100"},{label:t("同时持仓上限","Open Position Cap"),value:`$${totalCap}`,sub:t("账户×6%","Account × 6%"),border:"border-amber-300/45",bg:"bg-amber-500/10",val:"text-amber-100"},{label:t("日亏熔断线","Daily Loss Limit"),value:`$${dailyLimit}`,sub:t("账户×5%→当日停","Account × 5% → stop for day"),border:"border-red-300/45",bg:"bg-red-500/10",val:"text-red-100"}].map(item=>(
             <div key={item.label} className={cn("rounded-2xl border p-3 text-center",item.border,item.bg)}>
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1.5 leading-4">{item.label}</div>
               <div className={cn("text-2xl font-black leading-none",item.val)}>{item.value}</div>
@@ -543,11 +578,11 @@ function RiskCalculator() {
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold leading-6 text-amber-100 mb-3">公式：张数=⌊账户×{riskPct}%÷期权价÷100⌋向下取整。结果为0→该期权对账户过贵，换便宜合约。</div>
+        <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold leading-6 text-amber-100 mb-3">{t("公式：张数=⌊账户×", "Formula: contracts = floor(Account × ")}{riskPct}{t("%÷期权价÷100⌋向下取整。结果为0→该期权对账户过贵，换便宜合约。", "% ÷ option price ÷ 100). If result is 0, the contract is too expensive for this account; choose a cheaper contract.")}</div>
         <div className="rounded-2xl border border-white/10 bg-slate-900/58 p-3">
-          <div className="text-xs font-black text-slate-300 mb-2">熔断阈值（自动计算）</div>
+          <div className="text-xs font-black text-slate-300 mb-2">{t("熔断阈值（自动计算）", "Circuit Breakers (Auto-Calculated)")}</div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[{t:"日内连亏2笔",a:"停30分钟+复盘",c:"amber"},{t:"日内连亏3笔",a:"当日停止",c:"red"},{t:`日损≥$${dailyLimit}`,a:"当日停止",c:"red"},{t:`周损≥$${weeklyLimit}`,a:"本周停，周末复盘",c:"red"}].map(item=>(
+            {[{t:t("日内连亏2笔","2 consecutive intraday losses"),a:t("停30分钟+复盘","Stop 30 min + review"),c:"amber"},{t:t("日内连亏3笔","3 consecutive intraday losses"),a:t("当日停止","Stop for the day"),c:"red"},{t:`${t("日损≥","Daily loss ≥")}$${dailyLimit}`,a:t("当日停止","Stop for the day"),c:"red"},{t:`${t("周损≥","Weekly loss ≥")}$${weeklyLimit}`,a:t("本周停，周末复盘","Stop this week; weekend review"),c:"red"}].map(item=>(
               <div key={item.t} className={cn("rounded-xl border p-2",item.c==="red"?"border-red-300/35 bg-red-950/45":"border-amber-300/35 bg-amber-500/10")}>
                 <div className={cn("text-[10px] font-black",item.c==="red"?"text-red-300":"text-amber-300")}>{item.t}</div>
                 <div className="flex items-center gap-1 mt-0.5"><ArrowRight className="h-3 w-3 text-slate-500 flex-shrink-0"/><div className="text-[10px] font-bold text-slate-400">{item.a}</div></div>
@@ -559,15 +594,16 @@ function RiskCalculator() {
     </Card>
   );
 }
-function ScaleUpPath() {
+function ScaleUpPath({ lang = safeLang() }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   return (
     <Card className="overflow-hidden rounded-[1.8rem] border-violet-300/35">
       <div className="bg-gradient-to-r from-violet-800 to-fuchsia-700 px-5 py-4 text-white">
         <div className="text-xs font-black uppercase tracking-[0.2em] opacity-85">Scale Protocol</div>
-        <h3 className="mt-1 text-xl font-black">仓位增长路径</h3>
+        <h3 className="mt-1 text-xl font-black">{t("仓位增长路径", "Position Scaling Path")}</h3>
       </div>
       <div className="p-5 space-y-3">
-        {[{lv:"起步阶段",contracts:"1张",cond:"无条件。账户重建阶段，不谈加张。",active:true},{lv:"Level 2",contracts:"2张",cond:"连续20笔稳定执行+零次熔断触发+EV>0",active:false},{lv:"Level 3",contracts:"3张",cond:"再累积20笔满足上述条件",active:false}].map(item=>(
+        {[{lv:t("起步阶段","Starting Phase"),contracts:t("1张","1 contract"),cond:t("无条件。账户重建阶段，不谈加张。","Unconditional. Rebuilding phase: no scaling discussion."),active:true},{lv:"Level 2",contracts:t("2张","2 contracts"),cond:t("连续20笔稳定执行+零次熔断触发+EV>0","20 clean executions + zero circuit breakers + EV>0"),active:false},{lv:"Level 3",contracts:t("3张","3 contracts"),cond:t("再累积20笔满足上述条件","Another 20 trades meeting the same conditions"),active:false}].map(item=>(
           <div key={item.lv} className={cn("rounded-2xl border px-4 py-3",item.active?"border-violet-500/50 bg-violet-500/10":"border-white/10 bg-slate-900/40")}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">{item.active&&<div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse"/>}<span className={cn("text-sm font-black",item.active?"text-violet-200":"text-slate-500")}>{item.lv}</span></div>
@@ -577,45 +613,46 @@ function ScaleUpPath() {
           </div>
         ))}
         <div className="rounded-2xl border border-red-300/35 bg-red-950/45 px-4 py-3 flex items-start gap-2">
-          <XCircle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5"/><div><div className="text-xs font-black text-red-300">任何熔断触发→立即降回1张</div><div className="text-xs font-bold text-red-400/80 mt-0.5">重置计数器，从20笔重新开始</div></div>
+          <XCircle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5"/><div><div className="text-xs font-black text-red-300">{t("任何熔断触发→立即降回1张", "Any circuit breaker → immediately drop back to 1 contract")}</div><div className="text-xs font-bold text-red-400/80 mt-0.5">{t("重置计数器，从20笔重新开始", "Reset counter; restart from 20 trades")}</div></div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/58 p-3"><div className="text-xs font-black text-slate-300 mb-1">你的数据已经给出答案</div><div className="text-xs font-bold text-slate-500 leading-5">1张→每天稳定盈 · 多张→两天−50%<br/><span className="text-slate-400">边不是加仓加出来的，是纪律守出来的。</span></div></div>
+        <div className="rounded-2xl border border-white/10 bg-slate-900/58 p-3"><div className="text-xs font-black text-slate-300 mb-1">{t("你的数据已经给出答案", "Your data already gave the answer")}</div><div className="text-xs font-bold text-slate-500 leading-5">{t("1张→每天稳定盈 · 多张→两天−50%", "1 contract → stable daily gains · multiple contracts → −50% in two days")}<br/><span className="text-slate-400">{t("边不是加仓加出来的，是纪律守出来的。", "Edge is not created by sizing up; it is protected by discipline.")}</span></div></div>
       </div>
     </Card>
   );
 }
-function OptionPriceEstimator() {
+function OptionPriceEstimator({ lang = safeLang() }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   const [mode,setMode]=useState("call");const [cur,setCur]=useState("520");const [tgt,setTgt]=useState("522");const [sl,setSl]=useState("518");const [opt,setOpt]=useState("1.20");const [delta,setDelta]=useState("0.55");const [qty,setQty]=useState("1");
-  const c=Number(cur),t=Number(tgt),s=Number(sl),o=Number(opt),d=Math.abs(Number(delta)),q=Math.max(1,Number(qty)||1);
-  const ok=[c,t,s,o,d].every(n=>Number.isFinite(n))&&o>=0&&d>=0;
-  const mv=ok?(mode==="call"?t-c:c-t):0,slmv=ok?(mode==="call"?s-c:c-s):0;
+  const c=Number(cur),tgtVal=Number(tgt),s=Number(sl),o=Number(opt),d=Math.abs(Number(delta)),q=Math.max(1,Number(qty)||1);
+  const ok=[c,tgtVal,s,o,d].every(n=>Number.isFinite(n))&&o>=0&&d>=0;
+  const mv=ok?(mode==="call"?tgtVal-c:c-tgtVal):0,slmv=ok?(mode==="call"?s-c:c-s):0;
   const proj=ok?Math.max(0,o+mv*d):0,slPr=ok?Math.max(0,o+slmv*d):0;
   const pnl=(proj-o)*100*q,slPnl=(slPr-o)*100*q,pnlPct=o>0?((proj-o)/o)*100:0;
   const ic="terminal-input w-full rounded-2xl border border-white/15 bg-slate-950/90 px-4 py-3 text-base font-black text-slate-50 shadow-inner outline-none transition focus:border-teal-300/45 focus:ring-4 focus:ring-teal-400/20";
   return (
     <Card className="overflow-hidden rounded-[1.8rem]">
-      <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-5 py-3 text-white"><div className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Delta Estimator</div><h3 className="text-lg font-black">正股目标→期权估算</h3></div>
+      <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-5 py-3 text-white"><div className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Delta Estimator</div><h3 className="text-lg font-black">{t("正股目标→期权估算", "Stock Target → Option Estimate")}</h3></div>
       <div className="p-5 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
         <div className="grid gap-3 sm:grid-cols-2">
-          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">类型</span><select className={ic} value={mode} onChange={e=>setMode(e.target.value)}><option value="call">Call</option><option value="put">Put</option></select></label>
-          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前正股</span><input className={ic} value={cur} onChange={e=>setCur(e.target.value)} inputMode="decimal"/></label>
-          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">目标价</span><input className={ic} value={tgt} onChange={e=>setTgt(e.target.value)} inputMode="decimal"/></label>
-          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">止损价</span><input className={ic} value={sl} onChange={e=>setSl(e.target.value)} inputMode="decimal"/></label>
-          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">当前期权价</span><input className={ic} value={opt} onChange={e=>setOpt(e.target.value)} inputMode="decimal"/></label>
+          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("类型", "Type")}</span><select className={ic} value={mode} onChange={e=>setMode(e.target.value)}><option value="call">Call</option><option value="put">Put</option></select></label>
+          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("当前正股", "Current Stock")}</span><input className={ic} value={cur} onChange={e=>setCur(e.target.value)} inputMode="decimal"/></label>
+          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("目标价", "Target Price")}</span><input className={ic} value={tgt} onChange={e=>setTgt(e.target.value)} inputMode="decimal"/></label>
+          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("止损价", "Stop Price")}</span><input className={ic} value={sl} onChange={e=>setSl(e.target.value)} inputMode="decimal"/></label>
+          <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("当前期权价", "Current Option Price")}</span><input className={ic} value={opt} onChange={e=>setOpt(e.target.value)} inputMode="decimal"/></label>
           <label><span className="text-xs font-black uppercase tracking-wider text-slate-500">Delta</span><input className={ic} value={delta} onChange={e=>setDelta(e.target.value)} inputMode="decimal"/></label>
-          <label className="sm:col-span-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">张数</span><input className={ic} value={qty} onChange={e=>setQty(e.target.value)} inputMode="numeric"/></label>
+          <label className="sm:col-span-2"><span className="text-xs font-black uppercase tracking-wider text-slate-500">{t("张数", "Contracts")}</span><input className={ic} value={qty} onChange={e=>setQty(e.target.value)} inputMode="numeric"/></label>
         </div>
         <div className="grid gap-3">
-          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">目标期权估算价</div><div className="mt-1 text-3xl font-black text-teal-100">{ok?proj.toFixed(2):"--"}</div></div>
-          <div className={cn("rounded-2xl border p-4",pnl>=0?"border-teal-300 bg-teal-500/10":"border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">目标盈亏</div><div className={cn("mt-1 text-2xl font-black",pnl>=0?"text-teal-100":"text-red-100")}>{ok?`${pnl>=0?"+":""}${pnl.toFixed(0)}刀`:"--"}</div><div className="text-sm font-bold text-slate-400">{ok?`${pnlPct>=0?"+":""}${pnlPct.toFixed(1)}%`:"--"}</div></div>
-          <div className={cn("rounded-2xl border p-4",slPnl>=0?"border-amber-300/50 bg-amber-500/10":"border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">止损估算</div><div className={cn("mt-1 text-2xl font-black",slPnl>=0?"text-amber-100":"text-red-100")}>{ok?`${slPnl>=0?"+":""}${slPnl.toFixed(0)}刀`:"--"}</div></div>
-          <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold leading-6 text-amber-100">不含IV、Theta、Gamma和价差。结合$20止损规则使用。</div>
+          <div className="rounded-2xl border border-white/15 bg-slate-900/58 p-4"><div className="text-xs font-black text-slate-500">{t("目标期权估算价", "Estimated Option at Target")}</div><div className="mt-1 text-3xl font-black text-teal-100">{ok?proj.toFixed(2):"--"}</div></div>
+          <div className={cn("rounded-2xl border p-4",pnl>=0?"border-teal-300 bg-teal-500/10":"border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">{t("目标盈亏", "Target P&L")}</div><div className={cn("mt-1 text-2xl font-black",pnl>=0?"text-teal-100":"text-red-100")}>{ok?`${pnl>=0?"+":""}${pnl.toFixed(0)}${t("刀", " USD")}`:"--"}</div><div className="text-sm font-bold text-slate-400">{ok?`${pnlPct>=0?"+":""}${pnlPct.toFixed(1)}%`:"--"}</div></div>
+          <div className={cn("rounded-2xl border p-4",slPnl>=0?"border-amber-300/50 bg-amber-500/10":"border-red-300/35 bg-red-950/45")}><div className="text-xs font-black text-slate-500">{t("止损估算", "Stop Estimate")}</div><div className={cn("mt-1 text-2xl font-black",slPnl>=0?"text-amber-100":"text-red-100")}>{ok?`${slPnl>=0?"+":""}${slPnl.toFixed(0)}${t("刀", " USD")}`:"--"}</div></div>
+          <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold leading-6 text-amber-100">{t("不含IV、Theta、Gamma和价差。结合$20止损规则使用。", "Excludes IV, Theta, Gamma, and spread. Use with the $20 stop rule.")}</div>
         </div>
       </div>
     </Card>
   );
 }
-function MacroRadarBoard() {
+function MacroRadarBoard({ lang = safeLang() }) {
   const [active,setActive]=useState(0);const cur=macroCards[active];const Icon=cur.icon;
   const tCls={green:"border-emerald-300/25 bg-emerald-500/10",amber:"border-amber-300/25 bg-amber-500/10",red:"border-red-300/35 bg-red-950/55"};
   return (
@@ -623,16 +660,16 @@ function MacroRadarBoard() {
       <div className="grid gap-3 md:grid-cols-2">
         {macroCards.map((m,idx)=>{const Ic=m.icon;return(
           <motion.button key={m.state} type="button" onMouseEnter={()=>setActive(idx)} onFocus={()=>setActive(idx)} whileHover={{y:-3,scale:1.01}} className={cn("rounded-[1.4rem] border p-4 text-left transition shadow-sm",tCls[m.tone]||"border-white/10 bg-slate-900/58",active===idx?"ring-2 ring-slate-300":"")}>
-            <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-wider text-slate-500">{m.state}</div><div className="mt-1 text-sm font-black text-slate-50">{m.cond}</div></div><div className="rounded-xl border border-white/60 bg-slate-900/70 p-2"><Ic className="h-4 w-4 text-slate-300"/></div></div>
-            <div className="mt-3 text-base font-black text-slate-100">{m.action}</div>
+            <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-wider text-slate-500">{tx(m.state, lang)}</div><div className="mt-1 text-sm font-black text-slate-50">{tx(m.cond, lang)}</div></div><div className="rounded-xl border border-white/60 bg-slate-900/70 p-2"><Ic className="h-4 w-4 text-slate-300"/></div></div>
+            <div className="mt-3 text-base font-black text-slate-100">{tx(m.action, lang)}</div>
           </motion.button>
         );})}
       </div>
       <Card className="rounded-[1.5rem] border-white/15 p-4">
-        <div className="flex items-center justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-wider text-slate-500">当前聚焦</div><div className="mt-1 flex items-center gap-2 text-lg font-black text-slate-50"><Icon className="h-5 w-5"/>{cur.state}</div><div className="mt-1 text-sm font-bold text-slate-400">{cur.cond}</div></div><Badge tone={cur.tone==="green"?"green":cur.tone==="red"?"red":"amber"}>{cur.short}</Badge></div>
+        <div className="flex items-center justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-wider text-slate-500">当前聚焦</div><div className="mt-1 flex items-center gap-2 text-lg font-black text-slate-50"><Icon className="h-5 w-5"/>{tx(cur.state, lang)}</div><div className="mt-1 text-sm font-bold text-slate-400">{tx(cur.cond, lang)}</div></div><Badge tone={cur.tone==="green"?"green":cur.tone==="red"?"red":"amber"}>{tx(cur.short, lang)}</Badge></div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {[["Call/进攻","teal",cur.bias.attack],["等待/降仓","amber",cur.bias.wait],["Put/防守","red",cur.bias.defend]].map(([l,t,v])=>(
-            <div key={l} className="rounded-2xl border border-white/10 bg-slate-900/58 p-3"><div className="text-xs font-black text-slate-500 mb-2">{l}</div><div className="h-2 rounded-full bg-slate-800 overflow-hidden"><div className={cn("h-full rounded-full",t==="teal"?"bg-teal-500":t==="amber"?"bg-amber-500":"bg-red-500")} style={{width:`${v}%`}}/></div><div className={cn("mt-2 text-2xl font-black",t==="teal"?"text-teal-300":t==="amber"?"text-amber-300":"text-red-300")}>{v>=70?"极高":v>=50?"高":v>=25?"中":"低"}</div></div>
+          {[[tx("Call/进攻",lang),"teal",cur.bias.attack],[tx("等待/降仓",lang),"amber",cur.bias.wait],[tx("Put/防守",lang),"red",cur.bias.defend]].map(([l,t,v])=>(
+            <div key={l} className="rounded-2xl border border-white/10 bg-slate-900/58 p-3"><div className="text-xs font-black text-slate-500 mb-2">{l}</div><div className="h-2 rounded-full bg-slate-800 overflow-hidden"><div className={cn("h-full rounded-full",t==="teal"?"bg-teal-500":t==="amber"?"bg-amber-500":"bg-red-500")} style={{width:`${v}%`}}/></div><div className={cn("mt-2 text-2xl font-black",t==="teal"?"text-teal-300":t==="amber"?"text-amber-300":"text-red-300")}>{tx(v>=70?"极高":v>=50?"高":v>=25?"中":"低", lang)}</div></div>
           ))}
         </div>
       </Card>
@@ -750,9 +787,9 @@ function RiskSpineSection({ lang }) {
     <section className="mb-8 rounded-[2.2rem] border-2 border-teal-300/35 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="00" title={t("风控脊柱","Risk Spine")} desc={t("先活下来，才能谈翻倍。亏50%需要赚100%回本。所有其他模块挂在这根脊柱下面，每笔交易之前必过此关。","Survive first, profit second. −50% requires +100% to recover. Every module hangs from this spine — required before every entry.")} tone="red"/>
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <RiskCalculator/>
+        <RiskCalculator lang={lang}/>
         <div className="grid gap-4">
-          <ScaleUpPath/>
+          <ScaleUpPath lang={lang}/>
           <Card className="rounded-[1.8rem] border-white/15 p-5">
             <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-lg font-black text-slate-50">{t("持仓管理","Position Management")}</h3><Zap className="h-5 w-5 text-slate-500"/></div>
             <div className="grid gap-2">
@@ -796,7 +833,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
       <SectionHeader number="01" title={t("美股期权买方系统 · QQQ专注","US Options Buyer System · QQQ Focus")} desc={t("固定QQQ，固定1张。每日开盘前填写GEX设置，再用三指标四条件执行。GEX决定今日是震荡模式还是趋势模式。","Fixed QQQ, fixed 1 contract. Set today's GEX before the open, then execute using the 3-indicator / 4-condition system. GEX determines today's regime.")} tone="teal">
         {gexIsToday && <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexSetup.state==="positive"?t("今日: 正GEX 震荡","Today: Positive GEX Range"):t("今日: 负GEX 趋势","Today: Negative GEX Trend")}</Badge>}
       </SectionHeader>
-      <GEXDailySetupCard setup={gexSetup} onSave={onSaveGex} isToday={gexIsToday} t={t}/>
+      <GEXDailySetupCard setup={gexSetup} onSave={onSaveGex} isToday={gexIsToday} t={t} lang={lang}/>
       <GEXPanel setup={gexSetup} isToday={gexIsToday} t={t} lang={lang}/>
       <div className="mb-5 rounded-[1.8rem] border-2 border-teal-400/35 bg-teal-950/20 p-5">
         <div className="text-sm font-black text-teal-300 uppercase tracking-wider mb-4">{t("三指标框架 · 缺一不可","3-Indicator Framework · All Required")}</div>
@@ -852,7 +889,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
           </div>
         </div>
         <div className="grid gap-4">
-          <HeatBar rows={heatRows} t={t}/>
+          <HeatBar rows={heatRows} lang={lang}/>
           <Card className="rounded-[1.7rem] border-white/15 p-5">
             <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-base font-black text-slate-50">{t("合约与风控仪表","Contract & Risk Dashboard")}</h3><Gauge className="h-5 w-5 text-slate-500"/></div>
             <div className="grid gap-3">
@@ -865,7 +902,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
         </div>
       </div>
       <ZeroDTEMistakesCard lang={lang}/>
-      <OptionPriceEstimator/>
+      <OptionPriceEstimator lang={lang}/>
     </section>
   );
 }
@@ -880,15 +917,15 @@ function GoldSystem({ lang }) {
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {goldMacroDrivers.map(item=>(
             <div key={item.driver} className={cn("rounded-2xl border p-4",item.tone==="red"?"border-red-300/35 bg-red-950/35":item.tone==="amber"?"border-amber-300/25 bg-amber-500/10":item.tone==="green"?"border-emerald-300/25 bg-emerald-500/10":item.tone==="blue"?"border-sky-300/25 bg-sky-500/10":"border-white/10 bg-slate-900/58")}>
-              <div className="flex items-start justify-between gap-2 mb-2"><span className="text-sm font-black text-slate-50">{item.driver}</span><Badge tone={item.tone}>{item.dir}</Badge></div>
-              <p className="text-xs font-bold leading-5 text-slate-400">{item.note}</p>
+              <div className="flex items-start justify-between gap-2 mb-2"><span className="text-sm font-black text-slate-50">{tx(item.driver, lang)}</span><Badge tone={item.tone}>{tx(item.dir, lang)}</Badge></div>
+              <p className="text-xs font-bold leading-5 text-slate-400">{tx(item.note, lang)}</p>
             </div>
           ))}
         </div>
         <div className="mt-3 rounded-2xl border border-red-300/35 bg-red-950/35 p-3 text-xs font-bold leading-6 text-red-100"><span className="font-black">{t("方向确认规则：","Direction rule: ")}</span>{t("做多黄金前，确认DXY与实际利率未同时走强。若两者都在反向，不做或极小仓。","Before going long gold, confirm DXY and real rates are not both rising. If both reverse against you — pass or micro size.")}</div>
       </div>
       <div className="mb-5"><ProcessRail tone="amber" steps={[{title:t("日线定向","Daily: Direction"),text:t("宏观驱动方向+主结构OB+流动性格局","Macro driver direction + major OB + liquidity landscape")},{title:t("4H/1H找位","4H/1H: Find Level"),text:t("BSL/SSL流动性+FVG+POC集中区+结构重叠","BSL/SSL liquidity + FVG + POC cluster + structural overlap")},{title:t("15M/5M确认","15M/5M: Confirm"),text:t("等收回/拒绝/CHoCH·BOS，不在测试区抢跑","Wait for reclaim / rejection / CHoCH·BOS — don't front-run the test zone")},{title:t("只拿中间段","Take Middle Leg"),text:t("止损放结构外；信号不完整，放弃。","Stop outside structure. Incomplete signal — pass.")}]}/></div>
-      <div className="mb-5"><KillZoneBoard items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：扫亚洲盘高低点，常设定当日方向","15:00–17:00 BJ: sweeps Asian highs/lows, often sets day's direction"),cls:"border-amber-300/25 bg-amber-500/10",icon:CheckCircle2,iconCls:"text-amber-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：扫伦敦高低后定方向，主要走势段","21:30–23:30 BJ: sweeps London levels then sets direction"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("禁区","Banned"),text:t("亚洲盘中间位不追，FOMC/CPI发布瞬间方向未定不进","Asian midrange: don't chase. FOMC/CPI publication: direction unknown, stay out"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
+      <div className="mb-5"><KillZoneBoard lang={lang} items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：扫亚洲盘高低点，常设定当日方向","15:00–17:00 BJ: sweeps Asian highs/lows, often sets day's direction"),cls:"border-amber-300/25 bg-amber-500/10",icon:CheckCircle2,iconCls:"text-amber-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：扫伦敦高低后定方向，主要走势段","21:30–23:30 BJ: sweeps London levels then sets direction"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("禁区","Banned"),text:t("亚洲盘中间位不追，FOMC/CPI发布瞬间方向未定不进","Asian midrange: don't chase. FOMC/CPI publication: direction unknown, stay out"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
       <div className="grid gap-4 md:grid-cols-3">{goldModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
     </section>
   );
@@ -899,7 +936,7 @@ function ForexSystem({ lang }) {
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="03" title={t("EUR/USD 外汇系统","EUR/USD FX System")} desc={t("趋势跟踪系统：EMA顺排+ADX确认趋势环境，回踩结构位等确认，只拿中间段。均线缠绕和低ADX时系统无效，不做。","Trend-following system: EMA alignment + ADX confirms trend environment, pullback to structure for entry, take the middle leg only. Tangled EMAs or low ADX = system invalid.")} tone="blue"/>
       <ProcessRail tone="blue" steps={[{title:t("趋势过滤","Trend Filter"),text:t("EMA9/21/55顺排+ADX>25，先确认趋势环境","EMA 9/21/55 aligned + ADX>25 — confirm trend first")},{title:"Kill Zone",text:t("伦敦/纽约开盘窗口，扫前高低点后定方向","London/NY open windows — sweep prior levels then set direction")},{title:t("找回踩位","Find Pullback"),text:t("回踩EMA21或关键结构位，等拒绝K线确认","Pullback to EMA21 or key structure, wait for rejection candle")},{title:t("执行","Execute"),text:t("RR≥1:2；到1:1.5先锁一半；不追破位第一根","RR ≥ 1:2; lock 50% at 1:1.5; never chase the first breakout candle")}]}/>
-      <div className="mt-5 mb-5"><KillZoneBoard items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：EUR主要方向常在此确立","15:00–17:00 BJ: EUR's primary direction usually established here"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：美国数据/纽约开盘是EUR第二主要时段","21:30–23:30 BJ: US data / NY open is EUR's second major session"),cls:"border-blue-300/25 bg-blue-500/10",icon:CheckCircle2,iconCls:"text-blue-300"},{title:t("禁区","Banned"),text:t("ADX<20+均线缠绕/重大数据前后/亚洲盘中间位","ADX<20 + tangled EMAs / around major data / Asian midrange"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
+      <div className="mt-5 mb-5"><KillZoneBoard lang={lang} items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：EUR主要方向常在此确立","15:00–17:00 BJ: EUR's primary direction usually established here"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：美国数据/纽约开盘是EUR第二主要时段","21:30–23:30 BJ: US data / NY open is EUR's second major session"),cls:"border-blue-300/25 bg-blue-500/10",icon:CheckCircle2,iconCls:"text-blue-300"},{title:t("禁区","Banned"),text:t("ADX<20+均线缠绕/重大数据前后/亚洲盘中间位","ADX<20 + tangled EMAs / around major data / Asian midrange"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
       <div className="grid gap-4 md:grid-cols-2">{eurModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
     </section>
   );
@@ -911,13 +948,13 @@ function StockSystem({ lang }) {
       <SectionHeader number="04" title={t("美股正股 · 低频配置","US Equities · Low-Frequency Portfolio")} desc={t("这是资金量大了以后的底仓系统，不是当前主战场。先筛公司质量，再等技术位置，最后低频持有。不做日内，不追热点。","This is the compounding foundation for later — not the current battleground. Screen for company quality first, then wait for the technical level, then hold low-frequency.")} tone="violet"/>
       <div className="grid gap-4 md:grid-cols-3">
         {lang === "zh" ? <>
-          <FlowCard title="基本面筛选" badge="第一步" tone="violet" items={[{label:"营收/利润",text:"连续增长，行业景气，无重大负面"},{label:"质量筛选",text:"重视增长质量和护城河",tone:"blue"},{label:"不做",text:"只因K线好看/热点消息/情绪冲动",tone:"red",icon:Ban}]}/>
-          <FlowCard title="技术择时" badge="第二步" tone="violet" items={[{label:"周线",text:"趋势不坏，在关键支撑或突破回踩"},{label:"日线",text:"回调支撑，结构完整",tone:"teal"},{label:"60分钟",text:"日线确认后，60分钟找入场确认",tone:"blue"}]}/>
-          <FlowCard title="持仓管理" badge="第三步" tone="violet" items={[{label:"持有周期",text:"周线级别为基准，不做日内"},{label:"止损",text:"主结构下方，不因短期波动止损"},{label:"加仓",text:"等突破确认后再加，不在下跌中摊平",tone:"amber"}]}/>
+          <FlowCard lang={lang} title="基本面筛选" badge="第一步" tone="violet" items={[{label:"营收/利润",text:"连续增长，行业景气，无重大负面"},{label:"质量筛选",text:"重视增长质量和护城河",tone:"blue"},{label:"不做",text:"只因K线好看/热点消息/情绪冲动",tone:"red",icon:Ban}]}/>
+          <FlowCard lang={lang} title="技术择时" badge="第二步" tone="violet" items={[{label:"周线",text:"趋势不坏，在关键支撑或突破回踩"},{label:"日线",text:"回调支撑，结构完整",tone:"teal"},{label:"60分钟",text:"日线确认后，60分钟找入场确认",tone:"blue"}]}/>
+          <FlowCard lang={lang} title="持仓管理" badge="第三步" tone="violet" items={[{label:"持有周期",text:"周线级别为基准，不做日内"},{label:"止损",text:"主结构下方，不因短期波动止损"},{label:"加仓",text:"等突破确认后再加，不在下跌中摊平",tone:"amber"}]}/>
         </> : <>
-          <FlowCard title="Fundamental Screen" badge="Step 1" tone="violet" items={[{label:"Revenue/Profit",text:"Consistent growth, favorable industry, no major negatives"},{label:"Quality",text:"Prioritize growth quality and moat",tone:"blue"},{label:"Never",text:"Aesthetics / hype / emotional impulse",tone:"red",icon:Ban}]}/>
-          <FlowCard title="Technical Timing" badge="Step 2" tone="violet" items={[{label:"Weekly",text:"Trend intact; at key support or post-breakout pullback"},{label:"Daily",text:"Pullback to support, structure intact",tone:"teal"},{label:"60-min",text:"After daily confirmation, use 60-min for entry",tone:"blue"}]}/>
-          <FlowCard title="Position Management" badge="Step 3" tone="violet" items={[{label:"Holding Period",text:"Weekly timeframe as base — no intraday"},{label:"Stop",text:"Below major structure — not triggered by short-term volatility"},{label:"Adding",text:"Add after confirmed breakout only — never average down",tone:"amber"}]}/>
+          <FlowCard lang={lang} title="Fundamental Screen" badge="Step 1" tone="violet" items={[{label:"Revenue/Profit",text:"Consistent growth, favorable industry, no major negatives"},{label:"Quality",text:"Prioritize growth quality and moat",tone:"blue"},{label:"Never",text:"Aesthetics / hype / emotional impulse",tone:"red",icon:Ban}]}/>
+          <FlowCard lang={lang} title="Technical Timing" badge="Step 2" tone="violet" items={[{label:"Weekly",text:"Trend intact; at key support or post-breakout pullback"},{label:"Daily",text:"Pullback to support, structure intact",tone:"teal"},{label:"60-min",text:"After daily confirmation, use 60-min for entry",tone:"blue"}]}/>
+          <FlowCard lang={lang} title="Position Management" badge="Step 3" tone="violet" items={[{label:"Holding Period",text:"Weekly timeframe as base — no intraday"},{label:"Stop",text:"Below major structure — not triggered by short-term volatility"},{label:"Adding",text:"Add after confirmed breakout only — never average down",tone:"amber"}]}/>
         </>}
       </div>
     </section>
@@ -951,7 +988,7 @@ function MacroAndModels({ lang }) {
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/74 p-5 md:p-7">
       <SectionHeader number="05" title={t("宏观过滤 + 高期望值模型库","Macro Filter + High EV Model Library")} desc={t("双轨过滤：期权看VIX三档，黄金/外汇看DXY+实际利率。宏观只做环境过滤，不代替具体入场触发。","Dual-track filtering: options use VIX three-tier; gold/FX use DXY + real rates. Macro only filters the environment — does not replace a specific entry trigger.")} tone="slate"/>
       <div className="grid gap-5 xl:grid-cols-2 mb-6">
-        <div><div className="mb-3"><Badge tone="teal">{t("期权/美股 · VIX三档过滤","Options/Equities · VIX Three-Tier Filter")}</Badge></div><MacroRadarBoard/></div>
+        <div><div className="mb-3"><Badge tone="teal">{t("期权/美股 · VIX三档过滤","Options/Equities · VIX Three-Tier Filter")}</Badge></div><MacroRadarBoard lang={lang}/></div>
         <div>
           <div className="mb-3"><Badge tone="amber">{t("黄金/外汇 · 宏观过滤","Gold/FX · Macro Filter")}</Badge></div>
           <Card className="rounded-[1.5rem] border-white/15 p-4 mb-3">
@@ -1046,8 +1083,8 @@ function DisciplineSystem({ gexIsToday, lang }) {
           <div className="space-y-2 mb-4">
             {journalFields.map((item,i)=>(
               <div key={i} className="flex items-start gap-2 rounded-xl border border-white/8 bg-slate-900/40 px-3 py-2">
-                <div className="w-28 flex-shrink-0 text-[10px] font-black text-slate-500 uppercase">{item.field}</div>
-                <div className="text-xs font-bold text-slate-400">{item.example}</div>
+                <div className="w-28 flex-shrink-0 text-[10px] font-black text-slate-500 uppercase">{tx(item.field, lang)}</div>
+                <div className="text-xs font-bold text-slate-400">{tx(item.example, lang)}</div>
               </div>
             ))}
           </div>
