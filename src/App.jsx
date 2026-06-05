@@ -876,7 +876,7 @@ function GoldSystem({ lang }) {
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="02" title={t("黄金 XAU/USD 现货买卖","Gold XAU/USD Spot Trading")} desc={t("外汇平台现货/差价合约交易，非期权。宏观驱动决定方向，SMC结构决定位置，Kill Zone决定时间。三层对齐才出手。","Spot/CFD leveraged trading on FX platform — NOT options. Macro drives direction, SMC determines level, Kill Zone determines timing. All three must align.")} tone="amber"/>
       <div className="mb-5">
-        <div className="mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-amber-400"/><h3 className="text-base font-black text-amber-300 uppercase tracking-wider">{t("宏观驱动层（黄金真正的"大盘"）","Macro Driver Layer (Gold's True 'Context')")}</h3></div>
+        <div className="mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-amber-400"/><h3 className="text-base font-black text-amber-300 uppercase tracking-wider">{t("宏观驱动层（黄金真正的“大盘”）","Macro Driver Layer (Gold's True 'Context')")}</h3></div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {goldMacroDrivers.map(item=>(
             <div key={item.driver} className={cn("rounded-2xl border p-4",item.tone==="red"?"border-red-300/35 bg-red-950/35":item.tone==="amber"?"border-amber-300/25 bg-amber-500/10":item.tone==="green"?"border-emerald-300/25 bg-emerald-500/10":item.tone==="blue"?"border-sky-300/25 bg-sky-500/10":"border-white/10 bg-slate-900/58")}>
