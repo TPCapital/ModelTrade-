@@ -456,3 +456,98 @@ button:hover { transform: translateY(-1px); }
 
 /* Theme/lang toggle buttons in light mode — make them lighter */
 [data-theme="light"] .bg-slate-800\/60 { background-color: rgba(226,232,240,0.8) !important; }
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — PATCH 2: Colored text + dark section bg
+   ═══════════════════════════════════════════════════════ */
+
+/* Fix light-colored text (invisible on white backgrounds) */
+[data-theme="light"] .text-teal-100 { color: #0f766e !important; }
+[data-theme="light"] .text-teal-200 { color: #0d9488 !important; }
+[data-theme="light"] .text-teal-300 { color: #0d9488 !important; }
+[data-theme="light"] .text-teal-400 { color: #14b8a6 !important; }
+[data-theme="light"] .text-red-100  { color: #b91c1c !important; }
+[data-theme="light"] .text-red-200  { color: #dc2626 !important; }
+[data-theme="light"] .text-red-300  { color: #dc2626 !important; }
+[data-theme="light"] .text-red-400  { color: #ef4444 !important; }
+[data-theme="light"] .text-amber-100 { color: #92400e !important; }
+[data-theme="light"] .text-amber-200 { color: #b45309 !important; }
+[data-theme="light"] .text-amber-300 { color: #d97706 !important; }
+[data-theme="light"] .text-amber-400 { color: #f59e0b !important; }
+[data-theme="light"] .text-sky-100  { color: #0c4a6e !important; }
+[data-theme="light"] .text-sky-200  { color: #075985 !important; }
+[data-theme="light"] .text-sky-300  { color: #0284c7 !important; }
+[data-theme="light"] .text-sky-400  { color: #0ea5e9 !important; }
+[data-theme="light"] .text-violet-100 { color: #4c1d95 !important; }
+[data-theme="light"] .text-violet-200 { color: #5b21b6 !important; }
+[data-theme="light"] .text-violet-300 { color: #7c3aed !important; }
+[data-theme="light"] .text-violet-400 { color: #8b5cf6 !important; }
+[data-theme="light"] .text-emerald-100 { color: #064e3b !important; }
+[data-theme="light"] .text-emerald-200 { color: #065f46 !important; }
+[data-theme="light"] .text-emerald-300 { color: #059669 !important; }
+[data-theme="light"] .text-emerald-400 { color: #10b981 !important; }
+
+/* Fix dark-colored section backgrounds */
+[data-theme="light"] .bg-red-950\/30,
+[data-theme="light"] .bg-red-950\/35 { background-color: rgba(254,226,226,0.55) !important; border-color: rgba(220,38,38,0.3) !important; }
+[data-theme="light"] .bg-red-950\/40,
+[data-theme="light"] .bg-red-950\/45 { background-color: rgba(254,226,226,0.7) !important; }
+[data-theme="light"] .bg-red-900\/20  { background-color: rgba(254,226,226,0.5) !important; }
+[data-theme="light"] .bg-red-900\/60  { background-color: rgba(254,226,226,0.7) !important; }
+[data-theme="light"] .bg-amber-950\/18,
+[data-theme="light"] .bg-amber-950\/20 { background-color: rgba(255,251,235,0.65) !important; border-color: rgba(217,119,6,0.25) !important; }
+[data-theme="light"] .bg-amber-950\/30 { background-color: rgba(255,251,235,0.75) !important; }
+[data-theme="light"] .bg-amber-900\/50,
+[data-theme="light"] .bg-amber-900\/60 { background-color: rgba(255,251,235,0.8) !important; }
+[data-theme="light"] .bg-teal-950\/15,
+[data-theme="light"] .bg-teal-950\/20,
+[data-theme="light"] .bg-teal-950\/25 { background-color: rgba(240,253,250,0.75) !important; border-color: rgba(20,184,166,0.25) !important; }
+[data-theme="light"] .bg-sky-950\/15,
+[data-theme="light"] .bg-sky-950\/20,
+[data-theme="light"] .bg-sky-950\/25 { background-color: rgba(240,249,255,0.75) !important; border-color: rgba(14,165,233,0.25) !important; }
+[data-theme="light"] .bg-violet-950\/8,
+[data-theme="light"] .bg-violet-950\/12,
+[data-theme="light"] .bg-violet-950\/20,
+[data-theme="light"] .bg-violet-950\/25 { background-color: rgba(245,243,255,0.75) !important; border-color: rgba(139,92,246,0.2) !important; }
+[data-theme="light"] .bg-emerald-950\/40 { background-color: rgba(236,253,245,0.7) !important; }
+[data-theme="light"] .bg-slate-950\/80 { background-color: rgba(255,255,255,0.97) !important; }
+
+/* Fix soft-color backgrounds for light mode */
+[data-theme="light"] .bg-teal-500\/8 { background-color: rgba(240,253,250,0.75) !important; }
+[data-theme="light"] .bg-teal-500\/10 { background-color: rgba(240,253,250,0.85) !important; }
+[data-theme="light"] .bg-sky-500\/10  { background-color: rgba(240,249,255,0.85) !important; }
+[data-theme="light"] .bg-emerald-500\/10 { background-color: rgba(236,253,245,0.85) !important; }
+[data-theme="light"] .bg-amber-500\/10   { background-color: rgba(255,251,235,0.85) !important; }
+[data-theme="light"] .bg-red-500\/10     { background-color: rgba(254,226,226,0.75) !important; }
+[data-theme="light"] .bg-violet-500\/10  { background-color: rgba(245,243,255,0.85) !important; }
+
+/* Fix the header in light mode */
+[data-theme="light"] .sea-header {
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+  border-color: rgba(15,23,42,0.1) !important;
+  box-shadow: 0 8px 40px rgba(15,23,42,0.1) !important;
+}
+
+/* Stat cards in light mode */
+[data-theme="light"] .bg-\[linear-gradient\(180deg\,rgba\(15\,23\,42\,0\.86\)\,rgba\(15\,23\,42\,0\.62\)\)\] {
+  background: rgba(255,255,255,0.95) !important;
+}
+
+/* GEX panel border colors in light mode */
+[data-theme="light"] .border-sky-500\/55,
+[data-theme="light"] .border-sky-500\/35 { border-color: rgba(14,165,233,0.5) !important; }
+[data-theme="light"] .border-amber-500\/55,
+[data-theme="light"] .border-amber-500\/35 { border-color: rgba(245,158,11,0.5) !important; }
+[data-theme="light"] .border-violet-300\/20 { border-color: rgba(139,92,246,0.25) !important; }
+[data-theme="light"] .border-teal-400\/35 { border-color: rgba(20,184,166,0.4) !important; }
+[data-theme="light"] .border-teal-300\/35 { border-color: rgba(20,184,166,0.35) !important; }
+[data-theme="light"] .border-red-400\/40 { border-color: rgba(248,113,113,0.45) !important; }
+[data-theme="light"] .border-emerald-400\/35 { border-color: rgba(52,211,153,0.45) !important; }
+[data-theme="light"] .border-amber-400\/40,
+[data-theme="light"] .border-amber-400\/35 { border-color: rgba(251,191,36,0.45) !important; }
+
+/* Stat bar labels for dark mode stat cards */
+[data-theme="light"] .bg-teal-700 { background-color: #0f766e !important; }
+[data-theme="light"] .bg-amber-600 { background-color: #d97706 !important; }
+[data-theme="light"] .bg-red-700   { background-color: #b91c1c !important; }
+[data-theme="light"] .bg-violet-700 { background-color: #6d28d9 !important; }

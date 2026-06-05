@@ -282,7 +282,8 @@ const macroCards = [
 ];
 
 /* ─── GEX DAILY SETUP CARD ─── */
-function GEXDailySetupCard({ setup, onSave, isToday }) {
+function GEXDailySetupCard({ setup, onSave, isToday, t: tProp }) {
+  const t = tProp || ((zh) => zh);
   const [editing, setEditing] = useState(!isToday);
   const [state, setState] = useState(setup.state || null);
   const [gammaFlip, setGammaFlip] = useState(setup.gammaFlip || "");
@@ -410,7 +411,8 @@ function GEXDailySetupCard({ setup, onSave, isToday }) {
 }
 
 /* ─── GEX PANEL (educational, highlights active state) ─── */
-function GEXPanel({ setup, isToday }) {
+function GEXPanel({ setup, isToday, t: tProp, lang }) {
+  const t = tProp || ((zh) => zh);
   const activeState = isToday ? setup.state : null;
   return (
     <div className="mb-5 rounded-[1.8rem] border border-violet-300/20 bg-violet-950/8 p-5">
@@ -657,25 +659,29 @@ function ThemeLangControls({ theme, onTheme, lang, onLang }) {
   );
 }
 
-function AccountRebuildingBanner() {
+function AccountRebuildingBanner({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   const [execCount,setExecCount]=useState(0);
+  const accounts = lang === "zh"
+    ? [{account:"黄金账户",pattern:"稳定盈利→放大仓位→震荡行情→爆仓"},{account:"期权账户",pattern:"小额稳定→放大张数+开盘进场→3天-50%"}]
+    : [{account:"Gold Account",pattern:"Stable profit → scale up → choppy market → blown out"},{account:"Options Account",pattern:"Small stable gains → more contracts + opening entries → −50% in 3 days"}];
   return (
     <div className="mb-6 rounded-[1.8rem] border-2 border-red-400/40 bg-red-950/30 p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2"><Flame className="h-5 w-5 text-red-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">账户重建阶段</span><Badge tone="red">当前余额 ~$1,000</Badge></div>
-          <h3 className="text-xl font-black text-red-100 mb-2">现阶段目标不是盈利，是建立稳定执行的肌肉记忆</h3>
-          <div className="text-sm font-bold text-red-200/80 leading-6 mb-3">评判标准：不是盈亏金额，是这笔交易进场前是否走完了全部检查清单。</div>
+          <div className="flex items-center gap-3 mb-2"><Flame className="h-5 w-5 text-red-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">{t("账户重建阶段","Account Rebuilding Phase")}</span><Badge tone="red">{t("当前余额 ~$1,000","Current Balance ~$1,000")}</Badge></div>
+          <h3 className="text-xl font-black text-red-100 mb-2">{t("现阶段目标不是盈利，是建立稳定执行的肌肉记忆","Current goal is not profit — it's building stable execution muscle memory")}</h3>
+          <div className="text-sm font-bold text-red-200/80 leading-6 mb-3">{t("评判标准：不是盈亏金额，是这笔交易进场前是否走完了全部检查清单。","Success criterion: not P&L — but whether you completed the full checklist before this entry.")}</div>
           <div className="grid gap-2 md:grid-cols-2 mb-3">
-            {[{account:"黄金账户",pattern:"稳定盈利→放大仓位→震荡行情→爆仓"},{account:"期权账户",pattern:"小额稳定→放大张数+开盘进场→3天-50%"}].map(p=>(
+            {accounts.map(p=>(
               <div key={p.account} className="rounded-xl border border-red-400/25 bg-red-900/20 px-3 py-2"><span className="text-xs font-black text-red-400">{p.account}</span><div className="text-xs font-bold text-red-200/80 mt-0.5">{p.pattern}</div></div>
             ))}
           </div>
-          <div className="rounded-xl border border-amber-400/35 bg-amber-950/30 px-4 py-2"><span className="text-xs font-black text-amber-300">根本原因：</span><span className="text-xs font-bold text-amber-200"> 补偿心理触发失控行为。能力没有问题，开关是情绪，不是市场。</span></div>
+          <div className="rounded-xl border border-amber-400/35 bg-amber-950/30 px-4 py-2"><span className="text-xs font-black text-amber-300">{t("根本原因：","Root cause: ")}</span><span className="text-xs font-bold text-amber-200">{t("补偿心理触发失控行为。能力没有问题，开关是情绪，不是市场。","Revenge psychology triggers loss-of-control. Ability is not the problem — the switch is emotional, not market.")}</span></div>
         </div>
         <div className="w-full md:w-56">
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-            <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1">稳定执行进度</div>
+            <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1">{t("稳定执行进度","Stable Execution Progress")}</div>
             <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-violet-200">{execCount}</span><span className="text-lg font-black text-slate-500 mb-1">/ 20</span></div>
             <div className="h-2.5 rounded-full bg-slate-800 overflow-hidden mb-3"><div className="h-full rounded-full bg-violet-500 transition-all duration-500" style={{ width:`${Math.round(execCount/20*100)}%` }}/></div>
             <div className="grid grid-cols-4 gap-1 mb-3">
@@ -683,7 +689,7 @@ function AccountRebuildingBanner() {
                 <button key={i} type="button" onClick={()=>setExecCount(i<execCount?i:i+1)} className={cn("h-6 rounded-lg text-[10px] font-black transition",i<execCount?"bg-violet-600 text-white":"bg-slate-800 text-slate-600 hover:bg-slate-700")}>{i+1}</button>
               ))}
             </div>
-            <div className="text-[10px] text-slate-500 font-bold text-center">{execCount>=20?"✓ 可讨论扩展":`还需 ${20-execCount} 笔后再讨论扩展`}</div>
+            <div className="text-[10px] text-slate-500 font-bold text-center">{execCount>=20?t("✓ 可讨论扩展","✓ Ready to discuss scaling"):t(`还需 ${20-execCount} 笔后再讨论扩展`,`${20-execCount} more executions before scaling discussion`)}</div>
           </div>
         </div>
       </div>
@@ -738,21 +744,22 @@ function SeaOSPanel({ lang }) {
 }
 
 /* ─── SECTIONS ─── */
-function RiskSpineSection() {
+function RiskSpineSection({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   return (
     <section className="mb-8 rounded-[2.2rem] border-2 border-teal-300/35 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="00" title="风控脊柱" desc="先活下来，才能谈翻倍。亏50%需要赚100%回本。所有其他模块挂在这根脊柱下面，每笔交易之前必过此关。" tone="red"/>
+      <SectionHeader number="00" title={t("风控脊柱","Risk Spine")} desc={t("先活下来，才能谈翻倍。亏50%需要赚100%回本。所有其他模块挂在这根脊柱下面，每笔交易之前必过此关。","Survive first, profit second. −50% requires +100% to recover. Every module hangs from this spine — required before every entry.")} tone="red"/>
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <RiskCalculator/>
         <div className="grid gap-4">
           <ScaleUpPath/>
           <Card className="rounded-[1.8rem] border-white/15 p-5">
-            <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-lg font-black text-slate-50">持仓管理</h3><Zap className="h-5 w-5 text-slate-500"/></div>
+            <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-lg font-black text-slate-50">{t("持仓管理","Position Management")}</h3><Zap className="h-5 w-5 text-slate-500"/></div>
             <div className="grid gap-2">
-              <VisualMeter label="止损线" left="-20%警戒" right="-25%硬止损" fill={100} tone="red" note="QQQ期权固定-$20"/>
-              <VisualMeter label="止盈线" left="+50%减仓50%" right="+80%全平" fill={78} tone="green" note="目标+$40"/>
-              <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold text-amber-100">时间止盈：持仓超45分钟，无论盈亏出场</div>
-              <RuleCard label="绝对禁止" text="扛单·加仓摊平·换合约续命·超仓" tone="red" icon={Ban}/>
+              <VisualMeter label={t("止损线","Stop Line")} left={t("-20%警戒","-20% Alert")} right={t("-25%硬止损","-25% Hard Stop")} fill={100} tone="red" note={t("QQQ期权固定-$20","QQQ option: −$20")}/>
+              <VisualMeter label={t("止盈线","Profit Target")} left={t("+50%减仓50%","+50% reduce 50%")} right={t("+80%全平","+80% full exit")} fill={78} tone="green" note={t("目标+$40","Target +$40")}/>
+              <div className="rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-xs font-bold text-amber-100">{t("时间止盈：持仓超45分钟，无论盈亏出场","Time stop: exit after 45 min regardless of P&L")}</div>
+              <RuleCard label={t("绝对禁止","Absolutely Forbidden")} text={t("扛单·加仓摊平·换合约续命·超仓","Holding losers · averaging down · rolling contracts · oversizing")} tone="red" icon={Ban}/>
             </div>
           </Card>
         </div>
@@ -762,25 +769,39 @@ function RiskSpineSection() {
 }
 
 function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
+  const conditions = I.fourEntryConditions.map(c=>({n:c.n,title:lang==="zh"?c.zh_t:c.en_t,desc:lang==="zh"?c.zh_d:c.en_d}));
+  const indicators = [
+    { icon:BarChart2, title:"VWAP", role:t("方向过滤器","Direction Filter"), rules:[t("价格在VWAP上方→只做Call","Price above VWAP → Calls only"),t("价格在VWAP下方→只做Put","Price below VWAP → Puts only"),t("VWAP附近横跳→不开仓","VWAP chop → no entry")] },
+    { icon:TrendingUp, title:"EMA 9/21", role:t("趋势确认","Trend Confirmation"), rules:[t("9EMA>21EMA且发散→多头趋势","9EMA > 21EMA + diverging → bullish"),t("9EMA<21EMA且发散→空头趋势","9EMA < 21EMA + diverging → bearish"),t("两线粘合/频繁交叉→不开仓","Tangled / crossing → no entry")] },
+    { icon:Activity, title:t("成交量","Volume"), role:t("动能确认（必须）","Momentum Confirm (required)"), rules:[t("当前量>前5根平均量×1.5倍","Current bar > 5-bar avg × 1.5×"),t("仅方向+趋势无量→不开仓","Direction + trend, no volume → no entry"),t("三者缺一不可","All three required")] },
+  ];
+  const instruments = [
+    { name:"QQQ ✓", desc:t("趋势比个股干净，假突破少；流动性极好价差小；单一消息面影响小；复盘10天确认结构明显优于NVDA。","Cleaner trends; tight spreads; less headline risk. 10-day backtesting confirmed structure is meaningfully better than NVDA."), tone:"teal", tag:t("当前主力","Primary") },
+    { name:"SPY", desc:t("IV低、点差极小，但窄幅震荡频繁，theta磨损快。大盘趋势日可用，不是首选。","Low IV, tight spreads, but frequent narrow-range chop and fast theta decay. Usable on trend days — not the default."), tone:"slate", tag:t("备选","Backup") },
+    { name:"NVDA ✗", desc:t("消息面冲击大；开盘方向不可预测；已有负面记录，心理干扰风险；市价价差损耗严重。暂时回避。","High headline sensitivity; unpredictable opening direction; prior negative record adds psychological noise. Avoid for now."), tone:"red", tag:t("暂时回避","Avoid") },
+  ];
+  const vwapSteps = [
+    { step:"Step 1", title:t("接近VWAP","Approaching VWAP"), text:t("只观察，不抢跑，不直接开仓。","Observe only — no anticipation, no entries."), border:"border-white/10 bg-slate-900/58", tag:"text-slate-500" },
+    { step:"Step 2", title:t("等待确认","Await Confirmation"), text:t("Call看收回+9EMA上拐+量能1.5x；Put看反抽失败+跌回+量能1.5x。","Call: VWAP reclaim + 9EMA up + vol 1.5×. Put: failed bounce + drop + vol 1.5×."), border:"border-teal-300/25 bg-teal-500/10", tag:"text-teal-500" },
+    { step:"Step 3", title:t("执行/放弃","Execute / Abandon"), text:t("三项+时间全满足才进；反复穿越、无量直接放弃。","All 3 + time window satisfied → enter. Chop, no volume → abandon."), border:"border-red-300/35 bg-red-950/45", tag:"text-red-500" },
+  ];
+  const heatRows = [
+    {label:"09:30–09:45",status:t("禁做","Banned"),fill:8,barColor:"bg-red-600",note:t("开盘乱流，绝对禁区","Opening chaos — absolute no-entry zone")},
+    {label:"09:45–11:30",status:t("优先","Active"),fill:88,barColor:"bg-emerald-500",note:t("主战窗口，趋势确立后入场","Primary window — enter after trend establishes")},
+    {label:"11:30–16:00",status:t("禁做","Banned"),fill:12,barColor:"bg-red-600",note:t("11:30后不开新仓","No new positions after 11:30 ET")},
+  ];
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="01" title="美股期权买方系统 · QQQ专注" desc="固定QQQ，固定1张。每日开盘前填写GEX设置，再用三指标四条件执行。GEX决定今日是震荡模式还是趋势模式。" tone="teal">
-        {gexIsToday && (
-          <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>
-            {gexSetup.state==="positive"?"今日: 正GEX 震荡":"今日: 负GEX 趋势"}
-          </Badge>
-        )}
+      <SectionHeader number="01" title={t("美股期权买方系统 · QQQ专注","US Options Buyer System · QQQ Focus")} desc={t("固定QQQ，固定1张。每日开盘前填写GEX设置，再用三指标四条件执行。GEX决定今日是震荡模式还是趋势模式。","Fixed QQQ, fixed 1 contract. Set today's GEX before the open, then execute using the 3-indicator / 4-condition system. GEX determines today's regime.")} tone="teal">
+        {gexIsToday && <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexSetup.state==="positive"?t("今日: 正GEX 震荡","Today: Positive GEX Range"):t("今日: 负GEX 趋势","Today: Negative GEX Trend")}</Badge>}
       </SectionHeader>
-      <GEXDailySetupCard setup={gexSetup} onSave={onSaveGex} isToday={gexIsToday}/>
-      <GEXPanel setup={gexSetup} isToday={gexIsToday}/>
+      <GEXDailySetupCard setup={gexSetup} onSave={onSaveGex} isToday={gexIsToday} t={t}/>
+      <GEXPanel setup={gexSetup} isToday={gexIsToday} t={t} lang={lang}/>
       <div className="mb-5 rounded-[1.8rem] border-2 border-teal-400/35 bg-teal-950/20 p-5">
-        <div className="text-sm font-black text-teal-300 uppercase tracking-wider mb-4">三指标框架 · 缺一不可</div>
+        <div className="text-sm font-black text-teal-300 uppercase tracking-wider mb-4">{t("三指标框架 · 缺一不可","3-Indicator Framework · All Required")}</div>
         <div className="grid gap-4 md:grid-cols-3">
-          {[
-            { icon:BarChart2, title:"VWAP", role:"方向过滤器", rules:["价格在VWAP上方→只做Call","价格在VWAP下方→只做Put","VWAP附近横跳→不开仓"] },
-            { icon:TrendingUp, title:"EMA 9/21", role:"趋势确认", rules:["9EMA>21EMA且发散→多头趋势","9EMA<21EMA且发散→空头趋势","两线粘合/频繁交叉→不开仓"] },
-            { icon:Activity, title:"成交量", role:"动能确认（必须）", rules:["当前量>前5根平均量×1.5倍","仅方向+趋势无量→不开仓","三者缺一不可"] },
-          ].map(ind=>{const Icon=ind.icon;return(
+          {indicators.map(ind=>{const Icon=ind.icon;return(
             <div key={ind.title} className="rounded-2xl border border-teal-300/25 bg-teal-500/8 p-4">
               <div className="flex items-center gap-2 mb-3"><Icon className="h-5 w-5 text-teal-400"/><div><div className="text-base font-black text-teal-100">{ind.title}</div><div className="text-xs text-teal-400 font-bold">{ind.role}</div></div></div>
               {ind.rules.map((r,i)=><div key={i} className="flex items-start gap-1.5 mb-1"><div className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-2 flex-shrink-0"/><span className="text-xs font-bold text-slate-300 leading-5">{r}</span></div>)}
@@ -789,25 +810,21 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
         </div>
       </div>
       <div className="mb-5">
-        <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">四项入场条件 · 全部满足才开仓</div>
+        <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">{t("四项入场条件 · 全部满足才开仓","4 Entry Conditions · All Required to Enter")}</div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          {fourEntryConditions.map(cond=>(
+          {conditions.map(cond=>(
             <div key={cond.n} className="rounded-2xl border border-teal-300/20 bg-slate-800/50 p-4">
               <div className="flex items-center gap-2 mb-2"><div className="w-8 h-8 rounded-xl bg-teal-900/70 border border-teal-700/50 flex items-center justify-center text-sm font-black text-teal-400">{cond.n}</div><span className="text-sm font-black text-slate-50">{cond.title}</span></div>
               <p className="text-xs font-bold text-slate-400 leading-5">{cond.desc}</p>
             </div>
           ))}
         </div>
-        <div className="mt-3 rounded-2xl border border-red-300/35 bg-red-950/35 p-3 text-xs font-bold text-red-100">⚠️ 四项缺一不可。量能未达标→不开仓。11:30后→不开仓。没有例外。</div>
+        <div className="mt-3 rounded-2xl border border-red-300/35 bg-red-950/35 p-3 text-xs font-bold text-red-100">⚠️ {t("四项缺一不可。量能未达标→不开仓。11:30后→不开仓。没有例外。","All 4 non-negotiable. Volume below threshold → no entry. After 11:30 ET → no entry. Zero exceptions.")}</div>
       </div>
       <div className="mb-5">
-        <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">标的选择 · 当前主力QQQ</div>
+        <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">{t("标的选择 · 当前主力QQQ","Instrument Selection · Primary: QQQ")}</div>
         <div className="grid gap-3 md:grid-cols-3">
-          {[
-            { name:"QQQ ✓", desc:"趋势比个股干净，假突破少；流动性极好价差小；单一消息面影响小；复盘10天确认结构明显优于NVDA。", tone:"teal", tag:"当前主力" },
-            { name:"SPY", desc:"IV低、点差极小，但窄幅震荡频繁，theta磨损快。大盘趋势日可用，不是首选。", tone:"slate", tag:"备选" },
-            { name:"NVDA ✗", desc:"消息面冲击大；开盘方向不可预测；已有负面记录，心理干扰风险；市价价差损耗严重。暂时回避。", tone:"red", tag:"暂时回避" },
-          ].map(item=>(
+          {instruments.map(item=>(
             <Card key={item.name} className={cn("rounded-[1.5rem] p-4",item.tone==="teal"?"border-teal-300/25 bg-teal-500/8":item.tone==="red"?"border-red-300/25 bg-red-950/30":"border-white/10 bg-slate-900/40")}>
               <div className="mb-2 flex items-center justify-between"><span className="text-lg font-black text-slate-50">{item.name}</span><Badge tone={item.tone==="teal"?"teal":item.tone==="red"?"red":"slate"}>{item.tag}</Badge></div>
               <p className="text-xs font-bold leading-6 text-slate-400">{item.desc}</p>
@@ -817,31 +834,32 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
       </div>
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr] mb-5">
         <div>
-          <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">VWAP 状态机</div>
+          <div className="text-sm font-black text-slate-300 uppercase tracking-wider mb-3">{t("VWAP 状态机","VWAP State Machine")}</div>
           <div className="grid gap-3 md:grid-cols-3 mb-4">
-            {[
-              { step:"Step 1",title:"接近VWAP",text:"只观察，不抢跑，不直接开仓。",border:"border-white/10 bg-slate-900/58",tag:"text-slate-500" },
-              { step:"Step 2",title:"等待确认",text:"Call看收回+9EMA上拐+量能1.5x；Put看反抽失败+跌回+量能1.5x。",border:"border-teal-300/25 bg-teal-500/10",tag:"text-teal-500" },
-              { step:"Step 3",title:"执行/放弃",text:"三项+时间全满足才进；反复穿越、无量、量不足直接放弃。",border:"border-red-300/35 bg-red-950/45",tag:"text-red-500" },
-            ].map(s=><div key={s.step} className={cn("rounded-2xl border p-4",s.border)}><div className={cn("text-xs font-black uppercase tracking-wider mb-2",s.tag)}>{s.step}</div><div className="text-sm font-black text-slate-50">{s.title}</div><div className="mt-2 text-sm font-bold leading-6 text-slate-400">{s.text}</div></div>)}
+            {vwapSteps.map(s=><div key={s.step} className={cn("rounded-2xl border p-4",s.border)}><div className={cn("text-xs font-black uppercase tracking-wider mb-2",s.tag)}>{s.step}</div><div className="text-sm font-black text-slate-50">{s.title}</div><div className="mt-2 text-sm font-bold leading-6 text-slate-400">{s.text}</div></div>)}
           </div>
           <div className="mb-4 rounded-[1.6rem] border border-violet-300/25 bg-violet-950/20 p-4">
-            <div className="flex items-center gap-2 mb-3"><Lock className="h-4 w-4 text-violet-400"/><span className="text-sm font-black text-violet-300">VWAP扫流动性收回结构 · 仅观察</span><Badge tone="violet">观察中</Badge></div>
-            <p className="text-xs font-bold text-slate-400 leading-6 mb-3">开盘15-30分钟内价格冲出VWAP后迅速收回。需≥30次样本，成功率>60%后启用。</p>
+            <div className="flex items-center gap-2 mb-3"><Lock className="h-4 w-4 text-violet-400"/><span className="text-sm font-black text-violet-300">{t("VWAP扫流动性收回结构 · 仅观察","VWAP Liquidity Sweep Recovery · Observe Only")}</span><Badge tone="violet">{t("观察中","Observing")}</Badge></div>
+            <p className="text-xs font-bold text-slate-400 leading-6 mb-3">{t("开盘15-30分钟内价格冲出VWAP后迅速收回。需≥30次样本，成功率>60%后启用。","Price breaks VWAP within 15-30 min of open then quickly reclaims. Requires ≥30 sample observations with >60% success rate before going live.")}</p>
             <div className="grid gap-2 md:grid-cols-2">
-              {[{label:"当前状态",text:"只观察记录，不实盘",tone:"violet"},{label:"启用条件",text:"≥30次样本，成功率>60%",tone:"amber"},{label:"入场条件",text:"明显拒绝K线+量能+真正收回VWAP站稳",tone:"teal"},{label:"止损位置",text:"扫出去的高点或低点",tone:"red"}].map(item=><RuleCard key={item.label} {...item} icon={item.tone==="red"?Ban:CheckCircle2}/>)}
+              {[
+                {label:t("当前状态","Status"),text:t("只观察记录，不实盘","Observe and log only"),tone:"violet"},
+                {label:t("启用条件","Activation"),text:t("≥30次样本，成功率>60%","≥30 samples, success rate >60%"),tone:"amber"},
+                {label:t("入场条件","Entry"),text:t("明显拒绝K线+量能+真正收回VWAP站稳","Clear rejection candle + volume + genuine VWAP reclaim"),tone:"teal"},
+                {label:t("止损位置","Stop Location"),text:t("扫出去的高点或低点","The high or low of the sweep candle"),tone:"red"},
+              ].map(item=><RuleCard key={item.label} {...item} icon={item.tone==="red"?Ban:CheckCircle2}/>)}
             </div>
           </div>
         </div>
         <div className="grid gap-4">
-          <HeatBar rows={[{label:"09:30–09:45",status:"禁做",fill:8,barColor:"bg-red-600",note:"开盘乱流，绝对禁区"},{label:"09:45–11:30",status:"优先",fill:88,barColor:"bg-emerald-500",note:"主战窗口，趋势确立后入场"},{label:"11:30–16:00",status:"禁做",fill:12,barColor:"bg-red-600",note:"11:30后不开新仓"}]}/>
+          <HeatBar rows={heatRows} t={t}/>
           <Card className="rounded-[1.7rem] border-white/15 p-5">
-            <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-base font-black text-slate-50">合约与风控仪表</h3><Gauge className="h-5 w-5 text-slate-500"/></div>
+            <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-base font-black text-slate-50">{t("合约与风控仪表","Contract & Risk Dashboard")}</h3><Gauge className="h-5 w-5 text-slate-500"/></div>
             <div className="grid gap-3">
-              <VisualMeter label="Delta" left="激进0.35" right="深ITM 0.65" fill={55} tone="teal" note="ATM优先，约0.5"/>
-              <VisualMeter label="DTE" left="1DTE" right="45DTE" fill={22} tone="blue" note="日内1-5；波段14-45"/>
-              <VisualMeter label="价差" left="$0.01" right="$0.20+" fill={25} tone="amber" note="≤$0.05优；≥$0.15放弃"/>
-              <VisualMeter label="IVR" left="0（买方友好）" right="100（禁止裸买）" fill={30} tone="violet" note="<30单腿；>50不裸买"/>
+              <VisualMeter label="Delta" left={t("激进0.35","Aggr 0.35")} right={t("深ITM 0.65","Deep 0.65")} fill={55} tone="teal" note={t("ATM优先，约0.5","ATM ≈ 0.5")}/>
+              <VisualMeter label="DTE" left="1 DTE" right="45 DTE" fill={22} tone="blue" note={t("日内1-5；波段14-45","Intraday 1-5; swing 14-45")}/>
+              <VisualMeter label={t("价差","Spread")} left="$0.01" right="$0.20+" fill={25} tone="amber" note={t("≤$0.05优；≥$0.15放弃","≤$0.05 ideal; ≥$0.15 skip")}/>
+              <VisualMeter label="IVR" left={t("0（买方友好）","0 (buyer-friendly)")} right={t("100（禁止裸买）","100 (no naked)")} fill={30} tone="violet" note={t("<30单腿；>50不裸买","<30 single leg; >50 no naked")}/>
             </div>
           </Card>
         </div>
@@ -852,12 +870,13 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
   );
 }
 
-function GoldSystem() {
+function GoldSystem({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="02" title="黄金 XAU/USD 现货买卖" desc="外汇平台现货/差价合约交易，非期权。宏观驱动决定方向，SMC结构决定位置，Kill Zone决定时间。三层对齐才出手。" tone="amber"/>
+      <SectionHeader number="02" title={t("黄金 XAU/USD 现货买卖","Gold XAU/USD Spot Trading")} desc={t("外汇平台现货/差价合约交易，非期权。宏观驱动决定方向，SMC结构决定位置，Kill Zone决定时间。三层对齐才出手。","Spot/CFD leveraged trading on FX platform — NOT options. Macro drives direction, SMC determines level, Kill Zone determines timing. All three must align.")} tone="amber"/>
       <div className="mb-5">
-        <div className="mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-amber-400"/><h3 className="text-base font-black text-amber-300 uppercase tracking-wider">宏观驱动层（黄金真正的"大盘"）</h3></div>
+        <div className="mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-amber-400"/><h3 className="text-base font-black text-amber-300 uppercase tracking-wider">{t("宏观驱动层（黄金真正的"大盘"）","Macro Driver Layer (Gold's True 'Context')")}</h3></div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {goldMacroDrivers.map(item=>(
             <div key={item.driver} className={cn("rounded-2xl border p-4",item.tone==="red"?"border-red-300/35 bg-red-950/35":item.tone==="amber"?"border-amber-300/25 bg-amber-500/10":item.tone==="green"?"border-emerald-300/25 bg-emerald-500/10":item.tone==="blue"?"border-sky-300/25 bg-sky-500/10":"border-white/10 bg-slate-900/58")}>
@@ -866,50 +885,81 @@ function GoldSystem() {
             </div>
           ))}
         </div>
-        <div className="mt-3 rounded-2xl border border-red-300/35 bg-red-950/35 p-3 text-xs font-bold leading-6 text-red-100"><span className="font-black">方向确认规则：</span> 做多黄金前，确认DXY与实际利率未同时走强。若两者都在反向，不做或极小仓。</div>
+        <div className="mt-3 rounded-2xl border border-red-300/35 bg-red-950/35 p-3 text-xs font-bold leading-6 text-red-100"><span className="font-black">{t("方向确认规则：","Direction rule: ")}</span>{t("做多黄金前，确认DXY与实际利率未同时走强。若两者都在反向，不做或极小仓。","Before going long gold, confirm DXY and real rates are not both rising. If both reverse against you — pass or micro size.")}</div>
       </div>
-      <div className="mb-5"><ProcessRail tone="amber" steps={[{title:"日线定向",text:"宏观驱动方向+主结构OB+流动性格局"},{title:"4H/1H找位",text:"BSL/SSL流动性+FVG+POC集中区+结构重叠"},{title:"15M/5M确认",text:"等收回/拒绝/CHoCH·BOS，不在测试区抢跑"},{title:"只拿中间段",text:"止损放结构外；信号不完整，放弃。"}]}/></div>
-      <div className="mb-5"><KillZoneBoard items={[{title:"伦敦",text:"15:00–17:00 北京：扫亚洲盘高低点，常设定当日方向",cls:"border-amber-300/25 bg-amber-500/10",icon:CheckCircle2,iconCls:"text-amber-300"},{title:"纽约",text:"21:30–23:30 北京：扫伦敦高低后定方向，主要走势段",cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:"禁区",text:"亚洲盘中间位不追，FOMC/CPI发布瞬间方向未定不进",cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
+      <div className="mb-5"><ProcessRail tone="amber" steps={[{title:t("日线定向","Daily: Direction"),text:t("宏观驱动方向+主结构OB+流动性格局","Macro driver direction + major OB + liquidity landscape")},{title:t("4H/1H找位","4H/1H: Find Level"),text:t("BSL/SSL流动性+FVG+POC集中区+结构重叠","BSL/SSL liquidity + FVG + POC cluster + structural overlap")},{title:t("15M/5M确认","15M/5M: Confirm"),text:t("等收回/拒绝/CHoCH·BOS，不在测试区抢跑","Wait for reclaim / rejection / CHoCH·BOS — don't front-run the test zone")},{title:t("只拿中间段","Take Middle Leg"),text:t("止损放结构外；信号不完整，放弃。","Stop outside structure. Incomplete signal — pass.")}]}/></div>
+      <div className="mb-5"><KillZoneBoard items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：扫亚洲盘高低点，常设定当日方向","15:00–17:00 BJ: sweeps Asian highs/lows, often sets day's direction"),cls:"border-amber-300/25 bg-amber-500/10",icon:CheckCircle2,iconCls:"text-amber-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：扫伦敦高低后定方向，主要走势段","21:30–23:30 BJ: sweeps London levels then sets direction"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("禁区","Banned"),text:t("亚洲盘中间位不追，FOMC/CPI发布瞬间方向未定不进","Asian midrange: don't chase. FOMC/CPI publication: direction unknown, stay out"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
       <div className="grid gap-4 md:grid-cols-3">{goldModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
     </section>
   );
 }
-function ForexSystem() {
+function ForexSystem({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="03" title="EUR/USD 外汇系统" desc="趋势跟踪系统：EMA顺排+ADX确认趋势环境，回踩结构位等确认，只拿中间段。均线缠绕和低ADX时系统无效，不做。" tone="blue"/>
-      <ProcessRail tone="blue" steps={[{title:"趋势过滤",text:"EMA9/21/55顺排+ADX>25，先确认趋势环境"},{title:"Kill Zone",text:"伦敦/纽约开盘窗口，扫前高低点后定方向"},{title:"找回踩位",text:"回踩EMA21或关键结构位，等拒绝K线确认"},{title:"执行",text:"RR≥1:2；到1:1.5先锁一半；不追破位第一根"}]}/>
-      <div className="mt-5 mb-5"><KillZoneBoard items={[{title:"伦敦",text:"15:00–17:00 北京：EUR主要方向常在此确立",cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:"纽约",text:"21:30–23:30 北京：美国数据/纽约开盘是EUR第二主要时段",cls:"border-blue-300/25 bg-blue-500/10",icon:CheckCircle2,iconCls:"text-blue-300"},{title:"禁区",text:"ADX<20+均线缠绕/重大数据前后/亚洲盘中间位",cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
+      <SectionHeader number="03" title={t("EUR/USD 外汇系统","EUR/USD FX System")} desc={t("趋势跟踪系统：EMA顺排+ADX确认趋势环境，回踩结构位等确认，只拿中间段。均线缠绕和低ADX时系统无效，不做。","Trend-following system: EMA alignment + ADX confirms trend environment, pullback to structure for entry, take the middle leg only. Tangled EMAs or low ADX = system invalid.")} tone="blue"/>
+      <ProcessRail tone="blue" steps={[{title:t("趋势过滤","Trend Filter"),text:t("EMA9/21/55顺排+ADX>25，先确认趋势环境","EMA 9/21/55 aligned + ADX>25 — confirm trend first")},{title:"Kill Zone",text:t("伦敦/纽约开盘窗口，扫前高低点后定方向","London/NY open windows — sweep prior levels then set direction")},{title:t("找回踩位","Find Pullback"),text:t("回踩EMA21或关键结构位，等拒绝K线确认","Pullback to EMA21 or key structure, wait for rejection candle")},{title:t("执行","Execute"),text:t("RR≥1:2；到1:1.5先锁一半；不追破位第一根","RR ≥ 1:2; lock 50% at 1:1.5; never chase the first breakout candle")}]}/>
+      <div className="mt-5 mb-5"><KillZoneBoard items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：EUR主要方向常在此确立","15:00–17:00 BJ: EUR's primary direction usually established here"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：美国数据/纽约开盘是EUR第二主要时段","21:30–23:30 BJ: US data / NY open is EUR's second major session"),cls:"border-blue-300/25 bg-blue-500/10",icon:CheckCircle2,iconCls:"text-blue-300"},{title:t("禁区","Banned"),text:t("ADX<20+均线缠绕/重大数据前后/亚洲盘中间位","ADX<20 + tangled EMAs / around major data / Asian midrange"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
       <div className="grid gap-4 md:grid-cols-2">{eurModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
     </section>
   );
 }
-function StockSystem() {
+function StockSystem({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="04" title="美股正股 · 低频配置" desc="这是资金量大了以后的底仓系统，不是当前主战场。先筛公司质量，再等技术位置，最后低频持有。不做日内，不追热点。" tone="violet"/>
+      <SectionHeader number="04" title={t("美股正股 · 低频配置","US Equities · Low-Frequency Portfolio")} desc={t("这是资金量大了以后的底仓系统，不是当前主战场。先筛公司质量，再等技术位置，最后低频持有。不做日内，不追热点。","This is the compounding foundation for later — not the current battleground. Screen for company quality first, then wait for the technical level, then hold low-frequency.")} tone="violet"/>
       <div className="grid gap-4 md:grid-cols-3">
-        <FlowCard title="基本面筛选" badge="第一步" tone="violet" items={[{label:"营收/利润",text:"连续增长，行业景气，无重大负面"},{label:"质量筛选",text:"重视增长质量和护城河",tone:"blue"},{label:"不做",text:"只因K线好看/热点消息/情绪冲动",tone:"red",icon:Ban}]}/>
-        <FlowCard title="技术择时" badge="第二步" tone="violet" items={[{label:"周线",text:"趋势不坏，在关键支撑或突破回踩"},{label:"日线",text:"回调支撑，结构完整",tone:"teal"},{label:"60分钟",text:"日线确认后，60分钟找入场确认",tone:"blue"}]}/>
-        <FlowCard title="持仓管理" badge="第三步" tone="violet" items={[{label:"持有周期",text:"周线级别为基准，不做日内"},{label:"止损",text:"主结构下方，不因短期波动止损"},{label:"加仓",text:"等突破确认后再加，不在下跌中摊平",tone:"amber"}]}/>
+        {lang === "zh" ? <>
+          <FlowCard title="基本面筛选" badge="第一步" tone="violet" items={[{label:"营收/利润",text:"连续增长，行业景气，无重大负面"},{label:"质量筛选",text:"重视增长质量和护城河",tone:"blue"},{label:"不做",text:"只因K线好看/热点消息/情绪冲动",tone:"red",icon:Ban}]}/>
+          <FlowCard title="技术择时" badge="第二步" tone="violet" items={[{label:"周线",text:"趋势不坏，在关键支撑或突破回踩"},{label:"日线",text:"回调支撑，结构完整",tone:"teal"},{label:"60分钟",text:"日线确认后，60分钟找入场确认",tone:"blue"}]}/>
+          <FlowCard title="持仓管理" badge="第三步" tone="violet" items={[{label:"持有周期",text:"周线级别为基准，不做日内"},{label:"止损",text:"主结构下方，不因短期波动止损"},{label:"加仓",text:"等突破确认后再加，不在下跌中摊平",tone:"amber"}]}/>
+        </> : <>
+          <FlowCard title="Fundamental Screen" badge="Step 1" tone="violet" items={[{label:"Revenue/Profit",text:"Consistent growth, favorable industry, no major negatives"},{label:"Quality",text:"Prioritize growth quality and moat",tone:"blue"},{label:"Never",text:"Aesthetics / hype / emotional impulse",tone:"red",icon:Ban}]}/>
+          <FlowCard title="Technical Timing" badge="Step 2" tone="violet" items={[{label:"Weekly",text:"Trend intact; at key support or post-breakout pullback"},{label:"Daily",text:"Pullback to support, structure intact",tone:"teal"},{label:"60-min",text:"After daily confirmation, use 60-min for entry",tone:"blue"}]}/>
+          <FlowCard title="Position Management" badge="Step 3" tone="violet" items={[{label:"Holding Period",text:"Weekly timeframe as base — no intraday"},{label:"Stop",text:"Below major structure — not triggered by short-term volatility"},{label:"Adding",text:"Add after confirmed breakout only — never average down",tone:"amber"}]}/>
+        </>}
       </div>
     </section>
   );
 }
-function MacroAndModels() {
+function MacroAndModels({ lang }) {
+  const t = (zh, en) => lang === "zh" ? zh : en;
+  const dxyItems = [
+    {state:t("实际利率↓+DXY↓","Real rates↓ + DXY↓"),action:t("黄金最友好环境，可主动做多","Most favorable for gold — actively seek longs"),tone:"green"},
+    {state:t("单向下行（其一）","Single downside (either)"),action:t("偏多，需结构确认，不强追","Bullish bias — require structural confirmation"),tone:"amber"},
+    {state:t("双向平稳","Both stable"),action:t("中性，用SMC结构确认方向","Neutral — use SMC structure to confirm direction"),tone:"slate"},
+    {state:t("单向上行（其一）","Single upside (either)"),action:t("谨慎，降仓，等更好入场点","Cautious — reduce size, wait for better entry"),tone:"amber"},
+    {state:t("实际利率↑+DXY↑（双向压制）","Real rates↑ + DXY↑ (dual headwind)"),action:t("禁止做多，宏观双向压制","No longs — dual macro headwind"),tone:"red"},
+  ];
+  const evModels = lang === "zh" ? [
+    {title:"流动性扫单收回",badge:"黄金/EUR",tone:"amber",items:[{label:"场景",text:"扫前高/前低+重新收回结构"},{label:"触发",text:"长影线+CHoCH确认",tone:"teal"},{label:"EV特征",text:"中等胜率+高赔率。切忌只扫不收入场",tone:"amber"}]},
+    {title:"POC/FVG/OB共振",badge:"黄金",tone:"amber",items:[{label:"场景",text:"成本区+OB/FVG+流动性位重叠"},{label:"触发",text:"回踩拒绝+量能启动+宏观未反向",tone:"teal"},{label:"EV特征",text:"共振点越多胜率越高，穿透则放弃",tone:"amber"}]},
+    {title:"EMA趋势回踩",badge:"EUR",tone:"blue",items:[{label:"场景",text:"EMA顺排+ADX>25确认趋势"},{label:"触发",text:"回踩EMA21/结构位不破",tone:"teal"},{label:"EV特征",text:"趋势日胜率高，均线缠绕时期望值极差",tone:"blue"}]},
+    {title:"负GEX+VWAP破位顺势",badge:"QQQ期权",tone:"teal",items:[{label:"场景",text:"负GEX环境+VWAP失守/站不回+量能放大"},{label:"触发",text:"VWAP破位确认+9EMA顺势+量能1.5x",tone:"green"},{label:"EV特征",text:"负GEX日趋势延伸概率更高，是买方最好的环境",tone:"teal"}]},
+    {title:"正GEX VWAP回踩确认",badge:"QQQ期权",tone:"teal",items:[{label:"场景",text:"正GEX环境+价格回踩VWAP不破+量能确认"},{label:"触发",text:"VWAP收回+9EMA支撑+量能1.5x",tone:"green"},{label:"EV特征",text:"正GEX压波动，回归成功率高于追突破",tone:"teal"}]},
+    {title:"事件后IV回落",badge:"期权特有",tone:"green",items:[{label:"场景",text:"FOMC/CPI发布后，方向定盘，IV开始回落"},{label:"触发",text:"等二次确认，不追公布瞬间"},{label:"EV特征",text:"此时做debit/credit价差都有edge；IV降后买方才合理",tone:"green"}]},
+  ] : [
+    {title:"Liquidity Sweep Recovery",badge:"Gold/EUR",tone:"amber",items:[{label:"Setup",text:"Sweeps prior high/low then reclaims structure"},{label:"Trigger",text:"Long wick + CHoCH confirmation",tone:"teal"},{label:"EV Profile",text:"Moderate win rate + high payoff. Never enter on sweep without reclaim.",tone:"amber"}]},
+    {title:"POC/FVG/OB Convergence",badge:"Gold",tone:"amber",items:[{label:"Setup",text:"Cost cluster + OB/FVG + liquidity level overlap"},{label:"Trigger",text:"Rejection on pullback + momentum + macro not reversed",tone:"teal"},{label:"EV Profile",text:"More convergence = higher probability. Breach = abandon.",tone:"amber"}]},
+    {title:"EMA Trend Pullback",badge:"EUR",tone:"blue",items:[{label:"Setup",text:"EMA aligned + ADX>25 — trend confirmed"},{label:"Trigger",text:"Pullback to EMA21 / structure holds",tone:"teal"},{label:"EV Profile",text:"High win rate on trend days; terrible edge when EMAs are tangled",tone:"blue"}]},
+    {title:"Neg-GEX + VWAP Break",badge:"QQQ Options",tone:"teal",items:[{label:"Setup",text:"Negative GEX + VWAP lost / can't reclaim + volume expanding"},{label:"Trigger",text:"VWAP break confirmed + 9EMA directional + volume 1.5×",tone:"green"},{label:"EV Profile",text:"Negative GEX days have higher trend-extension probability — best buyer environment",tone:"teal"}]},
+    {title:"Pos-GEX VWAP Pullback",badge:"QQQ Options",tone:"teal",items:[{label:"Setup",text:"Positive GEX + price pulls back to VWAP but holds"},{label:"Trigger",text:"VWAP reclaim + 9EMA support + volume 1.5×",tone:"green"},{label:"EV Profile",text:"Positive GEX suppresses vol — pullback success rate higher than chasing breaks",tone:"teal"}]},
+    {title:"Post-Event IV Collapse",badge:"Options Specific",tone:"green",items:[{label:"Setup",text:"After FOMC/CPI: direction set, IV starting to fall"},{label:"Trigger",text:"Wait for second confirmation — don't chase the publication candle"},{label:"EV Profile",text:"Both debit and credit spreads have edge here; raw buyers should wait for IV to normalize",tone:"green"}]},
+  ];
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/74 p-5 md:p-7">
-      <SectionHeader number="05" title="宏观过滤 + 高期望值模型库" desc="双轨过滤：期权看VIX三档，黄金/外汇看DXY+实际利率。宏观只做环境过滤，不代替具体入场触发。" tone="slate"/>
+      <SectionHeader number="05" title={t("宏观过滤 + 高期望值模型库","Macro Filter + High EV Model Library")} desc={t("双轨过滤：期权看VIX三档，黄金/外汇看DXY+实际利率。宏观只做环境过滤，不代替具体入场触发。","Dual-track filtering: options use VIX three-tier; gold/FX use DXY + real rates. Macro only filters the environment — does not replace a specific entry trigger.")} tone="slate"/>
       <div className="grid gap-5 xl:grid-cols-2 mb-6">
-        <div><div className="mb-3"><Badge tone="teal">期权/美股 · VIX三档过滤</Badge></div><MacroRadarBoard/></div>
+        <div><div className="mb-3"><Badge tone="teal">{t("期权/美股 · VIX三档过滤","Options/Equities · VIX Three-Tier Filter")}</Badge></div><MacroRadarBoard/></div>
         <div>
-          <div className="mb-3"><Badge tone="amber">黄金/外汇 · 宏观过滤</Badge></div>
+          <div className="mb-3"><Badge tone="amber">{t("黄金/外汇 · 宏观过滤","Gold/FX · Macro Filter")}</Badge></div>
           <Card className="rounded-[1.5rem] border-white/15 p-4 mb-3">
-            <h4 className="text-base font-black text-slate-50 mb-3">DXY + 实际利率双维判断</h4>
+            <h4 className="text-base font-black text-slate-50 mb-3">{t("DXY + 实际利率双维判断","DXY + Real Rates Two-Dimensional Assessment")}</h4>
             <div className="grid gap-2">
-              {[{state:"实际利率↓+DXY↓",action:"黄金最友好环境，可主动做多",tone:"green"},{state:"单向下行（其一）",action:"偏多，需结构确认，不强追",tone:"amber"},{state:"双向平稳",action:"中性，用SMC结构确认方向",tone:"slate"},{state:"单向上行（其一）",action:"谨慎，降仓，等更好入场点",tone:"amber"},{state:"实际利率↑+DXY↑（双向压制）",action:"禁止做多，宏观双向压制",tone:"red"}].map(item=>(
+              {dxyItems.map(item=>(
                 <div key={item.state} className={cn("rounded-xl border px-3 py-2",item.tone==="green"?"border-emerald-300/25 bg-emerald-500/10":item.tone==="red"?"border-red-300/35 bg-red-950/35":item.tone==="amber"?"border-amber-300/25 bg-amber-500/10":"border-white/10 bg-slate-900/40")}>
-                  <div className="flex items-start justify-between gap-2"><span className="text-xs font-black text-slate-200">{item.state}</span><Badge tone={item.tone}>{item.tone==="green"?"友好":item.tone==="red"?"禁止":item.tone==="amber"?"谨慎":"中性"}</Badge></div>
+                  <div className="flex items-start justify-between gap-2"><span className="text-xs font-black text-slate-200">{item.state}</span><Badge tone={item.tone}>{item.tone==="green"?t("友好","Favorable"):item.tone==="red"?t("禁止","Forbidden"):item.tone==="amber"?t("谨慎","Caution"):t("中性","Neutral")}</Badge></div>
                   <div className="text-xs font-bold text-slate-400 mt-1">{item.action}</div>
                 </div>
               ))}
@@ -917,8 +967,8 @@ function MacroAndModels() {
           </Card>
         </div>
       </div>
-      <div className="mb-3 flex items-center gap-2"><h3 className="text-lg font-black text-slate-50">高期望值模型库</h3><Badge tone="teal">期望值=胜率×赔率，非单一指标</Badge></div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{highEvModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
+      <div className="mb-3 flex items-center gap-2"><h3 className="text-lg font-black text-slate-50">{t("高期望值模型库","High EV Model Library")}</h3><Badge tone="teal">{t("期望值=胜率×赔率，非单一指标","EV = win rate × payoff — not a single metric")}</Badge></div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{evModels.map(m=><FlowCard key={m.title} {...m}/>)}</div>
     </section>
   );
 }
@@ -1053,7 +1103,7 @@ export default function TradingModelTrainingSystem() {
   return (
     <div data-theme={theme} className="min-h-screen premium-terminal-bg text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <motion.header initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} className="mb-6 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
+        <motion.header initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} className="sea-header mb-6 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
           <div className="section-accent-bar h-3 bg-gradient-to-r from-red-700 via-teal-600 to-violet-700"/>
           <div className="p-6 md:p-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -1083,7 +1133,7 @@ export default function TradingModelTrainingSystem() {
             </div>
           </div>
         </motion.header>
-        <AccountRebuildingBanner/>
+        <AccountRebuildingBanner lang={lang}/>
         <SeaOSPanel lang={lang}/>
         <div className="mb-8 grid gap-4 md:grid-cols-4 xl:gap-5">
           {stats.map((s)=>{const Icon=s.icon;return(
@@ -1093,12 +1143,12 @@ export default function TradingModelTrainingSystem() {
             </Card>
           );})}
         </div>
-        <RiskSpineSection/>
+        <RiskSpineSection lang={lang}/>
         <OptionsSystem gexSetup={gexSetup} onSaveGex={saveGex} gexIsToday={gexIsToday} lang={lang}/>
-        <GoldSystem/>
-        <ForexSystem/>
-        <StockSystem/>
-        <MacroAndModels/>
+        <GoldSystem lang={lang}/>
+        <ForexSystem lang={lang}/>
+        <StockSystem lang={lang}/>
+        <MacroAndModels lang={lang}/>
         <DisciplineSystem gexIsToday={gexIsToday} lang={lang}/>
       </div>
     </div>
