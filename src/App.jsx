@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity, AlertTriangle, ArrowRight, Ban, BarChart3, Brain,
@@ -6,8 +6,25 @@ import {
   ShieldAlert, Target, TrendingUp, XCircle, Zap, Globe, Lock,
   BookOpen, BarChart2, Flame, TrendingDown, Edit3, Save, ExternalLink,
 } from "lucide-react";
+import { I } from './i18n.js';
 
 function cn(...c) { return c.filter(Boolean).join(" "); }
+
+/* ─── persistence helpers ─── */
+function ls(key, fallback) { try { const v = localStorage.getItem(key); return v !== null ? v : fallback; } catch { return fallback; } }
+function lsSet(key, val) { try { localStorage.setItem(key, val); } catch {} }
+
+/* ─── Theme & Language Hooks ─── */
+function useTheme() {
+  const [theme, setTheme] = useState(() => ls("sea-theme", "dark"));
+  const toggle = () => setTheme(t => { const n = t === "dark" ? "light" : "dark"; lsSet("sea-theme", n); return n; });
+  return { theme, toggle };
+}
+function useLang() {
+  const [lang, setLang] = useState(() => ls("sea-lang", "zh"));
+  const toggle = () => setLang(l => { const n = l === "zh" ? "en" : "zh"; lsSet("sea-lang", n); return n; });
+  return { lang, toggle };
+}
 
 /* ─── GEX Daily Setup Hook (localStorage, private to this browser) ─── */
 function useGEXDailySetup() {
@@ -458,19 +475,24 @@ function GEXPanel({ setup, isToday }) {
 }
 
 /* ─── 0DTE Mistakes ─── */
-function ZeroDTEMistakesCard() {
+function ZeroDTEMistakesCard({ lang }) {
+  const mistakes = I.zeroDTEMistakes.map(m => ({n:m.n, title:lang==="zh"?m.zh_t:m.en_t, desc:lang==="zh"?m.zh_d:m.en_d}));
+  const headline = lang==="zh" ? "日内期权十大致命误区 · 对照自查" : "10 Fatal Intraday Options Mistakes · Self-Check";
+  const insight = lang==="zh" ? "最大的亏损来源，不是看错行情，而是在错误的位置、错误的时间、用错误的仓位做了正确的方向。" : "The biggest source of losses is not a wrong direction — it's the right direction at the wrong place, wrong time, with the wrong size.";
+  const preQ = lang==="zh" ? ["我是在追单吗？","我离VWAP有多远？","如果止损，我能立刻认错吗？"] : ["Am I chasing?","How far am I from VWAP?","If stopped, can I accept it immediately?"];
+  const preLabel = (i) => lang==="zh" ? `入场前必问 ${i+1}` : `Pre-Entry Q${i+1}`;
   return (
     <div className="mb-5 rounded-[1.8rem] border border-red-400/25 bg-red-950/12 p-5">
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <AlertTriangle className="h-4 w-4 text-red-400" />
-        <span className="text-sm font-black text-red-300 uppercase tracking-wider">日内期权十大致命误区 · 对照自查</span>
+        <span className="text-sm font-black text-red-300 uppercase tracking-wider">{headline}</span>
       </div>
       <div className="mb-4 rounded-xl border border-amber-400/25 bg-amber-950/20 px-4 py-2.5">
-        <span className="text-xs font-black text-amber-300">核心结论：</span>
-        <span className="text-xs font-bold text-amber-200"> 最大的亏损来源，不是看错行情，而是在错误的位置、错误的时间、用错误的仓位做了正确的方向。</span>
+        <span className="text-xs font-black text-amber-300">{lang==="zh"?"核心结论：":"Key insight: "}</span>
+        <span className="text-xs font-bold text-amber-200"> {insight}</span>
       </div>
       <div className="grid gap-2 md:grid-cols-2">
-        {zeroDTEMistakes.map(m=>(
+        {mistakes.map(m=>(
           <div key={m.n} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-slate-900/40 px-3 py-2.5">
             <div className="w-7 h-7 flex-shrink-0 rounded-xl bg-red-900/60 border border-red-700/40 flex items-center justify-center text-xs font-black text-red-400">{m.n}</div>
             <div><div className="text-sm font-black text-red-200">{m.title}</div><div className="text-xs font-bold text-slate-400 leading-5 mt-0.5">{m.desc}</div></div>
@@ -478,9 +500,9 @@ function ZeroDTEMistakesCard() {
         ))}
       </div>
       <div className="mt-4 grid gap-2 md:grid-cols-3">
-        {["我是在追单吗？","我离VWAP有多远？","如果止损，我能立刻认错吗？"].map((q,i)=>(
+        {preQ.map((q,i)=>(
           <div key={i} className="rounded-xl border border-white/8 bg-slate-950/60 px-3 py-2 text-center">
-            <div className="text-[10px] font-black text-slate-500 uppercase mb-1">入场前必问 {i+1}</div>
+            <div className="text-[10px] font-black text-slate-500 uppercase mb-1">{preLabel(i)}</div>
             <div className="text-xs font-black text-slate-300">{q}</div>
           </div>
         ))}
@@ -617,6 +639,24 @@ function MacroRadarBoard() {
 }
 
 /* ─── ACCOUNT REBUILDING BANNER ─── */
+/* ─── THEME / LANG TOGGLE ─── */
+function ThemeLangControls({ theme, onTheme, lang, onLang }) {
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <button type="button" onClick={onTheme}
+        className="flex items-center gap-1.5 rounded-2xl border border-white/15 bg-slate-800/60 px-3 py-1.5 text-xs font-black text-slate-400 hover:text-slate-100 hover:border-white/30 transition select-none">
+        <span className="text-sm">{theme === "dark" ? "☀️" : "🌙"}</span>
+        <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
+      </button>
+      <button type="button" onClick={onLang}
+        className="flex items-center gap-1.5 rounded-2xl border border-white/15 bg-slate-800/60 px-3 py-1.5 text-xs font-black text-slate-400 hover:text-slate-100 hover:border-white/30 transition select-none">
+        <span className="text-sm">🌐</span>
+        <span>{lang === "zh" ? "EN" : "中文"}</span>
+      </button>
+    </div>
+  );
+}
+
 function AccountRebuildingBanner() {
   const [execCount,setExecCount]=useState(0);
   return (
@@ -651,30 +691,39 @@ function AccountRebuildingBanner() {
   );
 }
 
-function SeaOSPanel() {
+function SeaOSPanel({ lang }) {
+  const rules = I.seaIronRules.map(r => ({...r, text: r[lang === "zh" ? "zh" : "en"]}));
+  const beliefs = I.coreBeliefs.map(b => b[lang === "zh" ? "zh" : "en"]);
+  const coreLabel = lang === "zh" ? "核心信条" : "Core Beliefs";
+  const panelLabel = lang === "zh" ? "Sea 交易员铁律 · QQQ期权专项" : "Sea Trader Iron Rules · QQQ Options";
+  const qrLabel = lang === "zh" ? "Quick Reference · $1,000账户" : "Quick Reference · $1,000 Account";
+  const qrItems = lang === "zh"
+    ? [{label:"每笔止损",value:"−$20",tone:"red"},{label:"每笔目标",value:"+$40",tone:"green"},{label:"日亏熔断",value:"−$50",tone:"red"},{label:"时间止盈",value:"45分钟",tone:"amber"}]
+    : [{label:"Per-Trade Stop",value:"−$20",tone:"red"},{label:"Per-Trade Target",value:"+$40",tone:"green"},{label:"Daily Limit",value:"−$50",tone:"red"},{label:"Time Stop",value:"45 min",tone:"amber"}];
+  const coreTag = lang === "zh" ? "核心" : "Core";
   return (
     <div className="mb-6 rounded-[1.8rem] border border-white/15 bg-slate-950/80 p-5">
       <div className="grid gap-4 md:grid-cols-[1fr_280px]">
         <div>
-          <div className="flex items-center gap-2 mb-4"><Lock className="h-4 w-4 text-teal-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-teal-400">Sea 交易员铁律 · QQQ期权专项</span></div>
+          <div className="flex items-center gap-2 mb-4"><Lock className="h-4 w-4 text-teal-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-teal-400">{panelLabel}</span></div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {seaIronRules.map(rule=>(
+            {rules.map(rule=>(
               <div key={rule.n} className={cn("flex items-start gap-3 rounded-xl border px-3 py-2.5",rule.critical?"border-red-400/45 bg-red-950/40":"border-white/8 bg-slate-900/40")}>
                 <div className={cn("w-7 h-7 flex-shrink-0 rounded-xl flex items-center justify-center text-sm font-black",rule.critical?"bg-red-700 text-white":"bg-slate-800 text-slate-400")}>{rule.n}</div>
-                <span className={cn("text-sm font-bold leading-6",rule.critical?"text-red-200 font-black":"text-slate-300")}>{rule.text}{rule.critical&&<span className="ml-2 text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded-full font-black">核心</span>}</span>
+                <span className={cn("text-sm font-bold leading-6",rule.critical?"text-red-200 font-black":"text-slate-300")}>{rule.text}{rule.critical&&<span className="ml-2 text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded-full font-black">{coreTag}</span>}</span>
               </div>
             ))}
           </div>
         </div>
         <div className="space-y-4">
           <div className="rounded-2xl border border-teal-400/25 bg-teal-950/25 p-4">
-            <div className="text-xs font-black text-teal-400 uppercase tracking-wider mb-3">核心信条</div>
-            {coreBeliefs.map((b,i)=><div key={i} className="flex items-start gap-2 mb-2"><div className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-2 flex-shrink-0"/><span className="text-base font-black text-teal-100 leading-7">{b}</span></div>)}
+            <div className="text-xs font-black text-teal-400 uppercase tracking-wider mb-3">{coreLabel}</div>
+            {beliefs.map((b,i)=><div key={i} className="flex items-start gap-2 mb-2"><div className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-2 flex-shrink-0"/><span className="text-base font-black text-teal-100 leading-7">{b}</span></div>)}
           </div>
           <div className="rounded-2xl border border-amber-400/25 bg-amber-950/20 p-4">
-            <div className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2">Quick Reference · $1,000账户</div>
+            <div className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2">{qrLabel}</div>
             <div className="grid grid-cols-2 gap-2">
-              {[{label:"每笔止损",value:"-$20",tone:"red"},{label:"每笔目标",value:"+$40",tone:"green"},{label:"日亏熔断",value:"-$50",tone:"red"},{label:"时间止盈",value:"45分钟",tone:"amber"}].map(item=>(
+              {qrItems.map(item=>(
                 <div key={item.label} className={cn("rounded-xl p-2 text-center",item.tone==="red"?"bg-red-950/40 border border-red-400/30":item.tone==="green"?"bg-emerald-950/40 border border-emerald-400/30":"bg-amber-950/30 border border-amber-400/25")}>
                   <div className="text-[10px] font-black text-slate-500 uppercase">{item.label}</div>
                   <div className={cn("text-lg font-black mt-0.5",item.tone==="red"?"text-red-300":item.tone==="green"?"text-emerald-300":"text-amber-300")}>{item.value}</div>
@@ -712,7 +761,7 @@ function RiskSpineSection() {
   );
 }
 
-function OptionsSystem({ gexSetup, onSaveGex, gexIsToday }) {
+function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="01" title="美股期权买方系统 · QQQ专注" desc="固定QQQ，固定1张。每日开盘前填写GEX设置，再用三指标四条件执行。GEX决定今日是震荡模式还是趋势模式。" tone="teal">
@@ -797,7 +846,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday }) {
           </Card>
         </div>
       </div>
-      <ZeroDTEMistakesCard/>
+      <ZeroDTEMistakesCard lang={lang}/>
       <OptionPriceEstimator/>
     </section>
   );
@@ -874,27 +923,50 @@ function MacroAndModels() {
   );
 }
 
-function DisciplineSystem({ gexIsToday }) {
+function DisciplineSystem({ gexIsToday, lang }) {
+  const clItems = I.checklist.map(c => c[lang==="zh"?"zh":"en"]);
+  const pmItems = I.preMarketItems.map(p => ({text:p[lang==="zh"?"zh":"en"],warn:p[lang==="zh"?"zh_w":"en_w"]}));
+  const qs = I.questions.map(q => ({category:q.cat[lang==="zh"?"zh":"en"],q:q.q[lang==="zh"?"zh":"en"],options:q.opts[lang==="zh"?"zh":"en"],a:q.a,exp:q.exp[lang==="zh"?"zh":"en"]}));
+  const preTitle = lang==="zh" ? "开盘前检查（每日）" : "Pre-Market Checklist (Daily)";
+  const dayTitle = lang==="zh" ? "入场前清单" : "Entry Checklist";
+  const journalTitle = lang==="zh" ? "交易日志模板" : "Trade Journal Template";
+  const quizTitle = lang==="zh" ? "训练题库" : "Training Quiz";
+  const correctTxt = lang==="zh" ? "✓ 正确" : "✓ Correct";
+  const expTxt = lang==="zh" ? "解析" : "Explanation";
+  const nextTxt = lang==="zh" ? "下一题" : "Next Question";
+  const resultsTxt = lang==="zh" ? "查看成绩" : "See Results";
+  const retryTxt = lang==="zh" ? "再练一次" : "Try Again";
+  const scoreTxt = lang==="zh" ? "得分" : "Score";
+  const canEntryTxt = lang==="zh" ? "✓ 可以入场" : "✓ Ready to Enter";
+  const preDoneTxt = lang==="zh" ? "✓ 开盘前检查完毕" : "✓ Pre-Market Checklist Complete";
+  const reviewItems = lang==="zh"
+    ? ["哪种情绪状态下胜率最低？","正GEX日vs负GEX日，胜率有何差异？","被铁律拦截的交易，事后证明拦对了多少？","哪类进场理由是自我欺骗？"]
+    : ["Which emotional state correlates with the lowest win rate?","How does win rate differ on Positive vs Negative GEX days?","Of trades blocked by iron rules, how many proved correct in hindsight?","Which entry rationale categories were self-deception?"];
+  const scoreMsg = (score, total) => {
+    if (score >= total*0.87) return lang==="zh" ? "优秀，系统理解扎实" : "Excellent — system understanding is solid";
+    if (score >= total*0.7) return lang==="zh" ? "良好，继续复习薄弱点" : "Good — keep reviewing weak areas";
+    return lang==="zh" ? "需要加强，重读规则再练" : "Needs work — reread the rules then retry";
+  };
   const [preChecked,setPreChecked]=useState(()=>gexIsToday?{4:true}:{});
   const [dayChecked,setDayChecked]=useState(()=>gexIsToday?{0:true}:{});
   const [qIndex,setQIndex]=useState(0);const [selected,setSelected]=useState(null);const [score,setScore]=useState(0);const [done,setDone]=useState(false);
   const preCount=Object.values(preChecked).filter(Boolean).length;
   const dayCount=Object.values(dayChecked).filter(Boolean).length;
-  const q=questions[qIndex];
+  const q=qs[qIndex];
   const handleAnswer=(idx)=>{if(selected!==null)return;setSelected(idx);if(idx===q.a)setScore(s=>s+1);};
-  const nextQ=()=>{if(qIndex<questions.length-1){setQIndex(i=>i+1);setSelected(null);}else setDone(true);};
+  const nextQ=()=>{if(qIndex<qs.length-1){setQIndex(i=>i+1);setSelected(null);}else setDone(true);};
   const reset=()=>{setQIndex(0);setSelected(null);setScore(0);setDone(false);};
   return (
     <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
-      <SectionHeader number="07" title="纪律系统与训练" desc="开盘前检查+入场前清单（GEX设置后自动打钩）+训练闭环。每笔交易过清单，每周做题。" tone="slate"/>
+      <SectionHeader number="07" title={lang==="zh"?"纪律系统与训练":"Discipline System & Training"} desc={lang==="zh"?"开盘前检查+入场前清单（GEX设置后自动打钩）+训练闭环。每笔交易过清单，每周做题。":"Pre-market checklist + entry checklist (GEX auto-checks when set) + training loop. Checklist before every trade. Quiz weekly."} tone="slate"/>
       <div className="grid gap-5 xl:grid-cols-3 mb-5">
         <Card className="rounded-[1.8rem] border-white/15 p-5">
           <div className="flex items-center justify-between gap-3 mb-4">
-            <h3 className="text-base font-black text-slate-50">开盘前检查（每日）</h3>
-            <div className="flex items-center gap-2"><span className="text-sm font-black text-slate-400">{preCount}/{preMarketItems.length}</span><div className="h-2 w-16 rounded-full bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-amber-500 transition-all" style={{width:`${preCount/preMarketItems.length*100}%`}}/></div></div>
+            <h3 className="text-base font-black text-slate-50">{preTitle}</h3>
+            <div className="flex items-center gap-2"><span className="text-sm font-black text-slate-400">{preCount}/{pmItems.length}</span><div className="h-2 w-16 rounded-full bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-amber-500 transition-all" style={{width:`${preCount/pmItems.length*100}%`}}/></div></div>
           </div>
           <div className="space-y-2">
-            {preMarketItems.map((item,i)=>(
+            {pmItems.map((item,i)=>(
               <motion.div key={i} whileHover={{x:4}} onClick={()=>setPreChecked(p=>({...p,[i]:!p[i]}))}
                 className={cn("flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition",preChecked[i]?"border-amber-300/35 bg-amber-500/10":"border-white/10 bg-slate-900/40 hover:border-white/20")}>
                 <div className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-xl border-2 mt-0.5",preChecked[i]?"border-amber-400 bg-amber-500":"border-slate-600")}>{preChecked[i]&&<CheckCircle2 className="h-4 w-4 text-white"/>}</div>
@@ -902,26 +974,25 @@ function DisciplineSystem({ gexIsToday }) {
               </motion.div>
             ))}
           </div>
-          {preCount===preMarketItems.length&&<div className="mt-3 rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-center text-sm font-black text-amber-100">✓ 开盘前检查完毕</div>}
+          {preCount===pmItems.length&&<div className="mt-3 rounded-2xl border border-amber-300/35 bg-amber-500/10 p-3 text-center text-sm font-black text-amber-100">{preDoneTxt}</div>}
         </Card>
         <Card className="rounded-[1.8rem] border-white/15 p-5">
           <div className="flex items-center justify-between gap-3 mb-4">
-            <h3 className="text-base font-black text-slate-50">入场前清单</h3>
-            <div className="flex items-center gap-2"><span className="text-sm font-black text-slate-400">{dayCount}/{checklist.length}</span><div className="h-2 w-16 rounded-full bg-slate-800 overflow-hidden"><div className={cn("h-full rounded-full transition-all",dayCount===checklist.length?"bg-emerald-500":dayCount>9?"bg-amber-500":"bg-red-500")} style={{width:`${dayCount/checklist.length*100}%`}}/></div></div>
+            <h3 className="text-base font-black text-slate-50">{dayTitle}</h3>
+            <div className="flex items-center gap-2"><span className="text-sm font-black text-slate-400">{dayCount}/{clItems.length}</span><div className="h-2 w-16 rounded-full bg-slate-800 overflow-hidden"><div className={cn("h-full rounded-full transition-all",dayCount===clItems.length?"bg-emerald-500":dayCount>9?"bg-amber-500":"bg-red-500")} style={{width:`${dayCount/clItems.length*100}%`}}/></div></div>
           </div>
           <div className="space-y-1.5">
-            {checklist.map((item,i)=>(
-              <motion.div key={i} whileHover={{x:4}} onClick={()=>setDayChecked(p=>({...p,[i]:!p[i]}))}
-                className={cn("flex items-start gap-3 rounded-xl border p-2.5 cursor-pointer transition",dayChecked[i]?"border-teal-300/35 bg-teal-500/10":"border-white/10 bg-slate-900/40 hover:border-white/20")}>
+            {clItems.map((item,i)=>(
+              <motion.div key={i} whileHover={{x:4}} onClick={()=>setDayChecked(p=>({...p,[i]:!p[i]}))} className={cn("flex items-start gap-3 rounded-xl border p-2.5 cursor-pointer transition",dayChecked[i]?"border-teal-300/35 bg-teal-500/10":"border-white/10 bg-slate-900/40 hover:border-white/20")}>
                 <div className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border-2 mt-0.5",dayChecked[i]?"border-teal-400 bg-teal-500":"border-slate-600")}>{dayChecked[i]&&<CheckCircle2 className="h-3 w-3 text-white"/>}</div>
                 <span className={cn("text-xs font-bold leading-5",dayChecked[i]?"text-teal-100":"text-slate-300")}>{item}</span>
               </motion.div>
             ))}
           </div>
-          {dayCount===checklist.length&&<div className="mt-3 rounded-xl border border-teal-300/35 bg-teal-500/10 p-2 text-center text-sm font-black text-teal-100">✓ 可以入场</div>}
+          {dayCount===clItems.length&&<div className="mt-3 rounded-xl border border-teal-300/35 bg-teal-500/10 p-2 text-center text-sm font-black text-teal-100">{canEntryTxt}</div>}
         </Card>
         <Card className="rounded-[1.8rem] border-white/15 p-5">
-          <div className="flex items-center gap-2 mb-4"><BookOpen className="h-4 w-4 text-slate-400"/><h3 className="text-base font-black text-slate-50">交易日志模板</h3></div>
+          <div className="flex items-center gap-2 mb-4"><BookOpen className="h-4 w-4 text-slate-400"/><h3 className="text-base font-black text-slate-50">{journalTitle}</h3></div>
           <div className="space-y-2 mb-4">
             {journalFields.map((item,i)=>(
               <div key={i} className="flex items-start gap-2 rounded-xl border border-white/8 bg-slate-900/40 px-3 py-2">
@@ -931,20 +1002,20 @@ function DisciplineSystem({ gexIsToday }) {
             ))}
           </div>
           <div className="rounded-2xl border border-violet-300/25 bg-violet-950/20 p-3">
-            <div className="text-xs font-black text-violet-300 mb-1">复盘分析重点</div>
-            {["哪种情绪状态下胜率最低？","正GEX日vs负GEX日，胜率有何差异？","被铁律拦截的交易，事后证明拦对了多少？","哪类进场理由是自我欺骗？"].map((t,i)=><div key={i} className="flex items-start gap-1.5 mb-1"><div className="w-1 h-1 rounded-full bg-violet-500 mt-2 flex-shrink-0"/><span className="text-xs font-bold text-slate-400">{t}</span></div>)}
+            <div className="text-xs font-black text-violet-300 mb-1">{lang==="zh"?"复盘分析重点":"Monthly Review Focus"}</div>
+            {reviewItems.map((tx,i)=><div key={i} className="flex items-start gap-1.5 mb-1"><div className="w-1 h-1 rounded-full bg-violet-500 mt-2 flex-shrink-0"/><span className="text-xs font-bold text-slate-400">{tx}</span></div>)}
           </div>
-          <div className="mt-3 rounded-xl border border-white/8 bg-slate-900/40 p-3 text-xs font-bold text-slate-500">工具：TradingView Bar Replay + Excel/Notion</div>
+          <div className="mt-3 rounded-xl border border-white/8 bg-slate-900/40 p-3 text-xs font-bold text-slate-500">TradingView Bar Replay + Excel / Notion</div>
         </Card>
       </div>
       <Card className="rounded-[1.8rem] border-white/15 p-5">
-        <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-xl font-black text-slate-50">训练题库</h3><Badge tone="violet">{done?`得分 ${score}/${questions.length}`:`${qIndex+1}/${questions.length}`}</Badge></div>
+        <div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-xl font-black text-slate-50">{quizTitle}</h3><Badge tone="violet">{done?`${scoreTxt} ${score}/${qs.length}`:`${qIndex+1}/${qs.length}`}</Badge></div>
         {done?(
           <div className="text-center py-8">
             <Brain className="h-12 w-12 mx-auto mb-4 text-violet-400"/>
-            <div className="text-3xl font-black text-violet-100 mb-2">{score}/{questions.length}</div>
-            <div className="text-slate-400 font-bold mb-6">{score>=questions.length*0.87?"优秀，系统理解扎实":score>=questions.length*0.7?"良好，继续复习薄弱点":"需要加强，重读规则再练"}</div>
-            <button type="button" onClick={reset} className="rounded-2xl bg-violet-700 px-6 py-3 text-sm font-black text-white hover:bg-violet-800 transition">再练一次</button>
+            <div className="text-3xl font-black text-violet-100 mb-2">{score}/{qs.length}</div>
+            <div className="text-slate-400 font-bold mb-6">{scoreMsg(score, qs.length)}</div>
+            <button type="button" onClick={reset} className="rounded-2xl bg-violet-700 px-6 py-3 text-sm font-black text-white hover:bg-violet-800 transition">{retryTxt}</button>
           </div>
         ):(
           <>
@@ -957,8 +1028,8 @@ function DisciplineSystem({ gexIsToday }) {
                 </motion.button>
               ))}
             </div>
-            {selected!==null&&<div className={cn("rounded-2xl border p-4 mb-4",selected===q.a?"border-emerald-300/35 bg-emerald-500/10":"border-amber-300/35 bg-amber-500/10")}><div className={cn("text-xs font-black mb-1",selected===q.a?"text-emerald-300":"text-amber-300")}>{selected===q.a?"✓ 正确":"解析"}</div><p className={cn("text-sm font-bold leading-6",selected===q.a?"text-emerald-100":"text-amber-100")}>{q.exp}</p></div>}
-            {selected!==null&&<button type="button" onClick={nextQ} className="w-full rounded-2xl bg-teal-700 px-6 py-3 text-sm font-black text-white hover:bg-teal-800 transition flex items-center justify-center gap-2">{qIndex<questions.length-1?"下一题":"查看成绩"}<ChevronRight className="h-4 w-4"/></button>}
+            {selected!==null&&<div className={cn("rounded-2xl border p-4 mb-4",selected===q.a?"border-emerald-300/35 bg-emerald-500/10":"border-amber-300/35 bg-amber-500/10")}><div className={cn("text-xs font-black mb-1",selected===q.a?"text-emerald-300":"text-amber-300")}>{selected===q.a?correctTxt:expTxt}</div><p className={cn("text-sm font-bold leading-6",selected===q.a?"text-emerald-100":"text-amber-100")}>{q.exp}</p></div>}
+            {selected!==null&&<button type="button" onClick={nextQ} className="w-full rounded-2xl bg-teal-700 px-6 py-3 text-sm font-black text-white hover:bg-teal-800 transition flex items-center justify-center gap-2">{qIndex<qs.length-1?nextTxt:resultsTxt}<ChevronRight className="h-4 w-4"/></button>}
           </>
         )}
       </Card>
@@ -968,28 +1039,52 @@ function DisciplineSystem({ gexIsToday }) {
 
 /* ─── MAIN ─── */
 export default function TradingModelTrainingSystem() {
+  const { theme, toggle: toggleTheme } = useTheme();
+  const { lang, toggle: toggleLang } = useLang();
   const { setup: gexSetup, saveSetup: saveGex, isToday: gexIsToday } = useGEXDailySetup();
+  const t = useCallback((zh, en) => lang === "zh" ? zh : en, [lang]);
   const stats = useMemo(()=>[
-    { label:"交易方向",value:"4类",icon:Layers,tone:"bg-teal-700" },
-    { label:"执行模型",value:"13组",icon:Activity,tone:"bg-amber-600" },
-    { label:"入场清单",value:`${checklist.length}项`,icon:ShieldAlert,tone:"bg-red-700" },
-    { label:"训练题",value:`${questions.length}题`,icon:Brain,tone:"bg-violet-700" },
-  ],[]);
+    { label:t("交易方向","Directions"), value:"4", icon:Layers, tone:"bg-teal-700" },
+    { label:t("执行模型","EV Models"), value:"13", icon:Activity, tone:"bg-amber-600" },
+    { label:t("入场清单","Checklist"), value:`${I.checklist.length}`, icon:ShieldAlert, tone:"bg-red-700" },
+    { label:t("训练题","Quiz"), value:`${I.questions.length}`, icon:Brain, tone:"bg-violet-700" },
+  ],[lang]);
+  const gexBadge = gexIsToday ? (gexSetup.state==="positive" ? t("今日正GEX","Today: +GEX") : t("今日负GEX","Today: −GEX")) : null;
   return (
-    <div className="min-h-screen premium-terminal-bg text-slate-100">
+    <div data-theme={theme} className="min-h-screen premium-terminal-bg text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <motion.header initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} className="mb-6 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
           <div className="section-accent-bar h-3 bg-gradient-to-r from-red-700 via-teal-600 to-violet-700"/>
           <div className="p-6 md:p-8">
-            <div className="mb-4 flex flex-wrap gap-2"><Badge tone="red">风控优先</Badge><Badge tone="violet">GEX每日设置</Badge><Badge tone="teal">QQQ专注期权</Badge><Badge tone="amber">黄金现货</Badge><Badge tone="blue">EUR/USD</Badge>{gexIsToday&&<Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexSetup.state==="positive"?"今日正GEX":"今日负GEX"}</Badge>}</div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge tone="red">{t("风控优先","Risk First")}</Badge>
+                <Badge tone="violet">{t("GEX每日设置","GEX Daily Setup")}</Badge>
+                <Badge tone="teal">QQQ</Badge>
+                <Badge tone="amber">{t("黄金现货","Gold Spot")}</Badge>
+                <Badge tone="blue">EUR/USD</Badge>
+                {gexBadge && <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexBadge}</Badge>}
+              </div>
+              <ThemeLangControls theme={theme} onTheme={toggleTheme} lang={lang} onLang={toggleLang}/>
+            </div>
             <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
-              <div><h1 className="text-4xl font-black tracking-tight text-slate-50 md:text-6xl">Sea Trading OS</h1><p className="mt-3 text-base font-semibold leading-8 text-slate-300">把交易决策压缩成四个动作：<KeyWord>看什么</KeyWord> <KeyWord tone="blue">等什么</KeyWord> <KeyWord tone="green">做什么</KeyWord> <KeyWord tone="red">不做什么</KeyWord>。风控脊柱在所有模块之前。GEX决定今日节奏。</p></div>
-              <div className="rounded-[1.5rem] border-2 border-red-300/35 bg-red-950/45 p-4 shadow-lg"><div className="flex items-center gap-2 text-red-100 mb-2"><AlertTriangle className="h-5 w-5"/><span className="font-black">总原则</span></div><p className="text-sm font-bold leading-7 text-red-100">信号不完整，不交易。GEX未填写，不交易。规则不清晰，不交易。情绪不稳定，不交易。</p></div>
+              <div>
+                <h1 className="text-4xl font-black tracking-tight text-slate-50 md:text-6xl">Sea Trading OS</h1>
+                <p className="mt-3 text-base font-semibold leading-8 text-slate-300">
+                  {t("把交易决策压缩成四个动作：","Compress every decision into four actions: ")}
+                  <KeyWord>{t("看什么","See")}</KeyWord> <KeyWord tone="blue">{t("等什么","Wait")}</KeyWord> <KeyWord tone="green">{t("做什么","Do")}</KeyWord> <KeyWord tone="red">{t("不做什么","Don't")}</KeyWord>
+                  {t("。风控脊柱在所有模块之前。GEX决定今日节奏。",". Risk Spine before everything. GEX determines today's regime.")}
+                </p>
+              </div>
+              <div className="rounded-[1.5rem] border-2 border-red-300/35 bg-red-950/45 p-4 shadow-lg">
+                <div className="flex items-center gap-2 text-red-100 mb-2"><AlertTriangle className="h-5 w-5"/><span className="font-black">{t("总原则","Core Principle")}</span></div>
+                <p className="text-sm font-bold leading-7 text-red-100">{t("信号不完整，不交易。GEX未填写，不交易。规则不清晰，不交易。情绪不稳定，不交易。","Incomplete signal → no trade. GEX not set → no trade. Unclear rules → no trade. Unstable emotions → no trade.")}</p>
+              </div>
             </div>
           </div>
         </motion.header>
         <AccountRebuildingBanner/>
-        <SeaOSPanel/>
+        <SeaOSPanel lang={lang}/>
         <div className="mb-8 grid gap-4 md:grid-cols-4 xl:gap-5">
           {stats.map((s)=>{const Icon=s.icon;return(
             <Card key={s.label} className="relative overflow-hidden rounded-[1.6rem] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.86),rgba(15,23,42,0.62))] p-5">
@@ -999,12 +1094,12 @@ export default function TradingModelTrainingSystem() {
           );})}
         </div>
         <RiskSpineSection/>
-        <OptionsSystem gexSetup={gexSetup} onSaveGex={saveGex} gexIsToday={gexIsToday}/>
+        <OptionsSystem gexSetup={gexSetup} onSaveGex={saveGex} gexIsToday={gexIsToday} lang={lang}/>
         <GoldSystem/>
         <ForexSystem/>
         <StockSystem/>
         <MacroAndModels/>
-        <DisciplineSystem gexIsToday={gexIsToday}/>
+        <DisciplineSystem gexIsToday={gexIsToday} lang={lang}/>
       </div>
     </div>
   );
