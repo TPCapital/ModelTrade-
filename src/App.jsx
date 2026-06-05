@@ -339,7 +339,7 @@ function GEXDailySetupCard({ setup, onSave, isToday, t: tProp, lang = safeLang()
     ? { bg:"border-emerald-400/35 bg-emerald-950/15", dot:"bg-emerald-400", text:"text-emerald-300", label:`${t("今日已设置", "Set Today")} · ${setup.time}`, badge:"bg-emerald-900/60 text-emerald-300" }
     : { bg:"border-amber-400/40 bg-amber-950/18", dot:"bg-amber-400 animate-pulse", text:"text-amber-300", label:t("今日尚未设置 · 开盘前必填", "Not Set Today · Required Before Open"), badge:"bg-amber-900/60 text-amber-300" };
   return (
-    <div className={cn("mb-5 rounded-[1.8rem] border-2 p-5 transition", statusBar.bg)}>
+    <div id="gex-daily-setup" className={cn("scroll-target mb-5 rounded-[1.8rem] border-2 p-5 transition", statusBar.bg)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", statusBar.dot)} />
@@ -703,7 +703,7 @@ function AccountRebuildingBanner({ lang }) {
     ? [{account:"黄金账户",pattern:"稳定盈利→放大仓位→震荡行情→爆仓"},{account:"期权账户",pattern:"小额稳定→放大张数+开盘进场→3天-50%"}]
     : [{account:"Gold Account",pattern:"Stable profit → scale up → choppy market → blown out"},{account:"Options Account",pattern:"Small stable gains → more contracts + opening entries → −50% in 3 days"}];
   return (
-    <div className="account-rebuild-banner mb-6 rounded-[1.8rem] border-2 border-red-400/40 bg-red-950/30 p-5">
+    <div id="account-rebuild" className="scroll-target account-rebuild-banner mb-6 rounded-[1.8rem] border-2 border-red-400/40 bg-red-950/30 p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2"><Flame className="h-5 w-5 text-red-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">{t("账户重建阶段","Account Rebuilding Phase")}</span><Badge tone="red">{t("当前余额 ~$1,000","Current Balance ~$1,000")}</Badge></div>
@@ -784,7 +784,7 @@ function SeaOSPanel({ lang }) {
 function RiskSpineSection({ lang }) {
   const t = (zh, en) => lang === "zh" ? zh : en;
   return (
-    <section className="mb-8 rounded-[2.2rem] border-2 border-teal-300/35 bg-slate-950/70 p-5 md:p-7">
+    <section id="risk-spine" className="scroll-target mb-8 rounded-[2.2rem] border-2 border-teal-300/35 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="00" title={t("风控脊柱","Risk Spine")} desc={t("先活下来，才能谈翻倍。亏50%需要赚100%回本。所有其他模块挂在这根脊柱下面，每笔交易之前必过此关。","Survive first, profit second. −50% requires +100% to recover. Every module hangs from this spine — required before every entry.")} tone="red"/>
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <RiskCalculator lang={lang}/>
@@ -829,7 +829,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
     {label:"11:30–16:00",status:t("禁做","Banned"),fill:12,barColor:"bg-red-600",note:t("11:30后不开新仓","No new positions after 11:30 ET")},
   ];
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
+    <section id="qqq-options" className="scroll-target mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="01" title={t("美股期权买方系统 · QQQ专注","US Options Buyer System · QQQ Focus")} desc={t("固定QQQ，固定1张。每日开盘前填写GEX设置，再用三指标四条件执行。GEX决定今日是震荡模式还是趋势模式。","Fixed QQQ, fixed 1 contract. Set today's GEX before the open, then execute using the 3-indicator / 4-condition system. GEX determines today's regime.")} tone="teal">
         {gexIsToday && <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexSetup.state==="positive"?t("今日: 正GEX 震荡","Today: Positive GEX Range"):t("今日: 负GEX 趋势","Today: Negative GEX Trend")}</Badge>}
       </SectionHeader>
@@ -910,7 +910,7 @@ function OptionsSystem({ gexSetup, onSaveGex, gexIsToday, lang }) {
 function GoldSystem({ lang }) {
   const t = (zh, en) => lang === "zh" ? zh : en;
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
+    <section id="gold-spot" className="scroll-target mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="02" title={t("黄金 XAU/USD 现货买卖","Gold XAU/USD Spot Trading")} desc={t("外汇平台现货/差价合约交易，非期权。宏观驱动决定方向，SMC结构决定位置，Kill Zone决定时间。三层对齐才出手。","Spot/CFD leveraged trading on FX platform — NOT options. Macro drives direction, SMC determines level, Kill Zone determines timing. All three must align.")} tone="amber"/>
       <div className="mb-5">
         <div className="mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-amber-400"/><h3 className="text-base font-black text-amber-300 uppercase tracking-wider">{t("宏观驱动层（黄金真正的“大盘”）","Macro Driver Layer (Gold's True 'Context')")}</h3></div>
@@ -933,7 +933,7 @@ function GoldSystem({ lang }) {
 function ForexSystem({ lang }) {
   const t = (zh, en) => lang === "zh" ? zh : en;
   return (
-    <section className="mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
+    <section id="eur-usd" className="scroll-target mb-8 rounded-[2.2rem] border border-white/15 bg-slate-950/70 p-5 md:p-7">
       <SectionHeader number="03" title={t("EUR/USD 外汇系统","EUR/USD FX System")} desc={t("趋势跟踪系统：EMA顺排+ADX确认趋势环境，回踩结构位等确认，只拿中间段。均线缠绕和低ADX时系统无效，不做。","Trend-following system: EMA alignment + ADX confirms trend environment, pullback to structure for entry, take the middle leg only. Tangled EMAs or low ADX = system invalid.")} tone="blue"/>
       <ProcessRail tone="blue" steps={[{title:t("趋势过滤","Trend Filter"),text:t("EMA9/21/55顺排+ADX>25，先确认趋势环境","EMA 9/21/55 aligned + ADX>25 — confirm trend first")},{title:"Kill Zone",text:t("伦敦/纽约开盘窗口，扫前高低点后定方向","London/NY open windows — sweep prior levels then set direction")},{title:t("找回踩位","Find Pullback"),text:t("回踩EMA21或关键结构位，等拒绝K线确认","Pullback to EMA21 or key structure, wait for rejection candle")},{title:t("执行","Execute"),text:t("RR≥1:2；到1:1.5先锁一半；不追破位第一根","RR ≥ 1:2; lock 50% at 1:1.5; never chase the first breakout candle")}]}/>
       <div className="mt-5 mb-5"><KillZoneBoard lang={lang} items={[{title:t("伦敦","London"),text:t("15:00–17:00 北京：EUR主要方向常在此确立","15:00–17:00 BJ: EUR's primary direction usually established here"),cls:"border-sky-300/25 bg-sky-500/10",icon:CheckCircle2,iconCls:"text-sky-300"},{title:t("纽约","New York"),text:t("21:30–23:30 北京：美国数据/纽约开盘是EUR第二主要时段","21:30–23:30 BJ: US data / NY open is EUR's second major session"),cls:"border-blue-300/25 bg-blue-500/10",icon:CheckCircle2,iconCls:"text-blue-300"},{title:t("禁区","Banned"),text:t("ADX<20+均线缠绕/重大数据前后/亚洲盘中间位","ADX<20 + tangled EMAs / around major data / Asian midrange"),cls:"border-red-300/35 bg-red-950/45",icon:Ban,iconCls:"text-red-300"}]}/></div>
@@ -1145,11 +1145,11 @@ export default function TradingModelTrainingSystem() {
           <div className="p-6 md:p-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
-                <Badge tone="red">{t("风控优先","Risk First")}</Badge>
-                <Badge tone="violet">{t("GEX每日设置","GEX Daily Setup")}</Badge>
-                <Badge tone="teal">QQQ</Badge>
-                <Badge tone="amber">{t("黄金现货","Gold Spot")}</Badge>
-                <Badge tone="blue">EUR/USD</Badge>
+                <a className="nav-jump-link" href="#risk-spine" aria-label={t("跳转到风控脊柱","Jump to Risk Spine")}><Badge tone="red">{t("风控优先","Risk First")}</Badge></a>
+                <a className="nav-jump-link" href="#gex-daily-setup" aria-label={t("跳转到GEX每日设置","Jump to GEX Daily Setup")}><Badge tone="violet">{t("GEX每日设置","GEX Daily Setup")}</Badge></a>
+                <a className="nav-jump-link" href="#qqq-options" aria-label={t("跳转到QQQ系统","Jump to QQQ System")}><Badge tone="teal">QQQ</Badge></a>
+                <a className="nav-jump-link" href="#gold-spot" aria-label={t("跳转到黄金现货","Jump to Gold Spot")}><Badge tone="amber">{t("黄金现货","Gold Spot")}</Badge></a>
+                <a className="nav-jump-link" href="#eur-usd" aria-label={t("跳转到EUR/USD","Jump to EUR/USD")}><Badge tone="blue">EUR/USD</Badge></a>
                 {gexBadge && <Badge tone={gexSetup.state==="positive"?"blue":"amber"}>{gexBadge}</Badge>}
               </div>
               <ThemeLangControls theme={theme} onTheme={toggleTheme} lang={lang} onLang={toggleLang}/>
