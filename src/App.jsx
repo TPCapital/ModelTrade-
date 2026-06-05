@@ -703,7 +703,7 @@ function AccountRebuildingBanner({ lang }) {
     ? [{account:"黄金账户",pattern:"稳定盈利→放大仓位→震荡行情→爆仓"},{account:"期权账户",pattern:"小额稳定→放大张数+开盘进场→3天-50%"}]
     : [{account:"Gold Account",pattern:"Stable profit → scale up → choppy market → blown out"},{account:"Options Account",pattern:"Small stable gains → more contracts + opening entries → −50% in 3 days"}];
   return (
-    <div className="mb-6 rounded-[1.8rem] border-2 border-red-400/40 bg-red-950/30 p-5">
+    <div className="account-rebuild-banner mb-6 rounded-[1.8rem] border-2 border-red-400/40 bg-red-950/30 p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2"><Flame className="h-5 w-5 text-red-400"/><span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">{t("账户重建阶段","Account Rebuilding Phase")}</span><Badge tone="red">{t("当前余额 ~$1,000","Current Balance ~$1,000")}</Badge></div>
@@ -717,7 +717,7 @@ function AccountRebuildingBanner({ lang }) {
           <div className="rounded-xl border border-amber-400/35 bg-amber-950/30 px-4 py-2"><span className="text-xs font-black text-amber-300">{t("根本原因：","Root cause: ")}</span><span className="text-xs font-bold text-amber-200">{t("补偿心理触发失控行为。能力没有问题，开关是情绪，不是市场。","Revenge psychology triggers loss-of-control. Ability is not the problem — the switch is emotional, not market.")}</span></div>
         </div>
         <div className="w-full md:w-56">
-          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+          <div className="account-progress-panel rounded-2xl border border-white/10 bg-slate-900/60 p-4">
             <div className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1">{t("稳定执行进度","Stable Execution Progress")}</div>
             <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-violet-200">{execCount}</span><span className="text-lg font-black text-slate-500 mb-1">/ 20</span></div>
             <div className="h-2.5 rounded-full bg-slate-800 overflow-hidden mb-3"><div className="h-full rounded-full bg-violet-500 transition-all duration-500" style={{ width:`${Math.round(execCount/20*100)}%` }}/></div>
@@ -1141,7 +1141,7 @@ export default function TradingModelTrainingSystem() {
     <div data-theme={theme} className="min-h-screen premium-terminal-bg text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <motion.header initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} className="sea-header mb-6 overflow-hidden rounded-[2.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.72))] shadow-[0_40px_120px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
-          <div className="section-accent-bar h-3 bg-gradient-to-r from-red-700 via-teal-600 to-violet-700"/>
+          <div className="top-flow-bar section-accent-bar h-3 bg-gradient-to-r from-red-700 via-teal-600 to-violet-700"/>
           <div className="p-6 md:p-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">

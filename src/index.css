@@ -740,3 +740,137 @@ button:hover { transform: translateY(-1px); }
 [data-theme="light"] .h-3.overflow-hidden.rounded-full.bg-slate-800\/80 {
   background-color: rgba(203,213,225,0.72) !important;
 }
+
+/* =========================================================
+   v5.5.3 Readability + stronger top flow indicator
+   ========================================================= */
+.top-flow-bar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg,
+    #b91c1c 0%,
+    #ef4444 10%,
+    #0f766e 28%,
+    #14b8a6 43%,
+    #0284c7 58%,
+    #2563eb 72%,
+    #7c3aed 88%,
+    #a855f7 100%) !important;
+  background-size: 280% 100% !important;
+  animation: topFlowSweep 3.2s linear infinite, topFlowBreath 1.75s ease-in-out infinite !important;
+  box-shadow:
+    0 0 18px rgba(20,184,166,0.38),
+    0 0 36px rgba(59,130,246,0.24),
+    0 0 58px rgba(124,58,237,0.22) !important;
+}
+.top-flow-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.88) 16%,
+    rgba(255,255,255,0.24) 25%,
+    transparent 38%);
+  width: 42%;
+  transform: translateX(-120%);
+  animation: topFlowGlint 2.25s cubic-bezier(.22,1,.36,1) infinite;
+  mix-blend-mode: screen;
+}
+.top-flow-bar::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.55), transparent 58%);
+  opacity: 0;
+  animation: topFlowPulse 1.75s ease-in-out infinite;
+}
+@keyframes topFlowSweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 280% 50%; }
+}
+@keyframes topFlowBreath {
+  0%, 100% { filter: saturate(1.06) brightness(1.02); }
+  50% { filter: saturate(1.45) brightness(1.24); }
+}
+@keyframes topFlowGlint {
+  0% { transform: translateX(-140%); opacity: 0; }
+  14% { opacity: 0.85; }
+  52% { opacity: 0.95; }
+  100% { transform: translateX(260%); opacity: 0; }
+}
+@keyframes topFlowPulse {
+  0%,100% { opacity: 0.04; transform: scaleX(0.96); }
+  50% { opacity: 0.26; transform: scaleX(1.03); }
+}
+
+/* Light mode: make the account rebuilding panel readable, not washed-out. */
+[data-theme="light"] .account-rebuild-banner {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,247,247,0.94) 52%, rgba(255,255,255,0.96)) !important;
+  border-color: rgba(248,113,113,0.42) !important;
+  box-shadow: 0 18px 50px rgba(127,29,29,0.055), inset 0 1px 0 rgba(255,255,255,0.96) !important;
+}
+[data-theme="light"] .account-rebuild-banner::before,
+[data-theme="light"] .account-rebuild-banner::after {
+  opacity: 0 !important;
+}
+[data-theme="light"] .account-rebuild-banner h3 {
+  color: #991b1b !important;
+  text-shadow: none !important;
+  letter-spacing: 0.01em;
+}
+[data-theme="light"] .account-rebuild-banner .text-red-400,
+[data-theme="light"] .account-rebuild-banner .text-red-300,
+[data-theme="light"] .account-rebuild-banner .text-red-200,
+[data-theme="light"] .account-rebuild-banner .text-red-200\/80,
+[data-theme="light"] .account-rebuild-banner .text-red-100 {
+  color: #b91c1c !important;
+  opacity: 1 !important;
+}
+[data-theme="light"] .account-rebuild-banner .text-amber-300,
+[data-theme="light"] .account-rebuild-banner .text-amber-200 {
+  color: #92400e !important;
+  opacity: 1 !important;
+}
+[data-theme="light"] .account-rebuild-banner .bg-red-900\/20,
+[data-theme="light"] .account-rebuild-banner .bg-red-950\/30 {
+  background: rgba(255,245,245,0.96) !important;
+  border-color: rgba(248,113,113,0.28) !important;
+}
+[data-theme="light"] .account-rebuild-banner .bg-amber-950\/30 {
+  background: rgba(255,251,235,0.96) !important;
+  border-color: rgba(245,158,11,0.34) !important;
+}
+[data-theme="light"] .account-rebuild-banner .account-progress-panel {
+  background: rgba(255,255,255,0.92) !important;
+  border-color: rgba(22,101,52,0.12) !important;
+  box-shadow: 0 14px 38px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.98) !important;
+}
+[data-theme="light"] .account-progress-panel .text-slate-500,
+[data-theme="light"] .account-progress-panel .text-slate-600 {
+  color: #526b64 !important;
+  opacity: 1 !important;
+}
+[data-theme="light"] .account-progress-panel .text-violet-200 {
+  color: #6d28d9 !important;
+  opacity: 1 !important;
+}
+[data-theme="light"] .account-progress-panel button.bg-slate-800 {
+  background: rgba(236,245,241,0.96) !important;
+  color: #526b64 !important;
+  border: 1px solid rgba(22,101,52,0.08) !important;
+}
+[data-theme="light"] .account-progress-panel button.bg-violet-600 {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .top-flow-bar {
+  box-shadow:
+    0 0 16px rgba(20,184,166,0.30),
+    0 0 32px rgba(59,130,246,0.18),
+    0 0 54px rgba(124,58,237,0.18) !important;
+}
