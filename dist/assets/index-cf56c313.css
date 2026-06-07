@@ -32,125 +32,124 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 
 /* ══════════════════════════════════════════════════════════
    v5.6 DARK MODE ONLY
-   All rules wrapped in :not([data-theme="light"]) so they
+   All rules wrapped in [data-theme="dark"] so they
    are completely inert when light mode is active.
    ══════════════════════════════════════════════════════════ */
 
 /* ── Amber tinted panels ── */
-:not([data-theme="light"]) .bg-amber-950\/18,
-:not([data-theme="light"]) .bg-amber-950\/20,
-:not([data-theme="light"]) .bg-amber-950\/25,
-:not([data-theme="light"]) .bg-amber-950\/30 { background-color: rgba(28,14,0,.75) !important; }
-:not([data-theme="light"]) .bg-amber-500\/10,
-:not([data-theme="light"]) .bg-amber-500\/8 { background-color: rgba(20,10,0,.70) !important; }
-:not([data-theme="light"]) .bg-amber-900\/50,
-:not([data-theme="light"]) .bg-amber-900\/60 { background-color: rgba(36,18,0,.80) !important; }
+[data-theme="dark"] .bg-amber-950\/18,
+[data-theme="dark"] .bg-amber-950\/20,
+[data-theme="dark"] .bg-amber-950\/25,
+[data-theme="dark"] .bg-amber-950\/30 { background-color: rgba(28,14,0,.75) !important; }
+[data-theme="dark"] .bg-amber-500\/10,
+[data-theme="dark"] .bg-amber-500\/8 { background-color: rgba(20,10,0,.70) !important; }
+[data-theme="dark"] .bg-amber-900\/50,
+[data-theme="dark"] .bg-amber-900\/60 { background-color: rgba(36,18,0,.80) !important; }
 
 /* ── Teal / Emerald tinted panels ── */
-:not([data-theme="light"]) .bg-teal-950\/15,
-:not([data-theme="light"]) .bg-teal-950\/20,
-:not([data-theme="light"]) .bg-teal-950\/25 { background-color: rgba(0,18,14,.70) !important; }
-:not([data-theme="light"]) .bg-teal-500\/8,
-:not([data-theme="light"]) .bg-teal-500\/10 { background-color: rgba(0,14,12,.68) !important; }
-:not([data-theme="light"]) .bg-teal-900\/70 { background-color: rgba(0,24,18,.85) !important; }
-:not([data-theme="light"]) .bg-emerald-950\/15,
-:not([data-theme="light"]) .bg-emerald-950\/20,
-:not([data-theme="light"]) .bg-emerald-950\/40 { background-color: rgba(0,16,10,.70) !important; }
-:not([data-theme="light"]) .bg-emerald-500\/10 { background-color: rgba(0,14,8,.68) !important; }
-:not([data-theme="light"]) .bg-emerald-900\/60 { background-color: rgba(0,24,12,.85) !important; }
+[data-theme="dark"] .bg-teal-950\/15,
+[data-theme="dark"] .bg-teal-950\/20,
+[data-theme="dark"] .bg-teal-950\/25 { background-color: rgba(0,18,14,.70) !important; }
+[data-theme="dark"] .bg-teal-500\/8,
+[data-theme="dark"] .bg-teal-500\/10 { background-color: rgba(0,14,12,.68) !important; }
+[data-theme="dark"] .bg-teal-900\/70 { background-color: rgba(0,24,18,.85) !important; }
+[data-theme="dark"] .bg-emerald-950\/15,
+[data-theme="dark"] .bg-emerald-950\/20,
+[data-theme="dark"] .bg-emerald-950\/40 { background-color: rgba(0,16,10,.70) !important; }
+[data-theme="dark"] .bg-emerald-500\/10 { background-color: rgba(0,14,8,.68) !important; }
+[data-theme="dark"] .bg-emerald-900\/60 { background-color: rgba(0,24,12,.85) !important; }
 
 /* ── Sky / Blue tinted panels ── */
-:not([data-theme="light"]) .bg-sky-950\/15,
-:not([data-theme="light"]) .bg-sky-950\/20,
-:not([data-theme="light"]) .bg-sky-950\/25,
-:not([data-theme="light"]) .bg-sky-950\/30 { background-color: rgba(0,12,26,.72) !important; }
-:not([data-theme="light"]) .bg-sky-500\/10 { background-color: rgba(0,10,22,.68) !important; }
+[data-theme="dark"] .bg-sky-950\/15,
+[data-theme="dark"] .bg-sky-950\/20,
+[data-theme="dark"] .bg-sky-950\/25,
+[data-theme="dark"] .bg-sky-950\/30 { background-color: rgba(0,12,26,.72) !important; }
+[data-theme="dark"] .bg-sky-500\/10 { background-color: rgba(0,10,22,.68) !important; }
 
 /* ── Violet tinted panels ── */
-:not([data-theme="light"]) .bg-violet-950\/8,
-:not([data-theme="light"]) .bg-violet-950\/12,
-:not([data-theme="light"]) .bg-violet-950\/15,
-:not([data-theme="light"]) .bg-violet-950\/20,
-:not([data-theme="light"]) .bg-violet-950\/25 { background-color: rgba(14,8,28,.72) !important; }
-:not([data-theme="light"]) .bg-violet-500\/10 { background-color: rgba(12,6,24,.68) !important; }
+[data-theme="dark"] .bg-violet-950\/8,
+[data-theme="dark"] .bg-violet-950\/12,
+[data-theme="dark"] .bg-violet-950\/15,
+[data-theme="dark"] .bg-violet-950\/20,
+[data-theme="dark"] .bg-violet-950\/25 { background-color: rgba(14,8,28,.72) !important; }
+[data-theme="dark"] .bg-violet-500\/10 { background-color: rgba(12,6,24,.68) !important; }
 
 /* ── Red tinted panels ── */
-:not([data-theme="light"]) .bg-red-950\/12,
-:not([data-theme="light"]) .bg-red-950\/20,
-:not([data-theme="light"]) .bg-red-950\/30,
-:not([data-theme="light"]) .bg-red-950\/35,
-:not([data-theme="light"]) .bg-red-950\/40,
-:not([data-theme="light"]) .bg-red-950\/45,
-:not([data-theme="light"]) .bg-red-950\/55 { background-color: rgba(26,4,4,.78) !important; }
-:not([data-theme="light"]) .bg-red-500\/10,
-:not([data-theme="light"]) .bg-red-900\/20 { background-color: rgba(22,4,4,.70) !important; }
-:not([data-theme="light"]) .bg-red-900\/60 { background-color: rgba(36,4,4,.85) !important; }
+[data-theme="dark"] .bg-red-950\/12,
+[data-theme="dark"] .bg-red-950\/20,
+[data-theme="dark"] .bg-red-950\/30,
+[data-theme="dark"] .bg-red-950\/35,
+[data-theme="dark"] .bg-red-950\/40,
+[data-theme="dark"] .bg-red-950\/45,
+[data-theme="dark"] .bg-red-950\/55 { background-color: rgba(26,4,4,.78) !important; }
+[data-theme="dark"] .bg-red-500\/10,
+[data-theme="dark"] .bg-red-900\/20 { background-color: rgba(22,4,4,.70) !important; }
+[data-theme="dark"] .bg-red-900\/60 { background-color: rgba(36,4,4,.85) !important; }
 
 /* ── Neutral slate panels ── */
-:not([data-theme="light"]) .bg-slate-900\/30,
-:not([data-theme="light"]) .bg-slate-900\/40,
-:not([data-theme="light"]) .bg-slate-900\/50,
-:not([data-theme="light"]) .bg-slate-900\/58,
-:not([data-theme="light"]) .bg-slate-900\/60,
-:not([data-theme="light"]) .bg-slate-900\/70 { background-color: rgba(4,8,20,.72) !important; }
-:not([data-theme="light"]) .bg-slate-800\/40,
-:not([data-theme="light"]) .bg-slate-800\/50,
-:not([data-theme="light"]) .bg-slate-800\/60,
-:not([data-theme="light"]) .bg-slate-800\/80 { background-color: rgba(6,10,22,.75) !important; }
-:not([data-theme="light"]) .bg-slate-800 { background-color: rgb(8,12,28) !important; }
-:not([data-theme="light"]) .bg-slate-950\/60,
-:not([data-theme="light"]) .bg-slate-950\/70,
-:not([data-theme="light"]) .bg-slate-950\/74,
-:not([data-theme="light"]) .bg-slate-950\/78,
-:not([data-theme="light"]) .bg-slate-950\/80,
-:not([data-theme="light"]) .bg-slate-950\/90 { background-color: rgba(2,5,14,.88) !important; }
+[data-theme="dark"] .bg-slate-900\/30,
+[data-theme="dark"] .bg-slate-900\/40,
+[data-theme="dark"] .bg-slate-900\/50,
+[data-theme="dark"] .bg-slate-900\/58,
+[data-theme="dark"] .bg-slate-900\/60,
+[data-theme="dark"] .bg-slate-900\/70 { background-color: rgba(4,8,20,.72) !important; }
+[data-theme="dark"] .bg-slate-800\/40,
+[data-theme="dark"] .bg-slate-800\/50,
+[data-theme="dark"] .bg-slate-800\/60,
+[data-theme="dark"] .bg-slate-800\/80 { background-color: rgba(6,10,22,.75) !important; }
+[data-theme="dark"] .bg-slate-800 { background-color: rgb(8,12,28) !important; }
+[data-theme="dark"] .bg-slate-950\/60,
+[data-theme="dark"] .bg-slate-950\/70,
+[data-theme="dark"] .bg-slate-950\/74,
+[data-theme="dark"] .bg-slate-950\/78,
+[data-theme="dark"] .bg-slate-950\/80,
+[data-theme="dark"] .bg-slate-950\/90 { background-color: rgba(2,5,14,.88) !important; }
 
 /* ── Terminal inputs ── */
-:not([data-theme="light"]) .terminal-input,
-:not([data-theme="light"]) .terminal-input:focus {
+[data-theme="dark"] .terminal-input,
+[data-theme="dark"] .terminal-input:focus {
   color: #f1f5f9 !important;
   background: rgba(2,6,23,.95) !important;
   border-color: rgba(148,163,184,.20) !important;
   caret-color: #67e8f9;
 }
-:not([data-theme="light"]) .terminal-input::placeholder { color: rgba(148,163,184,.45) !important; }
-:not([data-theme="light"]) .terminal-input:focus {
+[data-theme="dark"] .terminal-input::placeholder { color: rgba(148,163,184,.45) !important; }
+[data-theme="dark"] .terminal-input:focus {
   border-color: rgba(45,212,191,.50) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 3px rgba(45,212,191,.12), 0 0 28px rgba(45,212,191,.14) !important;
 }
 
 /* ── Account rebuild banner ── */
-:not([data-theme="light"]) .account-rebuild-banner {
+[data-theme="dark"] .account-rebuild-banner {
   background: linear-gradient(145deg, rgba(22,4,4,.88) 0%, rgba(14,3,3,.84) 50%, rgba(20,4,4,.86) 100%) !important;
   border-color: rgba(248,113,113,.35) !important;
   box-shadow: 0 28px 80px rgba(0,0,0,.55), 0 0 60px rgba(185,28,28,.08), inset 0 1px 0 rgba(255,255,255,.06) !important;
 }
 
 /* ── GEX setup status bar wrappers ── */
-:not([data-theme="light"]) .border-emerald-400\/35.bg-emerald-950\/15 { background-color: rgba(0,16,10,.72) !important; }
-:not([data-theme="light"]) .border-amber-400\/40.bg-amber-950\/18 { background-color: rgba(28,14,0,.72) !important; }
-:not([data-theme="light"]) .rounded-\[1\.8rem\].border-2.border-emerald-400\/35 { background-color: rgba(0,16,10,.55) !important; }
-:not([data-theme="light"]) .rounded-\[1\.8rem\].border-2.border-amber-400\/40 { background-color: rgba(28,14,0,.55) !important; }
+[data-theme="dark"] .border-emerald-400\/35.bg-emerald-950\/15 { background-color: rgba(0,16,10,.72) !important; }
+[data-theme="dark"] .border-amber-400\/40.bg-amber-950\/18 { background-color: rgba(28,14,0,.72) !important; }
+[data-theme="dark"] .rounded-\[1\.8rem\].border-2.border-emerald-400\/35 { background-color: rgba(0,16,10,.55) !important; }
+[data-theme="dark"] .rounded-\[1\.8rem\].border-2.border-amber-400\/40 { background-color: rgba(28,14,0,.55) !important; }
 
 /* ── HeatBar time rows ── */
-:not([data-theme="light"]) .rounded-xl.bg-slate-800\/50.border.border-slate-700\/40 {
+[data-theme="dark"] .rounded-xl.bg-slate-800\/50.border.border-slate-700\/40 {
   background-color: rgba(6,10,22,.78) !important;
   border-color: rgba(100,116,139,.18) !important;
 }
 
 /* ── Progress bar tracks ── */
-:not([data-theme="light"]) .h-2.rounded-full.bg-slate-800,
-:not([data-theme="light"]) .h-2\.5.rounded-full.bg-slate-800,
-:not([data-theme="light"]) .h-3.overflow-hidden.rounded-full.bg-slate-800\/80 { background-color: rgba(10,15,30,.80) !important; }
+[data-theme="dark"] .h-2.rounded-full.bg-slate-800,
+[data-theme="dark"] .h-2\.5.rounded-full.bg-slate-800,
+[data-theme="dark"] .h-3.overflow-hidden.rounded-full.bg-slate-800\/80 { background-color: rgba(10,15,30,.80) !important; }
 
 /* ── Top flow bar enhanced glow ── */
-:not([data-theme="light"]) .top-flow-bar {
+[data-theme="dark"] .top-flow-bar {
   box-shadow: 0 0 22px rgba(20,184,166,.45), 0 0 44px rgba(59,130,246,.28), 0 0 68px rgba(124,58,237,.24), 0 4px 20px rgba(0,0,0,.40) !important;
 }
-/* ═══════════════════════════════════════════════════════
-   LIGHT THEME OVERRIDES — Bloomberg Day Mode aesthetic
+/* ══════════════════════════════════════════════════════�?   LIGHT THEME OVERRIDES �?Bloomberg Day Mode aesthetic
    Applied when [data-theme="light"] is set on root div
-   ═══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════�?*/
 
 [data-theme="light"] .premium-terminal-bg {
   background: #eef1f7;
@@ -227,12 +226,11 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
   border-color: rgba(20,184,166,0.6) !important;
 }
 
-/* Theme/lang toggle buttons in light mode — make them lighter */
+/* Theme/lang toggle buttons in light mode �?make them lighter */
 [data-theme="light"] .bg-slate-800\/60 { background-color: rgba(226,232,240,0.8) !important; }
 
-/* ═══════════════════════════════════════════════════════
-   LIGHT THEME — PATCH 2: Colored text + dark section bg
-   ═══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════�?   LIGHT THEME �?PATCH 2: Colored text + dark section bg
+   ══════════════════════════════════════════════════════�?*/
 
 /* Fix light-colored text (invisible on white backgrounds) */
 [data-theme="light"] .text-teal-100 { color: #0f766e !important; }
@@ -326,7 +324,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .bg-violet-700 { background-color: #6d28d9 !important; }
 
 /* =========================================================
-   v5.5.2 LIGHT MODE ONLY — clean ContemDao-inspired day skin
+   v5.5.2 LIGHT MODE ONLY �?clean ContemDao-inspired day skin
    Dark mode is intentionally untouched. These selectors only
    apply when the root element itself has data-theme="light".
    ========================================================= */
@@ -653,7 +651,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 /* ══════════════════════════════════════════════════════════════
    v5.8 COMPLETE LIGHT MODE OVERRIDES
    Every dark-panel class used in App.jsx has a light override.
-   Ordered: structural → text → component-specific
+   Ordered: structural �?text �?component-specific
    ══════════════════════════════════════════════════════════════ */
 
 /* ─── html/body ─── */
@@ -804,7 +802,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .bg-violet-500\/10.text-violet-100 { background-color: rgba(245,243,255,0.90) !important; color: #5b21b6 !important; }
 [data-theme="light"] .bg-emerald-500\/10.text-emerald-100 { background-color: rgba(236,253,245,0.90) !important; color: #065f46 !important; }
 
-/* ─── KeyWord solid chips (teal-700, red-700, etc.) — keep vivid in light mode ─── */
+/* ─── KeyWord solid chips (teal-700, red-700, etc.) �?keep vivid in light mode ─── */
 [data-theme="light"] .bg-teal-700   { background-color: #0d9488 !important; color: #fff !important; }
 [data-theme="light"] .bg-teal-600   { background-color: #14b8a6 !important; color: #fff !important; }
 [data-theme="light"] .bg-sky-700    { background-color: #0284c7 !important; color: #fff !important; }
@@ -883,7 +881,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .rounded-xl.bg-amber-950\/20,
 [data-theme="light"] .bg-amber-950\/20 { background-color: rgba(255,251,235,0.88) !important; }
 
-/* amber banners with orange text — keep the text readable */
+/* amber banners with orange text �?keep the text readable */
 [data-theme="light"] .bg-amber-900\/60 { background-color: rgba(254,243,199,0.90) !important; }
 [data-theme="light"] .bg-emerald-900\/60 { background-color: rgba(209,250,229,0.90) !important; }
 
@@ -920,7 +918,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .border-sky-500\/55.bg-sky-950\/25 { background-color: rgba(240,249,255,0.85) !important; }
 [data-theme="light"] .border-amber-400\/35.bg-amber-950\/30 { background-color: rgba(255,251,235,0.85) !important; }
 
-/* ─── RiskCalculator / PositionSizer — circuit breaker panels ─── */
+/* ─── RiskCalculator / PositionSizer �?circuit breaker panels ─── */
 [data-theme="light"] .rounded-2xl.border.border-white\/10.bg-slate-900\/58 {
   background-color: rgba(241,247,244,0.88) !important;
   border-color: rgba(148,163,184,0.18) !important;
@@ -929,7 +927,7 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .h-2.rounded-full.bg-slate-800 { background-color: rgba(203,213,225,0.80) !important; }
 [data-theme="light"] .h-2\.5.rounded-full.bg-slate-800 { background-color: rgba(203,213,225,0.80) !important; }
 
-/* ─── ScaleUpPath — scale levels ─── */
+/* ─── ScaleUpPath �?scale levels ─── */
 [data-theme="light"] .border-violet-500\/50.bg-violet-500\/10 {
   background-color: rgba(245,243,255,0.90) !important;
   border-color: rgba(139,92,246,0.35) !important;
@@ -981,18 +979,18 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .bg-red-950\/12 { background-color: rgba(254,242,242,0.72) !important; }
 [data-theme="light"] .bg-slate-950\/60 { background-color: rgba(245,250,248,0.88) !important; }
 
-/* ─── OptionsSystem — VWAP state machine ─── */
+/* ─── OptionsSystem �?VWAP state machine ─── */
 [data-theme="light"] .bg-teal-950\/20.border {
   background-color: rgba(240,253,250,0.88) !important;
 }
 [data-theme="light"] .border-teal-400\/25.bg-teal-950\/20 { background-color: rgba(240,253,250,0.88) !important; }
 [data-theme="light"] .border-teal-300\/20.bg-teal-950\/20 { background-color: rgba(240,253,250,0.88) !important; }
 
-/* ─── OptionsSystem — VIX / contract instrument ─── */
+/* ─── OptionsSystem �?VIX / contract instrument ─── */
 [data-theme="light"] .bg-slate-950\/70 { background-color: rgba(248,252,250,0.90) !important; }
 [data-theme="light"] .bg-slate-950\/74 { background-color: rgba(248,252,250,0.90) !important; }
 
-/* ─── DisciplineSystem — training/backtest ─── */
+/* ─── DisciplineSystem �?training/backtest ─── */
 [data-theme="light"] .bg-violet-950\/20.border { background-color: rgba(245,243,255,0.88) !important; }
 [data-theme="light"] .border-violet-400\/20.bg-violet-950\/20 { background-color: rgba(245,243,255,0.88) !important; }
 
@@ -1028,10 +1026,10 @@ section:nth-child(5){animation-delay:240ms} section:nth-child(6){animation-delay
 [data-theme="light"] .border-red-400\/30 { border-color: rgba(248,113,113,0.22) !important; }
 [data-theme="light"] .border-red-400\/45 { border-color: rgba(248,113,113,0.30) !important; }
 
-/* ─── OptionsSystem — GEX + VWAP inner panels ─── */
+/* ─── OptionsSystem �?GEX + VWAP inner panels ─── */
 [data-theme="light"] .border-teal-300\/35.bg-teal-500\/10 { background-color: rgba(240,253,250,0.88) !important; }
 [data-theme="light"] .border-sky-500\/35.bg-sky-950\/20   { background-color: rgba(240,249,255,0.88) !important; }
 [data-theme="light"] .border-violet-300\/20.bg-violet-950\/8 { background-color: rgba(245,243,255,0.88) !important; }
 [data-theme="light"] .border-amber-300\/35.bg-amber-500\/10 { background-color: rgba(255,251,235,0.88) !important; }
 @media all{[data-theme="light"] .account-rebuild-banner,[data-theme="light"] .account-rebuild-banner .account-progress-panel,[data-theme="light"] .rounded-2xl.border.border-white\/10.bg-slate-900\/58,[data-theme="light"] .rounded-2xl.border.border-white\/10.bg-slate-900\/60,[data-theme="light"] .rounded-xl.bg-slate-800\/50.border.border-slate-700\/40{background:rgba(255,255,255,.94)!important;border-color:rgba(22,101,52,.12)!important;box-shadow:0 14px 34px rgba(15,23,42,.055),inset 0 1px 0 rgba(255,255,255,.96)!important}[data-theme="light"] .rounded-2xl.border.border-amber-300\/35.bg-amber-500\/10,[data-theme="light"] .rounded-2xl.border.border-amber-400\/25.bg-amber-950\/20,[data-theme="light"] .rounded-xl.border.border-amber-400\/35.bg-amber-950\/30,[data-theme="light"] .border-amber-400\/40.bg-amber-950\/18,[data-theme="light"] .rounded-\[1\.8rem\].border-2.border-amber-400\/40{background:rgba(255,251,235,.94)!important;border-color:rgba(245,158,11,.32)!important}[data-theme="light"] .border-emerald-400\/35.bg-emerald-950\/15,[data-theme="light"] .rounded-\[1\.8rem\].border-2.border-emerald-400\/35{background:rgba(236,253,245,.94)!important;border-color:rgba(52,211,153,.34)!important}[data-theme="light"] .rounded-2xl.border.border-teal-400\/25.bg-teal-950\/25,[data-theme="light"] .rounded-2xl.border.border-teal-300\/25.bg-teal-500\/10,[data-theme="light"] .rounded-2xl.border.border-teal-300\/35.bg-teal-500\/10{background:rgba(240,253,250,.94)!important;border-color:rgba(20,184,166,.28)!important}[data-theme="light"] .rounded-2xl.border.border-violet-300\/20.bg-violet-950\/8,[data-theme="light"] .rounded-2xl.border.border-violet-300\/25.bg-violet-950\/20,[data-theme="light"] .rounded-2xl.border.border-violet-300\/35.bg-violet-500\/10{background:rgba(245,243,255,.94)!important;border-color:rgba(139,92,246,.28)!important}[data-theme="light"] .rounded-2xl.border.border-sky-500\/35.bg-sky-950\/20,[data-theme="light"] .rounded-2xl.border.border-sky-500\/55.bg-sky-950\/25{background:rgba(240,249,255,.94)!important;border-color:rgba(14,165,233,.3)!important}[data-theme="light"] .rounded-2xl.border.border-red-300\/35.bg-red-950\/45,[data-theme="light"] .rounded-2xl.border.border-red-400\/40.bg-red-950\/30,[data-theme="light"] .rounded-xl.border.border-red-300\/35.bg-red-950\/45,[data-theme="light"] .rounded-2xl.border.border-red-300\/35.bg-red-950\/35{background:rgba(254,242,242,.94)!important;border-color:rgba(248,113,113,.34)!important}[data-theme="light"] .h-2.rounded-full.bg-slate-800,[data-theme="light"] .h-2\.5.rounded-full.bg-slate-800,[data-theme="light"] .h-3.overflow-hidden.rounded-full.bg-slate-800\/80{background-color:rgba(203,213,225,.72)!important}}
-@media all{:not([data-theme="light"]) .rounded-\[1\.8rem\].border.border-violet-300\/20.bg-violet-950\/8{background:linear-gradient(145deg,rgba(14,8,28,.9) 0%,rgba(5,9,22,.88) 58%,rgba(12,6,24,.9) 100%)!important;border-color:rgba(196,181,253,.24)!important;box-shadow:0 28px 80px rgba(0,0,0,.48),0 0 48px rgba(139,92,246,.08),inset 0 1px 0 rgba(255,255,255,.06)!important}:not([data-theme="light"]) .rounded-\[1\.8rem\].border.border-red-400\/25.bg-red-950\/12{background:linear-gradient(145deg,rgba(28,5,5,.92) 0%,rgba(9,12,24,.88) 56%,rgba(24,4,4,.9) 100%)!important;border-color:rgba(248,113,113,.28)!important;box-shadow:0 28px 80px rgba(0,0,0,.5),0 0 52px rgba(185,28,28,.08),inset 0 1px 0 rgba(255,255,255,.06)!important}:not([data-theme="light"]) .rounded-2xl.border-2.border-white\/8.bg-slate-900\/30,:not([data-theme="light"]) .rounded-xl.border.border-white\/8.bg-slate-950\/60{background-color:rgba(4,8,20,.78)!important;border-color:rgba(148,163,184,.14)!important}:not([data-theme="light"]) .rounded-2xl.border-2.border-amber-500\/55.bg-amber-950\/25,:not([data-theme="light"]) .rounded-xl.border.border-amber-500\/25.bg-amber-950\/20{background-color:rgba(28,14,0,.76)!important;border-color:rgba(245,158,11,.34)!important}:not([data-theme="light"]) .rounded-xl.border.border-sky-500\/25.bg-sky-950\/20{background-color:rgba(0,12,26,.76)!important;border-color:rgba(14,165,233,.32)!important}}
+@media all{[data-theme="dark"] .rounded-\[1\.8rem\].border.border-violet-300\/20.bg-violet-950\/8{background:linear-gradient(145deg,rgba(14,8,28,.9) 0%,rgba(5,9,22,.88) 58%,rgba(12,6,24,.9) 100%)!important;border-color:rgba(196,181,253,.24)!important;box-shadow:0 28px 80px rgba(0,0,0,.48),0 0 48px rgba(139,92,246,.08),inset 0 1px 0 rgba(255,255,255,.06)!important}[data-theme="dark"] .rounded-\[1\.8rem\].border.border-red-400\/25.bg-red-950\/12{background:linear-gradient(145deg,rgba(28,5,5,.92) 0%,rgba(9,12,24,.88) 56%,rgba(24,4,4,.9) 100%)!important;border-color:rgba(248,113,113,.28)!important;box-shadow:0 28px 80px rgba(0,0,0,.5),0 0 52px rgba(185,28,28,.08),inset 0 1px 0 rgba(255,255,255,.06)!important}[data-theme="dark"] .rounded-2xl.border-2.border-white\/8.bg-slate-900\/30,[data-theme="dark"] .rounded-xl.border.border-white\/8.bg-slate-950\/60{background-color:rgba(4,8,20,.78)!important;border-color:rgba(148,163,184,.14)!important}[data-theme="dark"] .rounded-2xl.border-2.border-amber-500\/55.bg-amber-950\/25,[data-theme="dark"] .rounded-xl.border.border-amber-500\/25.bg-amber-950\/20{background-color:rgba(28,14,0,.76)!important;border-color:rgba(245,158,11,.34)!important}[data-theme="dark"] .rounded-xl.border.border-sky-500\/25.bg-sky-950\/20{background-color:rgba(0,12,26,.76)!important;border-color:rgba(14,165,233,.32)!important}}
