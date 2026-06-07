@@ -830,6 +830,50 @@ button:hover { transform: translateY(-1px); }
   background-color: rgba(203,213,225,0.72) !important;
 }
 
+/* Final dark-mode guard for low-opacity educational panels. */
+:not([data-theme="light"]) .rounded-\[1\.8rem\].border.border-violet-300\/20.bg-violet-950\/8 {
+  background:
+    linear-gradient(145deg,
+      rgba(14, 8, 28, 0.90) 0%,
+      rgba(5, 9, 22, 0.88) 58%,
+      rgba(12, 6, 24, 0.90) 100%) !important;
+  border-color: rgba(196, 181, 253, 0.24) !important;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,0.48),
+    0 0 48px rgba(139,92,246,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+:not([data-theme="light"]) .rounded-\[1\.8rem\].border.border-red-400\/25.bg-red-950\/12 {
+  background:
+    linear-gradient(145deg,
+      rgba(28, 5, 5, 0.92) 0%,
+      rgba(9, 12, 24, 0.88) 56%,
+      rgba(24, 4, 4, 0.90) 100%) !important;
+  border-color: rgba(248, 113, 113, 0.28) !important;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,0.50),
+    0 0 52px rgba(185,28,28,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+:not([data-theme="light"]) .rounded-2xl.border-2.border-white\/8.bg-slate-900\/30,
+:not([data-theme="light"]) .rounded-xl.border.border-white\/8.bg-slate-950\/60 {
+  background-color: rgba(4, 8, 20, 0.78) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+:not([data-theme="light"]) .rounded-2xl.border-2.border-amber-500\/55.bg-amber-950\/25,
+:not([data-theme="light"]) .rounded-xl.border.border-amber-500\/25.bg-amber-950\/20 {
+  background-color: rgba(28, 14, 0, 0.76) !important;
+  border-color: rgba(245, 158, 11, 0.34) !important;
+}
+
+:not([data-theme="light"]) .rounded-xl.border.border-sky-500\/25.bg-sky-950\/20 {
+  background-color: rgba(0, 12, 26, 0.76) !important;
+  border-color: rgba(14, 165, 233, 0.32) !important;
+}
+
 /* =========================================================
    v5.5.3 Readability + stronger top flow indicator
    ========================================================= */
